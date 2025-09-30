@@ -1,0 +1,9 @@
+﻿@model string
+
+@if (!string.IsNullOrEmpty(Model))
+{
+    var cls = Model.StartsWith("Error", StringComparison.OrdinalIgnoreCase) ? "danger" : "success";
+    <div class="alert alert-@cls" role="alert">
+        @Model
+    </div>
+}
