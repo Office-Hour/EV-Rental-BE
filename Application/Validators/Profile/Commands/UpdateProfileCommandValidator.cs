@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Application.UseCases.Profile.Commands.UpdateProfile;
+﻿using Application.UseCases.Profile.Commands.UpdateProfile;
 using FluentValidation;
 
 namespace Application.Validators.Profile.Commands

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Application.CustomExceptions
 {
-    public class InvalidTokenException() : Exception("Refresh token is invalid or expired")
+    public class InvalidTokenException(string? message = "Refresh token is invalid or expired") : Exception(message)
     {
     }
 }

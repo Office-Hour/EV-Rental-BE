@@ -20,7 +20,7 @@ namespace Application.UseCases.Profile.Commands.ChangePassword
             var result = await userManager.ChangePasswordAsync(user!, request.OldPassword, request.NewPassword);
             if (!result.Succeeded)
             {
-                throw new Exception(string.Join(", ", result.Errors.Select(e => e.Description)));
+                throw new InvalidTokenException(string.Join(", ", result.Errors.Select(e => e.Description)));
             }
         }
     }

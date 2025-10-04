@@ -1,5 +1,6 @@
 using Application;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Persistence;
 using WebApp;
 using WebApp.UIAuthService;
@@ -49,13 +50,10 @@ app.MapControllerRoute(
 app.MapRazorPages()
    .WithStaticAssets();
 
-app.Run();
 using (var scope = app.Services.CreateScope())
 {
-    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-    foreach (var name in new[] { "Admin", "Staff", "User" })
-    {
-        if (!await roleManager.RoleExistsAsync(name))
-            await roleManager.CreateAsync(new IdentityRole { Name = name, NormalizedName = name.ToUpperInvariant() });
-    }
+    var services = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    await services.Database.MigrateAsync();
 }
+
+app.Run();

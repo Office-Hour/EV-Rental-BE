@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Application.UseCases.Authentication.Commands.Logout;
+﻿using Application.UseCases.Authentication.Commands.Logout;
 using FluentValidation;
 
 namespace Application.Validators.Authentication.Commands

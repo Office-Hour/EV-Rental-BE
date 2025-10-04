@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Application.UseCases.Authentication.Commands.Register;
+﻿using Application.UseCases.Authentication.Commands.Register;
 using FluentValidation;
 
 namespace Application.Validators.Authentication.Commands

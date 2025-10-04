@@ -27,7 +27,7 @@ namespace Application.UseCases.Profile.Commands.UpdateProfile
             var result = await userManager.UpdateAsync(user);
             if (!result.Succeeded)
             {
-                throw new Exception(string.Join(", ", result.Errors.Select(e => e.Description)));
+                throw new InvalidTokenException(string.Join(", ", result.Errors.Select(e => e.Description)));
             }
         }
     }

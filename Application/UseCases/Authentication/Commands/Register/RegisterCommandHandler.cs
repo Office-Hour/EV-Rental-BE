@@ -1,8 +1,9 @@
-﻿using Application.Interfaces;
-using Domain.Entities.Implement.Aggregates.Identity_KyC;
+﻿using Application.CustomExceptions;
+using Application.Interfaces;
+using Domain.Entities.BookingManagement;
+using Domain.Entities.RentalManagement;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using System.Data;
 
 namespace Application.UseCases.Authentication.Commands.Register;
@@ -19,28 +20,20 @@ public class RegisterCommandHandler(UserManager<IdentityUser> userManager, RoleM
         var IsExistingUser = await userManager.FindByEmailAsync(request.Email);
         if (IsExistingUser != null)
         {
-            throw new Exception("Email is already registered.");
+            throw new InvalidTokenException("Email is already registered.");
         }
         var result = await userManager.CreateAsync(user, request.Password);
         if (!result.Succeeded)
         {
-            throw new Exception(string.Join(", ", result.Errors.Select(e => e.Description)));
+            throw new InvalidTokenException(string.Join(", ", result.Errors.Select(e => e.Description)));
         }
-        await userManager.AddToRoleAsync(user, "User");
-        try
+        await userManager.AddToRoleAsync(user, "RENTER");
+
+        await Uow.Repository<Renter>().AddAsync(new Renter
         {
-            var domainUser = Uow.Repository<DomainUser>().AddAsync(new DomainUser
-            {
-                IdentityUserId = user.Id,
-            }, cancellationToken);
-            await Uow.SaveChangesAsync(cancellationToken);
-        } catch (Exception ex)
-        {
-            // If saving to the domain user table fails, delete the created IdentityUser to maintain consistency
-            await userManager.RemoveFromRoleAsync(user, "User");
-            await userManager.DeleteAsync(user);
-            throw new Exception("Registration failed. Please try again.", ex);
-        }
-        // Optionally, you can add claims or roles to the user here later
+            UserId = Guid.Parse(user.Id),
+            Address = "",
+            DateOfBirth = null,
+        });
     }
 }
