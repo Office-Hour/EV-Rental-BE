@@ -1,14 +1,13 @@
 ﻿using Application.CustomExceptions;
 using Application.Interfaces;
 using Domain.Entities.BookingManagement;
-using Domain.Entities.RentalManagement;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using System.Data;
 
 namespace Application.UseCases.Authentication.Commands.Register;
 
-public class RegisterCommandHandler(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, IUnitOfWork Uow) : IRequestHandler<RegisterCommand>
+public class RegisterCommandHandler(UserManager<IdentityUser> userManager, IUnitOfWork Uow) : IRequestHandler<RegisterCommand>
 {
     public async Task Handle(RegisterCommand request, CancellationToken cancellationToken)
     {
@@ -34,6 +33,6 @@ public class RegisterCommandHandler(UserManager<IdentityUser> userManager, RoleM
             UserId = Guid.Parse(user.Id),
             Address = "",
             DateOfBirth = null,
-        });
+        }, cancellationToken);
     }
 }

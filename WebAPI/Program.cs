@@ -11,7 +11,12 @@ using WebAPI.FilterException;
 using WebAPI.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddFastEndpoints();
+
+// Add FastEndpoints (if still using some endpoints)
+//builder.Services.AddFastEndpoints();
+
+// Add Controllers support
+builder.Services.AddControllers();
 
 // Add services to the container.
 builder.Services.AddApplication();
@@ -28,6 +33,15 @@ builder.Services.AddCustomIdentity();
 builder.Services.AddCustomAuthentication(builder.Configuration);
 builder.Services.AddCustomAuthorization();
 builder.Services.AddOpenApiWithJwtBearer();
+builder.Services.AddOpenApi(options =>
+{
+    options.AddDocumentTransformer((document, context, cancellationToken) =>
+    {
+        document.Info.Title = "EV Rental API";
+        document.Info.Version = "v1";
+        return Task.CompletedTask;
+    });
+});
 
 var app = builder.Build();
 // Configure the HTTP request pipeline.
@@ -45,7 +59,11 @@ app.UseHsts();// Enables HTTP Strict Transport Security (HSTS) for the applicati
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseFastEndpoints();
+// Map Controllers (add this line)
+app.MapControllers();
+
+// Keep FastEndpoints if you're still using other endpoints
+//app.UseFastEndpoints();
 
 using (var scope = app.Services.CreateScope())
 {

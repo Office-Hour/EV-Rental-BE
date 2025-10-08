@@ -7,7 +7,7 @@ using Application.DTOs;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 
-namespace Application.MapperProfiles.IdentityUserEntity
+namespace Application.MapperProfiles
 {
     public class IdentityUserMapperProfile : Profile
     {
