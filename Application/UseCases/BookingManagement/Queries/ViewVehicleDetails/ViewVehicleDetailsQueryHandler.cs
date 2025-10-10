@@ -15,7 +15,10 @@ public class ViewVehicleDetailsQueryHandler(IUnitOfWork uow, IMapper mapper) : I
     {
         var vehicle = await uow.Repository<Vehicle>().GetByIdAsync(request.VehicleId, cancellationToken) ?? throw new NotFoundException(errorMessage: $"Vehicle with ID {request.VehicleId} not found.");
 
-        var vehicleAtStation = await uow.Repository<VehicleAtStation>().AsQueryable().Where(v => v.EndTime == null).FirstOrDefaultAsync(cancellationToken: cancellationToken) ?? throw new NotFoundException(errorMessage: "Vehicle is not found at any station");
+        var vehicleAtStation = await uow.Repository<VehicleAtStation>().AsQueryable()
+            .Where(v => v.EndTime == null && v.VehicleId == request.VehicleId)
+            .FirstOrDefaultAsync(cancellationToken: cancellationToken)
+        ?? throw new NotFoundException(errorMessage: "Vehicle is not found at any station");
         
         var bookingRepo = uow.Repository<Booking>();
 
