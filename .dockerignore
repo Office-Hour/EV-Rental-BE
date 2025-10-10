@@ -1,0 +1,17 @@
+bin/
+obj/
+*.user
+*.suo
+*.psess
+*.vsp
+*.vspx
+*.csproj.user
+.vscode/
+.idea/
+.git/
+.gitignore
+Dockerfile
+docker-compose*.yml
+*.Secrets.json
+*.Development.json
+WebApp/
