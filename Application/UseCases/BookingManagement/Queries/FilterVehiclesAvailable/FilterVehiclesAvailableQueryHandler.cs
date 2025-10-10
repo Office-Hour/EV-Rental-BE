@@ -25,34 +25,52 @@ public class FilterVehiclesAvailableQueryHandler(IUnitOfWork uow, IMapper mapper
 
         var repo = uow.Repository<Rental>();
 
-        var rentalsNotAvailable = await repo.AsQueryable().Where(r => r.Status != RentalStatus.Cancelled && r.Status != RentalStatus.Completed).ToHashSetAsync(cancellationToken: cancellationToken);
-        var bookingsNotAvailable = await uow.Repository<Booking>().AsQueryable().Where(b => rentalsNotAvailable.Any(r => r.BookingId == b.BookingId)).ToHashSetAsync(cancellationToken: cancellationToken);
+        // Filter out vehicles that have active bookings (not cancelled/completed) overlapping with the requested time window
+        var bookingRepo = uow.Repository<Booking>();
 
         if (request.VehicleId != null)
         {
-            // Filter by specific vehicle
-            var vehicleAtStations = await vehicleRepo.AsQueryable().Where(v => v.VehicleId == request.VehicleId).ToHashSetAsync(cancellationToken: cancellationToken);
+            query = query.Where(v => v.VehicleId == request.VehicleId);
+        }
 
-            // Get only vehicles that are not in bookingsNotAvailable
-            query = query.Where(v => vehicleAtStations.Any(vas => !bookingsNotAvailable.Any(b => b.VehicleAtStationId == vas.VehicleAtStationId)));
-        }
-        if (request.StartTime != null)
+        if (request.StartTime != null && request.EndTime != null)
         {
-            // Filter by start time
-            query = query.Where(v => !bookingsNotAvailable.Any(b =>
-                b.VehicleAtStationId == v.VehicleAtStationId &&
-                ((request.StartTime < b.EndTime && request.StartTime >= b.StartTime) ||
-                 (request.EndTime > b.StartTime && request.EndTime <= b.EndTime) ||
-                 (request.StartTime <= b.StartTime && request.EndTime >= b.EndTime))));
+            // Exclude vehicles that have bookings overlapping with the requested time window and are not cancelled/completed
+            query = query.Where(v =>
+                !bookingRepo.AsQueryable().Any(b =>
+                    b.VehicleAtStationId == v.VehicleAtStationId &&
+                    b.Rental.Status != RentalStatus.Cancelled &&
+                    b.Rental.Status != RentalStatus.Completed &&
+                    (
+                        (request.StartTime < b.EndTime && request.StartTime >= b.StartTime) ||
+                        (request.EndTime > b.StartTime && request.EndTime <= b.EndTime) ||
+                        (request.StartTime <= b.StartTime && request.EndTime >= b.EndTime)
+                    )
+                )
+            );
         }
-        if (request.EndTime != null)
+        // If only StartTime or EndTime is provided, apply partial overlap logic
+        else if (request.StartTime != null)
         {
-            // Filter by end time
-            query = query.Where(v => !bookingsNotAvailable.Any(b =>
-                b.VehicleAtStationId == v.VehicleAtStationId &&
-                ((request.StartTime < b.EndTime && request.StartTime >= b.StartTime) ||
-                 (request.EndTime > b.StartTime && request.EndTime <= b.EndTime) ||
-                 (request.StartTime <= b.StartTime && request.EndTime >= b.EndTime))));
+            query = query.Where(v =>
+                !bookingRepo.AsQueryable().Any(b =>
+                    b.VehicleAtStationId == v.VehicleAtStationId &&
+                    b.Rental.Status != RentalStatus.Cancelled &&
+                    b.Rental.Status != RentalStatus.Completed &&
+                    (request.StartTime < b.EndTime && request.StartTime >= b.StartTime)
+                )
+            );
+        }
+        else if (request.EndTime != null)
+        {
+            query = query.Where(v =>
+                !bookingRepo.AsQueryable().Any(b =>
+                    b.VehicleAtStationId == v.VehicleAtStationId &&
+                    b.Rental.Status != RentalStatus.Cancelled &&
+                    b.Rental.Status != RentalStatus.Completed &&
+                    (request.EndTime > b.StartTime && request.EndTime <= b.EndTime)
+                )
+            );
         }
         var totalItems = await query.CountAsync(cancellationToken);
         var items = await query
