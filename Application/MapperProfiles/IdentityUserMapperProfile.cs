@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Application.DTOs;
+using Application.DTOs.Profile;
 using AutoMapper;
+using Domain.Entities.BookingManagement;
 using Microsoft.AspNetCore.Identity;
 
 namespace Application.MapperProfiles
@@ -26,6 +27,14 @@ namespace Application.MapperProfiles
                 .ForMember(dest => dest.EmailConfirmed, opt => opt.MapFrom(src => src.EmailConfirmed))
                 .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.PhoneNumber))
                 .ForMember(dest => dest.PhoneNumberConfirmed, opt => opt.MapFrom(src => src.PhoneNumberConfirmed));
+
+            CreateMap<Renter, RenterProfileDto>()
+                .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Address))
+                .ForMember(dest => dest.DateOfBirth, opt => opt.MapFrom(src => src.DateOfBirth))
+                .ForMember(dest => dest.RenterId, opt => opt.MapFrom(src => src.RenterId))
+                .ForMember(dest => dest.DriverLicenseNo, opt => opt.MapFrom(src => src.DriverLicenseNo))
+                .ForMember(dest => dest.RiskScore, opt => opt.MapFrom(src => src.RiskScore));
+
         }
     }
 }

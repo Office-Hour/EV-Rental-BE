@@ -1,6 +1,6 @@
 ﻿namespace Application.CustomExceptions
 {
-    public class NotFoundException(string? errorCode, string? errorField, string? errorMessage) : Exception
+    public class NotFoundException(string? errorCode = "404", string? errorField = "", string? errorMessage = "Entity not found") : Exception
     {
 
         /// <summary>

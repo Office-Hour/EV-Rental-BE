@@ -25,13 +25,13 @@ public class FilterVehiclesAvailableQueryHandler(IUnitOfWork uow, IMapper mapper
 
         var repo = uow.Repository<Rental>();
 
-        var rentalsNotAvailable = await repo.AsQueryable().Where(r => r.Status != RentalStatus.Cancelled && r.Status != RentalStatus.Completed).ToListAsync(cancellationToken: cancellationToken);
-        var bookingsNotAvailable = await uow.Repository<Booking>().AsQueryable().Where(b => rentalsNotAvailable.Any(r => r.BookingId == b.BookingId)).ToListAsync(cancellationToken: cancellationToken);
+        var rentalsNotAvailable = await repo.AsQueryable().Where(r => r.Status != RentalStatus.Cancelled && r.Status != RentalStatus.Completed).ToHashSetAsync(cancellationToken: cancellationToken);
+        var bookingsNotAvailable = await uow.Repository<Booking>().AsQueryable().Where(b => rentalsNotAvailable.Any(r => r.BookingId == b.BookingId)).ToHashSetAsync(cancellationToken: cancellationToken);
 
         if (request.VehicleId != null)
         {
             // Filter by specific vehicle
-            var vehicleAtStations = await vehicleRepo.AsQueryable().Where(v => v.VehicleId == request.VehicleId).ToListAsync(cancellationToken: cancellationToken);
+            var vehicleAtStations = await vehicleRepo.AsQueryable().Where(v => v.VehicleId == request.VehicleId).ToHashSetAsync(cancellationToken: cancellationToken);
 
             // Get only vehicles that are not in bookingsNotAvailable
             query = query.Where(v => vehicleAtStations.Any(vas => !bookingsNotAvailable.Any(b => b.VehicleAtStationId == vas.VehicleAtStationId)));

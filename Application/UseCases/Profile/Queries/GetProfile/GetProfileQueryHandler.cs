@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Application.CustomExceptions;
-using Application.DTOs;
+using Application.DTOs.Profile;
 using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Identity;

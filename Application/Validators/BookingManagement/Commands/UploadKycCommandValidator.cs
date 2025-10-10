@@ -1,4 +1,4 @@
-﻿using Application.UseCases.BookingManagement.Command.UploadKyc;
+﻿using Application.UseCases.BookingManagement.Commands.UploadKyc;
 using FluentValidation;
 
 namespace Application.Validators.BookingManagement.Commands;

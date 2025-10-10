@@ -44,7 +44,7 @@ namespace Persistence.Data
             return await DbSet.ToListAsync(cancellationToken);
         }
 
-        public async Task<T> GetByIdAsync<TValue>(TValue id, CancellationToken cancellationToken = default)
+        public async Task<T?> GetByIdAsync<TValue>(TValue id, CancellationToken cancellationToken = default)
         {
             var entity = await DbSet.FindAsync([id], cancellationToken) ?? throw new KeyNotFoundException($"Entity of type {typeof(T).Name} with ID {id} not found.");
             return entity;

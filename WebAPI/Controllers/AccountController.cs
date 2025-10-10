@@ -1,5 +1,6 @@
 ﻿using System.Security.Claims;
-using Application.DTOs;
+using Application.DTOs.Authentication;
+using Application.DTOs.Profile;
 using Application.UseCases.Authentication.Commands.Login;
 using Application.UseCases.Authentication.Commands.Logout;
 using Application.UseCases.Authentication.Commands.RefreshToken;

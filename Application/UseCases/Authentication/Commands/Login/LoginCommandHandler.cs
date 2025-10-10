@@ -1,5 +1,5 @@
 ﻿using Application.CustomExceptions;
-using Application.DTOs;
+using Application.DTOs.Authentication;
 using Application.Interfaces;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
