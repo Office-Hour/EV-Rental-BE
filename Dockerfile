@@ -38,4 +38,4 @@ WORKDIR /app
 COPY --from=publish /app/publish .
 RUN chown -R appuser:app /app
 USER appuser
-ENTRYPOINT ["dotnet", "EV-Rental-BE.dll"]
+ENTRYPOINT ["dotnet", "WebAPI.dll"]
