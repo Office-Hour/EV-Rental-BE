@@ -30,10 +30,10 @@ public class ViewStationQueryHandler(IUnitOfWork Uow, IMapper mapper) : IRequest
         }
         return new PagedResult<StationDto>
         (
-            stations,
+            stationDtos,
+            totalItems,
             request.Paging.Page,
-            request.Paging.PageSize,
-            totalItems
+            request.Paging.PageSize
         );
     }
 }
