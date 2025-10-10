@@ -21,7 +21,7 @@ ENV ASPNETCORE_URLS=http://+:8080 \
 ############################################
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
-COPY ["WebAPI.csproj", "./"]
+COPY ["WebAPI/WebAPI.csproj", "./"]
 RUN dotnet restore "WebAPI.csproj"
 COPY . .
 RUN dotnet build "WebAPI.csproj" -c Release -o /app/build
