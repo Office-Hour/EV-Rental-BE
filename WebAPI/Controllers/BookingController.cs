@@ -1,5 +1,5 @@
 ﻿using System.Security.Claims;
-using Application.UseCases.BookingManagement.Command.UploadKyc;
+using Application.UseCases.BookingManagement.Commands.UploadKyc;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

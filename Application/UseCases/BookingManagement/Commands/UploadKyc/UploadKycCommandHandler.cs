@@ -1,5 +1,6 @@
 ﻿using Application.CustomExceptions;
 using Application.Interfaces;
+using Application.UseCases.BookingManagement.Commands.UploadKyc;
 using AutoMapper;
 using Domain.Entities.BookingManagement;
 using MediatR;
