@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  pull_request:
+    types: [synchronize, opened, reopened, edited]
+
+permissions:
+  id-token: write
+  contents: write
+  actions: write
+  deployments: write
+  pages: write
+  pull-requests: write
+  packages: write
+
+jobs:
+  main-ci:
+    env:
+      HUSKY: 0
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: "9.0.x"
+
+      - run: cd WebAPI
+      - run: ls -al
+      - run: dotnet restore ./WebAPI/WebAPI.csproj
+
+      - id: main
+        run: dotnet build ./WebAPI/WebAPI.csproj -c Release -o ./build
+
+      - if: ${{ steps.main.outcome == 'failure' }}
+        run: exit 1
