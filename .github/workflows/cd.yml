@@ -1,0 +1,66 @@
+name: CD
+
+on:
+  push:
+    branches: [main, testci]
+
+permissions:
+  id-token: write
+  contents: write
+  actions: write
+  deployments: write
+  pages: write
+  pull-requests: write
+  packages: write
+
+jobs:
+  deployment:
+    env:
+      HUSKY: 0
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: "9.0.x"
+
+      - run: cd WebAPI
+      - run: ls -al
+      - run: dotnet restore ./WebAPI/WebAPI.csproj
+
+      - id: main
+        run: dotnet build ./WebAPI/WebAPI.csproj -c Release -o ./build
+
+      - if: ${{ steps.main.outcome == 'failure' }}
+        run: exit 1
+
+      - id: publish
+        run: dotnet publish ./WebAPI/WebAPI.csproj -c Release -o ./publish /p:UseAppHost=false
+
+      # Make a lowercase owner for GHCR image path (Docker requires lowercase repo names)
+      - name: Compute lowercased owner
+        id: vars
+        run: echo "OWNER_LC=${GITHUB_REPOSITORY_OWNER,,}" >> $GITHUB_ENV
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/${{ env.OWNER_LC }}/ev-rental-be:latest
+            ghcr.io/${{ env.OWNER_LC }}/ev-rental-be:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
