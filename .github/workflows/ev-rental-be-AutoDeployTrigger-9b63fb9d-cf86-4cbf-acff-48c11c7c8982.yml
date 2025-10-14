@@ -1,0 +1,63 @@
+name: Trigger auto deployment for ev-rental-be
+
+# When this action will be executed
+on:
+  # Automatically trigger it when detected changes in repo
+  push:
+    branches: [main]
+    paths:
+      - "**"
+      - ".github/workflows/ev-rental-be-AutoDeployTrigger-9b63fb9d-cf86-4cbf-acff-48c11c7c8982.yml"
+
+  # Allow manual trigger
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write #This is required for requesting the OIDC JWT Token
+      contents: read #Required when GH token is used to authenticate with private repo
+      deployments: write
+      packages: write
+
+    steps:
+      - name: Checkout to the branch
+        uses: actions/checkout@v5
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: "9.0.x"
+
+      - run: dotnet restore ./WebAPI/WebAPI.csproj
+
+      - id: main
+        run: dotnet build ./WebAPI/WebAPI.csproj -c Release -o ./build
+
+      - if: ${{ steps.main.outcome == 'failure' }}
+        run: exit 1
+
+      - id: publish
+        run: dotnet publish ./WebAPI/WebAPI.csproj -c Release -o ./publish /p:UseAppHost=false
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.EVRENTALBE_AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.EVRENTALBE_AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.EVRENTALBE_AZURE_SUBSCRIPTION_ID }}
+
+      - name: Build and push container image to registry
+        uses: azure/container-apps-deploy-action@v2
+        with:
+          appSourcePath: ${{ github.workspace }}
+          _dockerfilePathKey_: _dockerfilePath_
+          _targetLabelKey_: _targetLabel_
+          registryUrl: ghcr.io
+          registryUsername: ${{ secrets.EVRENTALBE_REGISTRY_USERNAME }}
+          registryPassword: ${{ secrets.EVRENTALBE_REGISTRY_PASSWORD }}
+          containerAppName: ev-rental-be
+          resourceGroup: swd-resource-group
+          imageToBuild: ghcr.io/ev-rental-be:${{ github.sha }}
+          _buildArgumentsKey_: |
+            _buildArgumentsValues_
