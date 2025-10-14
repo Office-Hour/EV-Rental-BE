@@ -48,7 +48,23 @@ var app = builder.Build();
 //if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
-    app.MapScalarApiReference();
+    app.MapScalarApiReference((options, httpContext) =>
+    {
+        var host = httpContext.Request.Host.HasValue
+            ? httpContext.Request.Host.Value
+            : "localhost";
+
+        var pathBase = httpContext.Request.PathBase.HasValue
+            ? httpContext.Request.PathBase.Value.TrimEnd('/')
+            : string.Empty;
+
+        var baseUrl = $"https://{host}{pathBase}".TrimEnd('/');
+
+        options.Servers = new[]
+        {
+            new ScalarServer(baseUrl)
+        };
+    });
 }
 
 app.UseMiddleware<CustomMiddleware>();
