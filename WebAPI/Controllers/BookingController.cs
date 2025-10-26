@@ -2,7 +2,9 @@
 using Application.DTOs;
 using Application.DTOs.BookingManagement;
 using Application.DTOs.Profile;
+using Application.UseCases.BookingManagement.Commands.CancelChecking;
 using Application.UseCases.BookingManagement.Commands.CreateBooking;
+using Application.UseCases.BookingManagement.Commands.RequestCancelCheckin;
 using Application.UseCases.BookingManagement.Commands.UploadKyc;
 using Application.UseCases.BookingManagement.Queries.FilterVehiclesAvailable;
 using Application.UseCases.BookingManagement.Queries.GetBookingByRenter;
@@ -23,6 +25,86 @@ namespace WebAPI.Controllers;
 [Produces("application/json")]
 public class BookingController(IMediator mediator) : ControllerBase
 {
+    /// <summary>
+    /// Request to cancel a pending booking (Step 1: Request cancellation code)
+    /// </summary>
+    /// <param name="request">Request containing the booking ID to cancel</param>
+    /// <param name="ct">Cancellation token</param>
+    /// <returns>Success message indicating code has been sent</returns>
+    /// <response code="200">Cancellation code sent successfully to email/phone</response>
+    /// <response code="400">Only pending bookings can be canceled</response>
+    /// <response code="401">Unauthorized - Bearer token required</response>
+    /// <response code="404">Booking not found</response>
+    /// <remarks>
+    /// This endpoint initiates the cancellation process by generating a 6-digit code
+    /// and sending it to the user's email or phone number. The code is valid for 15 minutes.
+    /// User must use this code in the next step to confirm cancellation.
+    /// </remarks>
+    [HttpPost("request-cancel")]
+    [Authorize(AuthenticationSchemes = "Bearer")]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorMessage), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorMessage), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ErrorMessage), StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<ApiResponse>> RequestCancelCheckin(
+        [FromBody] RequestCancelCheckinRequest request,
+        CancellationToken ct = default)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+
+        var command = new RequestCancelCheckinCommand
+        {
+            BookingId = request.BookingId,
+            UserId = Guid.Parse(userId)
+        };
+
+        await mediator.Send(command, ct);
+
+        return Ok(new ApiResponse("Cancellation code has been sent to your email/phone. Please check and use it to confirm cancellation within 15 minutes."));
+    }
+
+    /// <summary>
+    /// Cancel a pending booking with verification code (Step 2: Confirm cancellation)
+    /// </summary>
+    /// <param name="request">Cancellation details including code, reason, and optional bank account for refund</param>
+    /// <param name="ct">Cancellation token</param>
+    /// <returns>Deposit refund details</returns>
+    /// <response code="200">Booking cancelled successfully with refund details</response>
+    /// <response code="400">Invalid or expired code, or only pending bookings can be canceled</response>
+    /// <response code="401">Unauthorized - Bearer token required</response>
+    /// <response code="404">Booking, fee, or payment not found</response>
+    /// <remarks>
+    /// This endpoint completes the cancellation process using the code sent in step 1.
+    /// The deposit will be refunded minus a 5% transaction fee.
+    /// If bank account details are provided, refund will be processed via bank transfer.
+    /// Otherwise, refund will be processed as cash.
+    /// </remarks>
+    [HttpPost("cancel")]
+    [Authorize(AuthenticationSchemes = "Bearer")]
+    [ProducesResponseType(typeof(DepositFeeDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorMessage), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorMessage), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ErrorMessage), StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<DepositFeeDto>> CancelCheckin(
+        [FromBody] CancelCheckinRequest request,
+        CancellationToken ct = default)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+
+        var command = new CancelCheckinCommand
+        {
+            BookingId = request.BookingId,
+            UserId = Guid.Parse(userId),
+            CancelReason = request.CancelReason,
+            CancelCheckinCode = request.CancelCheckinCode,
+            RenterBankAccount = request.RenterBankAccount
+        };
+
+        var result = await mediator.Send(command, ct);
+
+        return Ok(result);
+    }
+
     /// <summary>
     /// Get renter profile
     /// </summary>
