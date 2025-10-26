@@ -1,6 +1,6 @@
 namespace WebAPI.Requests.BookingManagement;
 
-public class FilterVehicleAvailableRequest
+public class ViewVehiclesByStationRequest
 {
     public Guid StationId { get; set; }
     public Guid? VehicleId { get; set; }

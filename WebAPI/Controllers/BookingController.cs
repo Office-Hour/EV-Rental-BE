@@ -4,6 +4,8 @@ using Application.DTOs.BookingManagement;
 using Application.UseCases.BookingManagement.Commands.CreateBooking;
 using Application.UseCases.BookingManagement.Commands.UploadKyc;
 using Application.UseCases.BookingManagement.Queries.FilterVehiclesAvailable;
+using Application.UseCases.BookingManagement.Queries.ViewVehicleDetails;
+using Application.UseCases.BookingManagement.Queries.ViewVehiclesByStation;
 using Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -19,26 +21,71 @@ namespace WebAPI.Controllers;
 public class BookingController(IMediator mediator) : ControllerBase
 {
     /// <summary>
-    /// Filter available vehicles at a station
+    /// View detailed information about a specific vehicle
     /// </summary>
-    /// <param name="request">Filter criteria including station, vehicle, time range, and pagination</param>
+    /// <param name="vehicleId">The ID of the vehicle to view</param>
     /// <param name="ct">Cancellation token</param>
-    /// <returns>Paginated list of available vehicles</returns>
-    /// <response code="200">Returns the list of available vehicles</response>
-    /// <response code="400">Validation error (e.g., StartTime >= EndTime)</response>
-    [HttpGet("vehicles/available")]
-    [ProducesResponseType(typeof(PagedResult<VehicleDto>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ErrorMessage), StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<PagedResult<VehicleDto>>> FilterVehiclesAvailable(
-        [FromQuery] FilterVehicleAvailableRequest request,
+    /// <returns>Detailed vehicle information including pricing and upcoming bookings</returns>
+    /// <response code="200">Returns the vehicle details</response>
+    /// <response code="404">Vehicle not found or not available at any station</response>
+    [HttpGet("vehicles/{vehicleId}")]
+    [ProducesResponseType(typeof(VehicleDetailsDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorMessage), StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<VehicleDetailsDto>> ViewVehicleDetails(
+        [FromRoute] Guid vehicleId,
         CancellationToken ct = default)
     {
-        var query = new FilterVehiclesAvailableQuery
+        var query = new ViewVehicleDetailsQuery
+        {
+            VehicleId = vehicleId
+        };
+
+        var result = await mediator.Send(query, ct);
+
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// View vehicles at a station with optional availability filtering
+    /// </summary>
+    /// <param name="request">Filter criteria including station, optional vehicle, optional time range, and pagination</param>
+    /// <param name="ct">Cancellation token</param>
+    /// <returns>Paginated list of vehicles at the station</returns>
+    /// <response code="200">Returns the list of vehicles at the station</response>
+    /// <response code="400">Validation error (e.g., StartTime >= EndTime)</response>
+    /// <remarks>
+    /// When StartTime and EndTime are provided, this endpoint checks availability against existing bookings.
+    /// When time range is not provided, it simply returns all available vehicles at the station.
+    /// </remarks>
+    [HttpGet("vehicles/by-station")]
+    [ProducesResponseType(typeof(PagedResult<VehicleDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorMessage), StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<PagedResult<VehicleDto>>> ViewVehiclesByStation(
+        [FromQuery] ViewVehiclesByStationRequest request,
+        CancellationToken ct = default)
+    {
+        // If time range is provided, use FilterVehiclesAvailable for booking conflict checking
+        if (request.StartTime.HasValue || request.EndTime.HasValue)
+        {
+            var filterQuery = new FilterVehiclesAvailableQuery
+            {
+                StationId = request.StationId,
+                VehicleId = request.VehicleId,
+                StartTime = request.StartTime,
+                EndTime = request.EndTime,
+                PageNumber = request.PageNumber,
+                PageSize = request.PageSize
+            };
+
+            var filterResult = await mediator.Send(filterQuery, ct);
+            return Ok(filterResult);
+        }
+
+        // Otherwise, use simple ViewVehiclesByStation
+        var query = new ViewVehiclesByStationQuery
         {
             StationId = request.StationId,
             VehicleId = request.VehicleId,
-            StartTime = request.StartTime,
-            EndTime = request.EndTime,
             PageNumber = request.PageNumber,
             PageSize = request.PageSize
         };
