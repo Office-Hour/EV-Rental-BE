@@ -10,12 +10,14 @@ public class PaymentMapperProfile : Profile
     public PaymentMapperProfile()
     {
         CreateMap<DepositFeeDto, Fee>()
+            .ReverseMap()
             .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
             .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
             .ForMember(dest => dest.Amount, opt => opt.MapFrom(src => src.Amount))
             .ForMember(dest => dest.Currency, opt => opt.MapFrom(src => src.Currency));
 
         CreateMap<DepositFeeDto, Payment>()
+            .ReverseMap()
             .ForMember(dest => dest.Method, opt => opt.MapFrom(src => src.Method))
             .ForMember(dest => dest.AmountPaid, opt => opt.MapFrom(src => src.AmountPaid))
             .ForMember(dest => dest.ProviderReference, opt => opt.MapFrom(src => src.ProviderReference));

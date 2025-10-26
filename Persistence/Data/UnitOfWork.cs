@@ -4,12 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Application.Interfaces;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Persistence.Data
 {
     public class UnitOfWork(ApplicationDbContext applicationDbContext)
         : IUnitOfWork
     {
+        private IDbContextTransaction? _currentTransaction;
         private readonly Dictionary<Type, object> _repositories = [];
         public IRepository<T> Repository<T>() where T : class
         {
@@ -25,6 +27,53 @@ namespace Persistence.Data
         public Task SaveChangesAsync(CancellationToken cancellationToken = default)
         {
             return applicationDbContext.SaveChangesAsync(cancellationToken);
+        }
+
+        public async Task BeginTransactionAsync()
+        {
+            if (_currentTransaction != null)
+            {
+                return;
+            }
+            _currentTransaction = await applicationDbContext.Database.BeginTransactionAsync();
+        }
+
+        public async Task CommitTransactionAsync()
+        {
+            try
+            {
+                await SaveChangesAsync();
+                _currentTransaction?.Commit();
+            }
+            catch
+            {
+                await RollbackTransactionAsync();
+                throw;
+            }
+            finally
+            {
+                if (_currentTransaction != null)
+                {
+                    await _currentTransaction.DisposeAsync();
+                    _currentTransaction = null;
+                }
+            }
+        }
+
+        public async Task RollbackTransactionAsync()
+        {
+            try
+            {
+                await _currentTransaction?.RollbackAsync()!;
+            }
+            finally
+            {
+                if (_currentTransaction != null)
+                {
+                    await _currentTransaction.DisposeAsync();
+                    _currentTransaction = null;
+                }
+            }
         }
     }
 }

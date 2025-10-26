@@ -10,5 +10,8 @@ namespace Application.Interfaces
     {
         Task SaveChangesAsync(CancellationToken cancellationToken = default);
         IRepository<T> Repository<T>() where T : class;
+        Task BeginTransactionAsync();
+        Task CommitTransactionAsync();
+        Task RollbackTransactionAsync();
     }
 }
