@@ -1,11 +1,14 @@
 ﻿using System.Security.Claims;
 using Application.DTOs;
 using Application.DTOs.BookingManagement;
+using Application.DTOs.Profile;
 using Application.UseCases.BookingManagement.Commands.CreateBooking;
 using Application.UseCases.BookingManagement.Commands.UploadKyc;
 using Application.UseCases.BookingManagement.Queries.FilterVehiclesAvailable;
+using Application.UseCases.BookingManagement.Queries.GetBookingByRenter;
 using Application.UseCases.BookingManagement.Queries.ViewVehicleDetails;
 using Application.UseCases.BookingManagement.Queries.ViewVehiclesByStation;
+using Application.UseCases.Profile.Queries.GetRenterProfile;
 using Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -20,6 +23,81 @@ namespace WebAPI.Controllers;
 [Produces("application/json")]
 public class BookingController(IMediator mediator) : ControllerBase
 {
+    /// <summary>
+    /// Get renter profile
+    /// </summary>
+    /// <param name="userId">The user ID (optional - defaults to authenticated user)</param>
+    /// <param name="ct">Cancellation token</param>
+    /// <returns>Renter profile details</returns>
+    /// <response code="200">Returns the renter profile</response>
+    /// <response code="401">Unauthorized - Bearer token required</response>
+    /// <response code="404">Renter not found</response>
+    /// <remarks>
+    /// If userId is not provided, returns the profile of the authenticated user.
+    /// Staff can provide a userId to view any renter's profile.
+    /// </remarks>
+    [HttpGet("renter-profile")]
+    [Authorize(AuthenticationSchemes = "Bearer")]
+    [ProducesResponseType(typeof(RenterProfileDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorMessage), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ErrorMessage), StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<RenterProfileDto>> GetRenterProfile(
+        [FromQuery] Guid? userId = null,
+        CancellationToken ct = default)
+    {
+        var authenticatedUserId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+        
+        // If userId is not provided, use authenticated user's ID
+        var targetUserId = userId ?? Guid.Parse(authenticatedUserId);
+
+        var query = new GetRenterProfileQuery
+        {
+            UserId = targetUserId
+        };
+
+        var result = await mediator.Send(query, ct);
+
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Get bookings by renter ID
+    /// </summary>
+    /// <param name="renterId">The ID of the renter</param>
+    /// <param name="pageNumber">Page number for pagination (default: 1)</param>
+    /// <param name="pageSize">Page size for pagination (default: 10)</param>
+    /// <param name="ct">Cancellation token</param>
+    /// <returns>Paginated list of booking details for the renter</returns>
+    /// <response code="200">Returns the list of bookings</response>
+    /// <response code="401">Unauthorized - Bearer token required</response>
+    /// <response code="404">Renter not found</response>
+    /// <remarks>
+    /// Both renters and staff must provide the renterId parameter.
+    /// Renters can view their own bookings, staff can view any renter's bookings.
+    /// </remarks>
+    [HttpGet]
+    [Authorize(AuthenticationSchemes = "Bearer")]
+    [ProducesResponseType(typeof(PagedResult<BookingDetailsDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorMessage), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ErrorMessage), StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<PagedResult<BookingDetailsDto>>> GetBookingByRenter(
+        [FromQuery] Guid renterId,
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 10,
+        CancellationToken ct = default)
+    {
+        var query = new GetBookingByRenterQuery
+        {
+            RenterId = renterId,
+            PageNumber = pageNumber,
+            PageSize = pageSize
+        };
+
+        var result = await mediator.Send(query, ct);
+
+        return Ok(result);
+    }
+
     /// <summary>
     /// View detailed information about a specific vehicle
     /// </summary>

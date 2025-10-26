@@ -30,9 +30,12 @@ public class RegisterCommandHandler(UserManager<IdentityUser> userManager, IUnit
 
         await Uow.Repository<Renter>().AddAsync(new Renter
         {
+            RenterId = Guid.NewGuid(),
             UserId = Guid.Parse(user.Id),
             Address = "",
             DateOfBirth = null,
         }, cancellationToken);
+
+        await Uow.SaveChangesAsync(cancellationToken);
     }
 }
