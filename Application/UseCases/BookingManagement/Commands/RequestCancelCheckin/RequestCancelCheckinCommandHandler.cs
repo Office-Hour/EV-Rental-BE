@@ -5,6 +5,7 @@ using Domain.Entities.BookingManagement;
 using Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 namespace Application.UseCases.BookingManagement.Commands.RequestCancelCheckin;
@@ -24,24 +25,14 @@ public class RequestCancelCheckinCommandHandler(IUnitOfWork uow, UserManager<Ide
         // Create a Random 6-digit code
         var random = new Random();
         var code = random.Next(100000, 999999).ToString();
-        if(string.IsNullOrEmpty(user.Email) && string.IsNullOrEmpty(user.PhoneNumber))
+        if (string.IsNullOrEmpty(user.Email) && string.IsNullOrEmpty(user.PhoneNumber))
         {
             throw new Exception("User has no email or phone number to send the code.");
         }
         // Save code to database (ASP.NET Identity table)
-        await uow.BeginTransactionAsync();
-        try
-        {
-            await userManager.AddClaimAsync(user, new Claim("CancelCheckinCode", code));
-            await userManager.AddClaimAsync(user, new Claim("CancelCheckinCodeExpiry", DateTime.UtcNow.AddMinutes(15).ToString()));
-        }
-        catch
-        {
-            await uow.RollbackTransactionAsync();
-            throw;
-        }
 
-        await uow.CommitTransactionAsync();
+        await userManager.AddClaimAsync(user, new Claim("CancelCheckinCode", code));
+        await userManager.AddClaimAsync(user, new Claim("CancelCheckinCodeExpiry", DateTime.UtcNow.AddMinutes(15).ToString()));
 
         // Here you would send the code to the user's email or phone number
 
@@ -53,7 +44,7 @@ public class RequestCancelCheckinCommandHandler(IUnitOfWork uow, UserManager<Ide
             // emailService.SendCancellationCode(user.Email, code);
 
 
-        Console.WriteLine($"CancelCheckinCode code sent to user: {code}");
+            Console.WriteLine($"CancelCheckinCode code sent to user: {code}");
         return;
     }
 }

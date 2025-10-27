@@ -12,16 +12,19 @@ public class CreateBookingCommandHandler(IUnitOfWork uow, IMapper mapper) : IReq
     public async Task Handle(CreateBookingCommand request, CancellationToken cancellationToken)
     {
         var newBooking = mapper.Map<Booking>(request.CreateBookingDto);
+        newBooking.BookingId = Guid.NewGuid();
         newBooking.RenterId = request.RenterId;
         newBooking.Status = BookingStatus.Pending_Verification;
         newBooking.VerificationStatus = BookingVerificationStatus.Pending;
         await uow.Repository<Booking>().AddAsync(newBooking, cancellationToken);
 
         var newDepositFee = mapper.Map<Fee>(request.DepositFeeDto);
+        newDepositFee.FeeId = Guid.NewGuid();
         newDepositFee.BookingId = newBooking.BookingId;
         await uow.Repository<Fee>().AddAsync(newDepositFee, cancellationToken);
 
         var newDepositPayment = mapper.Map<Payment>(request.DepositFeeDto);
+        newDepositPayment.PaymentId = Guid.NewGuid();
         newDepositPayment.FeeId = newDepositFee.FeeId;
         await uow.Repository<Payment>().AddAsync(newDepositPayment, cancellationToken);
 

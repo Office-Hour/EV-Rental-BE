@@ -23,7 +23,16 @@ public class BookingMapperProfile : Profile
             .ForMember(dest => dest.VerificationStatus, opt => opt.MapFrom(src => Domain.Enums.BookingVerificationStatus.Pending));
 
         CreateMap<Booking, BookingDetailsDto>()
-            .ForAllMembers(opt => opt.Ignore()); // prevent accidental writes
-
+            .ForMember(dest => dest.BookingId, opt => opt.MapFrom(src => src.BookingId))
+            .ForMember(dest => dest.RenterId, opt => opt.MapFrom(src => src.RenterId))
+            .ForMember(dest => dest.VehicleAtStationId, opt => opt.MapFrom(src => src.VehicleAtStationId))
+            .ForMember(dest => dest.BookingCreatedAt, opt => opt.MapFrom(src => src.BookingCreatedAt))
+            .ForMember(dest => dest.StartTime, opt => opt.MapFrom(src => src.StartTime))
+            .ForMember(dest => dest.EndTime, opt => opt.MapFrom(src => src.EndTime))
+            .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
+            .ForMember(dest => dest.VerificationStatus, opt => opt.MapFrom(src => src.VerificationStatus))
+            .ForMember(dest => dest.VerifiedByStaffId, opt => opt.MapFrom(src => src.VerifiedByStaffId))
+            .ForMember(dest => dest.VerifiedAt, opt => opt.MapFrom(src => src.VerifiedAt))
+            .ForMember(dest => dest.CancelReason, opt => opt.MapFrom(src => src.CancelReason));
     }
 }

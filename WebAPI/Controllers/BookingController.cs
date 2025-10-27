@@ -3,6 +3,7 @@ using Application.DTOs;
 using Application.DTOs.BookingManagement;
 using Application.DTOs.Profile;
 using Application.UseCases.BookingManagement.Commands.CancelChecking;
+using Application.UseCases.BookingManagement.Commands.CheckinBooking;
 using Application.UseCases.BookingManagement.Commands.CreateBooking;
 using Application.UseCases.BookingManagement.Commands.RequestCancelCheckin;
 using Application.UseCases.BookingManagement.Commands.UploadKyc;
@@ -46,7 +47,7 @@ public class BookingController(IMediator mediator) : ControllerBase
     [ProducesResponseType(typeof(ErrorMessage), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ErrorMessage), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ErrorMessage), StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<ApiResponse>> RequestCancelCheckin(
+    public async Task<ActionResult<ApiResponse<object>>> RequestCancelCheckin(
         [FromBody] RequestCancelCheckinRequest request,
         CancellationToken ct = default)
     {
@@ -81,11 +82,11 @@ public class BookingController(IMediator mediator) : ControllerBase
     /// </remarks>
     [HttpPost("cancel")]
     [Authorize(AuthenticationSchemes = "Bearer")]
-    [ProducesResponseType(typeof(DepositFeeDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<DepositFeeDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorMessage), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ErrorMessage), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ErrorMessage), StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<DepositFeeDto>> CancelCheckin(
+    public async Task<ActionResult<ApiResponse<DepositFeeDto>>> CancelCheckin(
         [FromBody] CancelCheckinRequest request,
         CancellationToken ct = default)
     {
@@ -102,7 +103,7 @@ public class BookingController(IMediator mediator) : ControllerBase
 
         var result = await mediator.Send(command, ct);
 
-        return Ok(result);
+        return Ok(new ApiResponse<DepositFeeDto>(result, "Booking cancelled successfully with refund details."));
     }
 
     /// <summary>
@@ -120,10 +121,10 @@ public class BookingController(IMediator mediator) : ControllerBase
     /// </remarks>
     [HttpGet("renter-profile")]
     [Authorize(AuthenticationSchemes = "Bearer")]
-    [ProducesResponseType(typeof(RenterProfileDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<RenterProfileDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorMessage), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ErrorMessage), StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<RenterProfileDto>> GetRenterProfile(
+    public async Task<ActionResult<ApiResponse<RenterProfileDto>>> GetRenterProfile(
         [FromQuery] Guid? userId = null,
         CancellationToken ct = default)
     {
@@ -139,7 +140,7 @@ public class BookingController(IMediator mediator) : ControllerBase
 
         var result = await mediator.Send(query, ct);
 
-        return Ok(result);
+        return Ok(new ApiResponse<RenterProfileDto>(result, "Renter profile retrieved successfully."));
     }
 
     /// <summary>
@@ -159,10 +160,10 @@ public class BookingController(IMediator mediator) : ControllerBase
     /// </remarks>
     [HttpGet]
     [Authorize(AuthenticationSchemes = "Bearer")]
-    [ProducesResponseType(typeof(PagedResult<BookingDetailsDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<PagedResult<BookingDetailsDto>>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorMessage), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ErrorMessage), StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<PagedResult<BookingDetailsDto>>> GetBookingByRenter(
+    public async Task<ActionResult<ApiResponse<PagedResult<BookingDetailsDto>>>> GetBookingByRenter(
         [FromQuery] Guid renterId,
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 10,
@@ -177,7 +178,7 @@ public class BookingController(IMediator mediator) : ControllerBase
 
         var result = await mediator.Send(query, ct);
 
-        return Ok(result);
+        return Ok(new ApiResponse<PagedResult<BookingDetailsDto>>(result, "Bookings retrieved successfully."));
     }
 
     /// <summary>
@@ -189,9 +190,9 @@ public class BookingController(IMediator mediator) : ControllerBase
     /// <response code="200">Returns the vehicle details</response>
     /// <response code="404">Vehicle not found or not available at any station</response>
     [HttpGet("vehicles/{vehicleId}")]
-    [ProducesResponseType(typeof(VehicleDetailsDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<VehicleDetailsDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorMessage), StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<VehicleDetailsDto>> ViewVehicleDetails(
+    public async Task<ActionResult<ApiResponse<VehicleDetailsDto>>> ViewVehicleDetails(
         [FromRoute] Guid vehicleId,
         CancellationToken ct = default)
     {
@@ -202,7 +203,7 @@ public class BookingController(IMediator mediator) : ControllerBase
 
         var result = await mediator.Send(query, ct);
 
-        return Ok(result);
+        return Ok(new ApiResponse<VehicleDetailsDto>(result, "Vehicle details retrieved successfully."));
     }
 
     /// <summary>
@@ -218,9 +219,9 @@ public class BookingController(IMediator mediator) : ControllerBase
     /// When time range is not provided, it simply returns all available vehicles at the station.
     /// </remarks>
     [HttpGet("vehicles/by-station")]
-    [ProducesResponseType(typeof(PagedResult<VehicleDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<PagedResult<VehicleDto>>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorMessage), StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<PagedResult<VehicleDto>>> ViewVehiclesByStation(
+    public async Task<ActionResult<ApiResponse<PagedResult<VehicleDto>>>> ViewVehiclesByStation(
         [FromQuery] ViewVehiclesByStationRequest request,
         CancellationToken ct = default)
     {
@@ -238,7 +239,7 @@ public class BookingController(IMediator mediator) : ControllerBase
             };
 
             var filterResult = await mediator.Send(filterQuery, ct);
-            return Ok(filterResult);
+            return Ok(new ApiResponse<PagedResult<VehicleDto>>(filterResult, "Filtered vehicles retrieved successfully."));
         }
 
         // Otherwise, use simple ViewVehiclesByStation
@@ -252,7 +253,7 @@ public class BookingController(IMediator mediator) : ControllerBase
 
         var result = await mediator.Send(query, ct);
 
-        return Ok(result);
+        return Ok(new ApiResponse<PagedResult<VehicleDto>>(result, "Vehicles by station retrieved successfully."));
     }
 
     /// <summary>
@@ -269,15 +270,13 @@ public class BookingController(IMediator mediator) : ControllerBase
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorMessage), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ErrorMessage), StatusCodes.Status401Unauthorized)]
-    public async Task<ActionResult<ApiResponse>> CreateBooking(
+    public async Task<ActionResult<ApiResponse<object>>> CreateBooking(
         [FromBody] CreateBookingRequest request,
         CancellationToken ct = default)
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
-
         var command = new CreateBookingCommand
         {
-            RenterId = Guid.Parse(userId),
+            RenterId = request.RenterId,
             CreateBookingDto = new CreateBookingDto
             {
                 VehicleAtStationId = request.VehicleAtStationId,
@@ -317,7 +316,7 @@ public class BookingController(IMediator mediator) : ControllerBase
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorMessage), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ErrorMessage), StatusCodes.Status401Unauthorized)]
-    public async Task<ActionResult<ApiResponse>> UploadKyc(
+    public async Task<ActionResult<ApiResponse<object>>> UploadKyc(
         [FromBody] UploadKycRequest request,
         CancellationToken ct = default)
     {
@@ -333,5 +332,36 @@ public class BookingController(IMediator mediator) : ControllerBase
         await mediator.Send(command, ct);
 
         return Ok(new ApiResponse("KYC document uploaded successfully"));
+    }
+
+    /// <summary>
+    /// Staff check-in (verify or reject) a booking
+    /// </summary>
+    /// <param name="request">Check-in details including booking ID, staff ID, verification status, and optional cancel reason</param>
+    /// <param name="ct">Cancellation token</param>
+    /// <returns>Success message</returns>
+    /// <response code="200">Booking checked in successfully</response>
+    /// <response code="400">Invalid request or booking status</response>
+    /// <response code="404">Booking not found</response>
+    [HttpPost("checkin")]
+    [Authorize(AuthenticationSchemes = "Bearer")]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorMessage), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorMessage), StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<ApiResponse<object>>> CheckinBooking(
+        [FromBody] CheckinBookingRequest request,
+        CancellationToken ct = default)
+    {
+        var command = new CheckinBookingCommand
+        {
+            BookingId = request.BookingId,
+            VerifiedByStaffId = request.VerifiedByStaffId,
+            BookingVerificationStatus = request.BookingVerificationStatus,
+            CancelReason = request.CancelReason
+        };
+
+        await mediator.Send(command, ct);
+
+        return Ok(new ApiResponse("Booking check-in processed successfully."));
     }
 }

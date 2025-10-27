@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Application.UseCases.BookingManagement.Commands.CancelChecking;
 
-public class CancelCheckinCommandHandler(IUnitOfWork uow, IMapper mapper, UserManager<IdentityUser> userManager) 
+public class CancelCheckinCommandHandler(IUnitOfWork uow, IMapper mapper, UserManager<IdentityUser> userManager)
     : IRequestHandler<CancelCheckinCommand, DepositFeeDto>
 {
     public async Task<DepositFeeDto> Handle(CancelCheckinCommand request, CancellationToken cancellationToken)
@@ -59,22 +59,13 @@ public class CancelCheckinCommandHandler(IUnitOfWork uow, IMapper mapper, UserMa
         // Otherwise, assume the refund is processed back in cash
 
         // Remove the used code
-        await uow.BeginTransactionAsync();
-        try
-        {
-            await userManager.RemoveClaimAsync(user, claims.First(c => c.Type == "CancelCheckinCode"));
-            await userManager.RemoveClaimAsync(user, claims.First(c => c.Type == "CancelCheckinCodeExpiry"));
+        await userManager.RemoveClaimAsync(user, claims.First(c => c.Type == "CancelCheckinCode"));
+        await userManager.RemoveClaimAsync(user, claims.First(c => c.Type == "CancelCheckinCodeExpiry"));
 
-            await uow.Repository<Booking>().UpdateAsync(booking.BookingId, booking, cancellationToken);
-            await uow.Repository<Payment>().UpdateAsync(payment.PaymentId, payment, cancellationToken);
-        }
-        catch
-        {
-            await uow.RollbackTransactionAsync();
-            throw;
-        }
+        await uow.Repository<Booking>().UpdateAsync(booking.BookingId, booking, cancellationToken);
+        await uow.Repository<Payment>().UpdateAsync(payment.PaymentId, payment, cancellationToken);
 
-        await uow.CommitTransactionAsync();
+        await uow.SaveChangesAsync(cancellationToken);
         //await uow.SaveChangesAsync(cancellationToken); // Dontt need, already called in CommitTransactionAsync
         var depositDto = mapper.Map<DepositFeeDto>(payment);
         var feeDto = mapper.Map<DepositFeeDto>(fee);

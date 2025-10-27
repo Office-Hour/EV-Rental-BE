@@ -4,6 +4,7 @@ namespace WebAPI.Requests.BookingManagement;
 
 public class CreateBookingRequest
 {
+    public Guid RenterId { get; set; }
     public Guid VehicleAtStationId { get; set; }
     public DateTime StartTime { get; set; }
     public DateTime EndTime { get; set; }
