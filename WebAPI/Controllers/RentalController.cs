@@ -1,5 +1,9 @@
+using Application.DTOs;
+using Application.DTOs.RentalManagement;
 using Application.UseCases.RentalManagement.Commands.CreateContract;
 using Application.UseCases.RentalManagement.Commands.CreateRental;
+using Application.UseCases.RentalManagement.Queries.GetRentalByRenter;
+using Application.UseCases.RentalManagement.Queries.GetRentalDetails;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -63,5 +67,57 @@ public class RentalController(IMediator mediator) : ControllerBase
         };
         var contractId = await mediator.Send(command, ct);
         return Ok(new ApiResponse<Guid>(contractId, "Contract created successfully"));
+    }
+
+    /// <summary>
+    /// Get paginated rentals by renter ID
+    /// </summary>
+    /// <param name="renterId">Renter ID</param>
+    /// <param name="pageNumber">Page number</param>
+    /// <param name="pageSize">Page size</param>
+    /// <param name="ct">Cancellation token</param>
+    /// <returns>Paged list of rentals</returns>
+    /// <response code="200">Returns paged rentals</response>
+    [HttpGet("by-renter")]
+    [Authorize(AuthenticationSchemes = "Bearer")]
+    [ProducesResponseType(typeof(ApiResponse<PagedResult<RentalDto>>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<ApiResponse<PagedResult<RentalDto>>>> GetRentalsByRenterId(
+        [FromQuery] Guid renterId,
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 10,
+        CancellationToken ct = default)
+    {
+        var query = new GetRentalsByRenterQuery
+        {
+            RenterId = renterId,
+            PageNumber = pageNumber,
+            PageSize = pageSize
+        };
+        var result = await mediator.Send(query, ct);
+        return Ok(new ApiResponse<PagedResult<RentalDto>>(result, "Rentals retrieved successfully"));
+    }
+
+    /// <summary>
+    /// Get details of a specific rental
+    /// </summary>
+    /// <param name="rentalId">Rental ID</param>
+    /// <param name="ct">Cancellation token</param>
+    /// <returns>Rental details</returns>
+    /// <response code="200">Returns rental details</response>
+    /// <response code="404">Rental not found</response>
+    [HttpGet("{rentalId}")]
+    [Authorize(AuthenticationSchemes = "Bearer")]
+    [ProducesResponseType(typeof(ApiResponse<RentalDetailsDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorMessage), StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<ApiResponse<RentalDetailsDto>>> GetRentalDetails(
+        [FromRoute] Guid rentalId,
+        CancellationToken ct = default)
+    {
+        var query = new GetRentalDetailsQuery
+        {
+            RentalId = rentalId
+        };
+        var result = await mediator.Send(query, ct);
+        return Ok(new ApiResponse<RentalDetailsDto>(result, "Rental details retrieved successfully"));
     }
 }

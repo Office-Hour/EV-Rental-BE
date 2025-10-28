@@ -1,7 +1,7 @@
 ﻿using Application.UseCases.RentalManagement.Commands.CreateContract;
 using FluentValidation;
 
-namespace Application.Validators.RentalManagement;
+namespace Application.Validators.RentalManagement.Commands;
 
 public class CreateContractCommandValidator : AbstractValidator<CreateContractCommand>
 {
