@@ -1,4 +1,5 @@
-﻿using Application.Interfaces;
+﻿using Application.CustomExceptions;
+using Application.Interfaces;
 using Domain.Entities.BookingManagement;
 using Domain.Enums;
 using MediatR;
@@ -11,9 +12,12 @@ public class CheckinBookingCommandHandler(IUnitOfWork uow) : IRequestHandler<Che
     {
         var bookingRepository = uow.Repository<Booking>();
         var booking = await bookingRepository.GetByIdAsync(request.BookingId, cancellationToken)
-            ?? throw new Exception("Booking not found");
-        
-        if(booking.Status != BookingStatus.Pending_Verification)
+            ?? throw new NotFoundException("Booking not found");
+
+        var staff = await uow.Repository<Staff>().GetByIdAsync(request.VerifiedByStaffId, cancellationToken)
+            ?? throw new NotFoundException("Staff not found");
+
+        if (booking.Status != BookingStatus.Pending_Verification)
         {
             throw new Exception("Only bookings pending verification can be checked in");
         }

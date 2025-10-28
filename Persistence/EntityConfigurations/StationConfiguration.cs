@@ -1,4 +1,5 @@
-﻿using Domain.Entities.StationManagement;
+﻿using Domain.Entities.BookingManagement;
+using Domain.Entities.StationManagement;
 using Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -87,6 +88,7 @@ public sealed class StaffAtStationConfiguration : IEntityTypeConfiguration<Staff
 
         b.HasIndex(x => new { x.StaffId, x.EndTime });
         b.HasIndex(x => new { x.StationId, x.EndTime });
+
     }
 }
 

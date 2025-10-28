@@ -1,4 +1,7 @@
 using Application;
+using Application.Interfaces;
+using Domain.Entities.BookingManagement;
+using Domain.Entities.StationManagement;
 using FastEndpoints;
 using MediatR;
 using Microsoft.AspNetCore.Identity;

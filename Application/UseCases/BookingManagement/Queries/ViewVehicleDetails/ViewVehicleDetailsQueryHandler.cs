@@ -4,6 +4,7 @@ using Application.Interfaces;
 using AutoMapper;
 using Domain.Entities.BookingManagement;
 using Domain.Entities.StationManagement;
+using Domain.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -23,7 +24,7 @@ public class ViewVehicleDetailsQueryHandler(IUnitOfWork uow, IMapper mapper) : I
         var bookingRepo = uow.Repository<Booking>();
 
         var vehicleBookings = await bookingRepo.AsQueryable()
-            .Where(b => b.VehicleAtStationId == vehicleAtStation.VehicleAtStationId)
+            .Where(b => b.VehicleAtStationId == vehicleAtStation.VehicleAtStationId && b.Status != BookingStatus.Cancelled)
             .ToListAsync(cancellationToken);
 
         // Get pricing of today
