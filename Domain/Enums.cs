@@ -12,7 +12,7 @@ public enum ContractStatus { Issued, Partially_Signed, Signed, Voided, Expired }
 public enum EsignProvider { Native, Docusign, Adobesign, Signnow, Other }
 public enum PartyRole { Renter, Staff, Other }
 public enum SignatureEvent { Pickup, Dropoff }
-public enum SignatureType { Drawn, Typed, Digital_Cert }
+public enum SignatureType { Drawn, Typed, Digital_Cert, OnPaper }
 public enum TransferStatus { Draft, Approved, In_Transit, Completed, Cancelled }
 public enum KycType { National_ID, Driver_License, Passport, Other }
 public enum KycStatus { Submitted, Verified, Rejected, Expired }

@@ -10,6 +10,7 @@ public class Signature
     public SignatureEvent SignatureEvent { get; set; } // pickup/dropoff
     public SignatureType Type { get; set; } // esign/handwritten
     public DateTime SignedAt { get; set; }
+    
     public string? SignerIp { get; set; }
     public string? UserAgent { get; set; }
     public string? ProviderSignatureId { get; set; }
