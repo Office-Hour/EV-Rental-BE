@@ -1,7 +1,7 @@
 ﻿using Application.DTOs.BookingManagement;
 using Domain.Enums;
 
-namespace Application.UseCases.RentalManagement.Queries.GetRentalDetails
+namespace Application.DTOs.RentalManagement
 {
     public class RentalDetailsDto
     {
@@ -18,5 +18,6 @@ namespace Application.UseCases.RentalManagement.Queries.GetRentalDetails
 
         public BookingBriefDto Booking { get; set; } = null!;
         public VehicleDto Vehicle { get; set; } = null!;
+        public List<ContractDto> Contracts { get; set; } = new();
     }
 }

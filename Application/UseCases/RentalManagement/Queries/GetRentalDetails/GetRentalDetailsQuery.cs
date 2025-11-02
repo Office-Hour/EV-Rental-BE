@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using Application.DTOs.RentalManagement;
+using MediatR;
 
 namespace Application.UseCases.RentalManagement.Queries.GetRentalDetails;
 

@@ -9,5 +9,10 @@ public class ContractMapperProfile : Profile
     public ContractMapperProfile()
     {
         CreateMap<CreateSignaturePayloadDto, Signature>();
+
+        CreateMap<Contract, ContractDto>()
+            .ReverseMap();
+
+        CreateMap<Contract, ContractDetailsDto>();
     }
 }

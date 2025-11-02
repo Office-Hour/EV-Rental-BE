@@ -119,7 +119,6 @@ public class AccountController(IMediator mediator) : ControllerBase
     /// <response code="400">Invalid refresh token</response>
     /// <response code="401">Unauthorized</response>
     [HttpPost("invoke-token")]
-    [Authorize(AuthenticationSchemes = "Bearer")]
     [ProducesResponseType(typeof(ApiResponse<AuthDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorMessage), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ErrorMessage), StatusCodes.Status401Unauthorized)]

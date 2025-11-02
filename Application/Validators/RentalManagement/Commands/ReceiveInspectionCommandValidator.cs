@@ -7,8 +7,6 @@ public class ReceiveInspectionCommandValidator : AbstractValidator<ReceiveInspec
 {
     public ReceiveInspectionCommandValidator()
     {
-        RuleFor(x => x.InspectionId)
-            .NotEmpty().WithMessage("InspectionId is required.");
         RuleFor(x => x.RentalId)
             .NotEmpty().WithMessage("RentalId is required.");
         RuleFor(x => x.CurrentBatteryCapacityKwh)

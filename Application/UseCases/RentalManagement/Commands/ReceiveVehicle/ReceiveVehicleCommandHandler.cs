@@ -13,6 +13,7 @@ public class ReceiveVehicleCommandHandler(IUnitOfWork uow) : IRequestHandler<Rec
         var rental = await uow.Repository<Domain.Entities.RentalManagement.Rental>()
             .GetByIdAsync(request.RentalId, cancellationToken)
             ?? throw new KeyNotFoundException("Rental not found");
+        
         var inspections = await uow.Repository<Inspection>().AsQueryable()
             .Where(i => i.RentalId == request.RentalId)
             .ToListAsync(cancellationToken);
@@ -20,6 +21,7 @@ public class ReceiveVehicleCommandHandler(IUnitOfWork uow) : IRequestHandler<Rec
         var contracts = await uow.Repository<Contract>().AsQueryable()
             .Where(c => c.RentalId == request.RentalId)
             .ToListAsync(cancellationToken);
+        
         if (contracts.Count == 0)
         {
             throw new InvalidOperationException("No contracts found for this rental");
@@ -29,7 +31,6 @@ public class ReceiveVehicleCommandHandler(IUnitOfWork uow) : IRequestHandler<Rec
             throw new InvalidOperationException("All contracts must be signed before receiving the vehicle");
         }
 
-
         if (inspections.Count == 0)
         {
             throw new InvalidOperationException("No inspections found for this rental");
@@ -37,6 +38,10 @@ public class ReceiveVehicleCommandHandler(IUnitOfWork uow) : IRequestHandler<Rec
 
         if (rental.Status != RentalStatus.In_Progress)
             throw new InvalidOperationException("Rental must be in progress before completion.");
+
+        // Update rental status to Completed
+        rental.Status = RentalStatus.In_Progress;
+        
         await uow.Repository<Rental>()
             .UpdateAsync(rental.RentalId, rental, cancellationToken);
         await uow.SaveChangesAsync(cancellationToken);

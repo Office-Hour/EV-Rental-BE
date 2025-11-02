@@ -1,5 +1,6 @@
 ﻿using Application.CustomExceptions;
 using Application.DTOs.BookingManagement;
+using Application.DTOs.RentalManagement;
 using Application.Interfaces;
 using AutoMapper;
 using Domain.Entities.RentalManagement;
@@ -27,6 +28,13 @@ public class GetRentalDetailsQueryHandler(IUnitOfWork uow, IMapper mapper) : IRe
         var rentalDetailsDto = mapper.Map<RentalDetailsDto>(rental);
         rentalDetailsDto.Booking = mapper.Map<BookingBriefDto>(booking);
         rentalDetailsDto.Vehicle = mapper.Map<VehicleDto>(vehicle);
+
+        var contracts = uow.Repository<Contract>()
+            .AsQueryable()
+            .Where(c => c.RentalId == rental.RentalId)
+            .ToList();
+
+        rentalDetailsDto.Contracts = mapper.Map<List<ContractDto>>(contracts);
 
         return rentalDetailsDto;
     }
