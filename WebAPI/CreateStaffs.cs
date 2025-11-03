@@ -3,27 +3,31 @@ using Domain.Entities.BookingManagement;
 using Domain.Entities.StationManagement;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using System.Threading.Tasks;
 
 namespace WebAPI;
 
 public static class CreateStaffs
 {
-    public static async Task CreateAdminStaffs(this WebApplication app)
+    public static async Task CreateStaffAccounts(this WebApplication app)
     {
-
         // Create 2 accounts for staffs
-        using (var scope = app.Services.CreateScope())
-        {
-            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
-            var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-            var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+        using var scope = app.Services.CreateScope();
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
+        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+        var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
 
+        try
+        {
             // 1) Ensure STAFF role exists
             const string staffRole = "STAFF";
             if (!await roleManager.RoleExistsAsync(staffRole))
             {
-                var _ = await roleManager.CreateAsync(new IdentityRole(staffRole));
+                var roleResult = await roleManager.CreateAsync(new IdentityRole(staffRole));
+                if (!roleResult.Succeeded)
+                {
+                    var errs = string.Join("; ", roleResult.Errors.Select(e => $"{e.Code}:{e.Description}"));
+                    throw new InvalidOperationException($"Failed creating role {staffRole}: {errs}");
+                }
             }
 
             // Helper to create or update a user, and return the user + parsed Guid Id
@@ -81,22 +85,18 @@ public static class CreateStaffs
             }
 
             // Helper to upsert Staff by UserId (fallback by EmployeeCode)
-            async Task<Staff> UpsertStaffAsync(Guid userId, string employeeCode, DateTime hireDate, string position)
+            async Task<Staff?> UpsertStaffAsync(Guid userId, string employeeCode, DateTime hireDate, string position)
             {
                 var staffRepo = unitOfWork.Repository<Staff>();
 
                 // Try by UserId first
                 var existing = await staffRepo
                     .AsQueryable()
-                    .FirstOrDefaultAsync(s => s.UserId == userId);
-
-                // Fallback by EmployeeCode if needed (in case schema allows duplicates)
-                if (existing == null)
-                {
-                    existing = await staffRepo
+                    .FirstOrDefaultAsync(s => s.UserId == userId)
+                    ??
+                    await staffRepo
                         .AsQueryable()
                         .FirstOrDefaultAsync(s => s.EmployeeCode == employeeCode);
-                }
 
                 if (existing == null)
                 {
@@ -109,21 +109,14 @@ public static class CreateStaffs
                         Position = position
                     };
                     await staffRepo.AddAsync(existing);
-                }
-                else
-                {
-                    // Update mutable fields
-                    existing.EmployeeCode = employeeCode;
-                    existing.HireDate = hireDate;
-                    existing.Position = position;
-                    staffRepo.Update(existing);
+                    return existing;
                 }
 
-                return existing;
+                return null;
             }
 
             // Helper to upsert StaffAtStation: keep at most one active assignment per (Staff, Station)
-            async Task<StaffAtStation> UpsertStaffAtStationAsync(Guid staffId, Guid stationId, string roleAtStation, DateTime startTime)
+            async Task UpsertStaffAtStationAsync(Guid staffId, Guid stationId, string? roleAtStation, DateTime startTime)
             {
                 var sasRepo = unitOfWork.Repository<StaffAtStation>();
 
@@ -134,13 +127,6 @@ public static class CreateStaffs
 
                 if (active == null)
                 {
-                    // Optionally, if there is any other active record for this Staff (at a different station),
-                    // you may want to end it here to enforce "one active station per staff" rule:
-                    // var otherActive = await sasRepo.Queryable()
-                    //     .Where(x => x.StaffId == staffId && x.EndTime == null)
-                    //     .ToListAsync();
-                    // foreach (var oa in otherActive) { oa.EndTime = startTime; sasRepo.Update(oa); }
-
                     active = new StaffAtStation
                     {
                         StaffId = staffId,
@@ -155,43 +141,51 @@ public static class CreateStaffs
                 {
                     // Update current assignment details
                     active.RoleAtStation = roleAtStation;
-
-                    // If caller wants to reset the start time (only if you intend to rebase)
-                    // You can choose to keep the earliest start; here we update to the provided start
                     active.StartTime = startTime;
-
                     sasRepo.Update(active);
                 }
-
-                return active;
             }
 
             // === Actual seeding / upserting ===
             var (u1, u1Guid) = await UpsertUserAsync("staff1@ev.local", "Staff@1234");
             var (u2, u2Guid) = await UpsertUserAsync("staff2@ev.local", "Staff@1234");
 
+            var hireDate = DateTime.Parse("2024-12-12");
+
             var staff1 = await UpsertStaffAsync(
                 userId: u1Guid,
                 employeeCode: "STF001",
-                hireDate: DateTime.UtcNow.AddYears(-2),
+                hireDate: hireDate.AddYears(-2),
                 position: "Staff"
             );
+
+            if (staff1 != null)
+            {
+                var station1 = Guid.Parse("11111111-1111-1111-1111-111111111111");
+                await UpsertStaffAtStationAsync(staff1.StaffId, station1, roleAtStation: "Staff", startTime: hireDate.AddYears(-1));
+
+            }
 
             var staff2 = await UpsertStaffAsync(
                 userId: u2Guid,
                 employeeCode: "STF002",
-                hireDate: DateTime.UtcNow.AddYears(-1),
+                hireDate: hireDate.AddYears(-1),
                 position: "Staff"
             );
-
-            // Station seeds you referenced
-            var station1 = Guid.Parse("11111111-1111-1111-1111-111111111111");
-            var station2 = Guid.Parse("22222222-2222-2222-2222-222222222222");
-
-            await UpsertStaffAtStationAsync(staff1.StaffId, station1, roleAtStation: "Staff", startTime: DateTime.UtcNow.AddYears(-1));
-            await UpsertStaffAtStationAsync(staff2.StaffId, station2, roleAtStation: "Staff", startTime: DateTime.UtcNow.AddMonths(-6));
+            if (staff2 != null)
+            {
+                var station2 = Guid.Parse("22222222-2222-2222-2222-222222222222");
+                await UpsertStaffAtStationAsync(staff2.StaffId, station2, roleAtStation: "Staff", startTime: hireDate.AddMonths(-6));
+            }
 
             await unitOfWork.SaveChangesAsync();
+
+            Console.WriteLine("✅ Staff accounts created/updated successfully");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"❌ Error creating staff accounts: {ex.Message}");
+            throw;
         }
     }
 }

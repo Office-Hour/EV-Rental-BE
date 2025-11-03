@@ -1,4 +1,4 @@
-using Application;
+﻿using Application;
 using Application.Interfaces;
 using Domain.Entities.BookingManagement;
 using Domain.Entities.StationManagement;
@@ -102,5 +102,8 @@ VALUES ('90000000-0000-0000-0000-000000000003','Renter','RENTER','e2e3f4f5-56a7-
 ");
     await services.Database.MigrateAsync();
 }
+
+// Chạy 1 lần thôi, lần sau comment lại 
+await app.CreateStaffAccounts();
 
 app.Run();
