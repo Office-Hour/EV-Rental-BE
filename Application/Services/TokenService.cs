@@ -7,13 +7,15 @@ using System.Text;
 using System.Threading.Tasks;
 using Application.CustomExceptions;
 using Application.Interfaces;
+using Domain.Entities.BookingManagement;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Application.Services
 {
-    public class TokenService(UserManager<IdentityUser> userManager, IConfiguration configuration) : ITokenService
+    public class TokenService(UserManager<IdentityUser> userManager, IUnitOfWork uow, IConfiguration configuration) : ITokenService
     {
         private string RefreshTokenClaimType => configuration["Jwt:REFRESH_TOKEN_CLAIM_TYPE"] ?? throw new InvalidOperationException("REFRESH_TOKEN_CLAIM_TYPE not found");
         private string RefreshTokenExpirationClaimType => configuration["Jwt:REFRESH_TOKEN_EXPIRATION_CLAIM_TYPE"] ?? throw new InvalidOperationException("REFRESH_TOKEN_EXPIRATION_CLAIM_TYPE not found");
@@ -47,6 +49,16 @@ namespace Application.Services
             foreach (var role in roles)
             {
                 claims.Add(new Claim(role, "True"));
+                if(role == "Renter")
+                {
+                    var renter = await uow.Repository<Renter>().AsQueryable().FirstOrDefaultAsync(r => r.UserId == Guid.Parse(user.Id));
+                    claims.Add(new Claim("RenterId", renter!.RenterId.ToString()));
+                }
+                if (role == "Staff")
+                {
+                    var staff = await uow.Repository<Staff>().AsQueryable().FirstOrDefaultAsync(r => r.UserId == Guid.Parse(user.Id));
+                    claims.Add(new Claim("StaffId", staff!.StaffId.ToString()));
+                }
             }
 
             var accessToken = GenerateJwtToken(claims, expiredAt);

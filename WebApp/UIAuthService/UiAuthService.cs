@@ -1,36 +1,26 @@
 ﻿// UiAuthService.cs
+using Application.Interfaces;
 using Application.UseCases.Authentication.Commands.Login;
 using Application.UseCases.Authentication.Commands.Logout;
 using Application.UseCases.Authentication.Commands.Register;
+using Application.UseCases.Profile.Queries.GetRenterProfile;
 using Application.Validators.Authentication.Commands;
-using Azure.Core;
-using FluentValidation;
+using Domain.Entities.BookingManagement;
 using MediatR;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
-using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+//using System.Security.Claims;
 
 namespace WebApp.UIAuthService;
 
-public sealed class UiAuthService : IUiAuthService
+public sealed class UiAuthService(IMediator mediator,
+                     UserManager<IdentityUser> userManager,
+                     IHttpContextAccessor http,
+                     ILogger<UiAuthService> logger,
+                     IUnitOfWork uow) : IUiAuthService
 {
-    private readonly IMediator _mediator;
-    private readonly UserManager<IdentityUser> _userManager;
-    private readonly IHttpContextAccessor _http;
-    private readonly ILogger<UiAuthService> _logger;
-
-    public UiAuthService(IMediator mediator,
-                         UserManager<IdentityUser> userManager,
-                         IHttpContextAccessor http,
-                         ILogger<UiAuthService> logger)
-    {
-        _mediator = mediator;
-        _userManager = userManager;
-        _http = http;
-        _logger = logger;
-    }
-
     public async Task RegisterAsync(string email, string? userName, string password, string confirmPassword, CancellationToken ct, bool signInAfter = true)
     {
         var command = new RegisterCommand { Email = email, UserName = userName, Password = password, ConfirmPassword = confirmPassword };
@@ -41,7 +31,7 @@ public sealed class UiAuthService : IUiAuthService
             var errors = string.Join(", ", validationResult.Errors.Select(e => e.ErrorMessage));
             throw new FluentValidation.ValidationException(errors);
         }
-        await _mediator.Send(command, ct);
+        await mediator.Send(command, ct);
 
         if (signInAfter)
             await LoginAsync(email, password, rememberMe: false, ct);
@@ -58,12 +48,13 @@ public sealed class UiAuthService : IUiAuthService
             var errors = string.Join(", ", validationResult.Errors.Select(e => e.ErrorMessage));
             throw new FluentValidation.ValidationException(errors);
         }
-        var auth = await _mediator.Send(command, ct);
+        var auth = await mediator.Send(command, ct);
 
         // 2) Build a ClaimsPrincipal for the cookie (from Identity store)
-        var user = await _userManager.FindByEmailAsync(email)
+        var user = await userManager.FindByEmailAsync(email)
                    ?? throw new InvalidOperationException("User not found after login.");
-        var roles = await _userManager.GetRolesAsync(user);
+        var roles = await userManager.GetRolesAsync(user);
+
 
         var claims = new List<Claim>
         {
@@ -72,6 +63,25 @@ public sealed class UiAuthService : IUiAuthService
             new Claim(ClaimTypes.Email, email)
         };
         claims.AddRange(roles.Select(r => new Claim(ClaimTypes.Role, r)));
+        if (roles.Any(r => r == "Renter"))
+        {
+            var getRenterProfileCommand = new GetRenterProfileQuery
+            {
+                UserId = Guid.Parse(user.Id)
+            };
+            var renter = await mediator.Send(getRenterProfileCommand);
+
+            var renterIdClaim = new Claim("RenterId", renter.RenterId.ToString());
+            claims.Add(renterIdClaim);
+        }
+        if(roles.Any(r => r == "Staff"))
+        {
+            var staff = await uow.Repository<Staff>()
+                .AsQueryable()
+                .FirstOrDefaultAsync(s => s.UserId == Guid.Parse(user.Id));
+            var staffIdClaim = new Claim("StaffId", Guid.Empty.ToString());
+            claims.Add(staffIdClaim);
+        }
 
         var identity = new ClaimsIdentity(claims, IdentityConstants.ApplicationScheme);
         var principal = new ClaimsPrincipal(identity);
@@ -82,7 +92,7 @@ public sealed class UiAuthService : IUiAuthService
             IsPersistent = rememberMe,
             ExpiresUtc = DateTimeOffset.UtcNow.AddHours(8)
         };
-        await _http.HttpContext!.SignInAsync(IdentityConstants.ApplicationScheme, principal, props);
+        await http.HttpContext!.SignInAsync(IdentityConstants.ApplicationScheme, principal, props);
 
         // 4) Store the refresh token as a secure HttpOnly cookie
         var refreshOptions = new CookieOptions
@@ -92,26 +102,26 @@ public sealed class UiAuthService : IUiAuthService
             SameSite = SameSiteMode.Lax,
             Expires = auth.RefreshTokenExpiration
         };
-        _http.HttpContext.Response.Cookies.Append("refreshToken", auth.RefreshToken, refreshOptions);
+        http.HttpContext!.Response.Cookies.Append("refreshToken", auth.RefreshToken, refreshOptions);
     }
 
     public async Task LogoutAsync(CancellationToken ct)
     {
         // Read refresh token cookie (if present) and call your logout handler
-        if (_http.HttpContext!.Request.Cookies.TryGetValue("refreshToken", out var rt) && !string.IsNullOrWhiteSpace(rt))
+        if (http.HttpContext!.Request.Cookies.TryGetValue("refreshToken", out var rt) && !string.IsNullOrWhiteSpace(rt))
         {
             try
             {
-                await _mediator.Send(new LogoutCommand { RefreshToken = rt }, ct);
+                await mediator.Send(new LogoutCommand { RefreshToken = rt }, ct);
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, "Failed to revoke refresh token on logout");
+                logger.LogWarning(ex, "Failed to revoke refresh token on logout");
             }
         }
 
         // Clear cookies
-        _http.HttpContext.Response.Cookies.Delete("refreshToken");
-        await _http.HttpContext.SignOutAsync(IdentityConstants.ApplicationScheme);
+        http.HttpContext.Response.Cookies.Delete("refreshToken");
+        await http.HttpContext.SignOutAsync(IdentityConstants.ApplicationScheme);
     }
 }
