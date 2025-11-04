@@ -10,7 +10,7 @@ public class RegisterModel(IUiAuthService auth) : PageModel
     [BindProperty] public string? UserName { get; set; }
     [BindProperty] public string Password { get; set; } = "";
     [BindProperty] public string ConfirmPassword { get; set; } = "";
-    [BindProperty] public string ReturnUrl { get; set; }
+    [BindProperty] public string ReturnUrl { get; set; } = "";
 
     public void OnGet() { }
 

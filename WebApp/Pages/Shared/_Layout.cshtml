@@ -8,45 +8,229 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/WebApp.styles.css" asp-append-version="true" />
+    <!-- Google Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container">
-                <a class="navbar-brand" asp-area="" asp-page="/Index">WebApp</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
-                        </li>
-                    </ul>
-                    <partial name="_LoginPartial" />
+        <nav class="navbar navbar-expand-lg bg-surface-80 border-bottom border-outline shadow-lg backdrop-blur py-2 sticky-top">
+            <div class="container-xl max-w-7xl d-flex align-items-center px-4 px-sm-5 px-lg-4">
+                
+                <!-- Brand / Logo -->
+                <a asp-page="/Index" class="logo-container d-flex align-items-center text-decoration-none me-4">
+                    <img src="~/logo-text.webp" alt="Voltera Logo" class="logo-text" />
+                    <img src="~/logo-text-dark.webp" alt="Voltera Logo" class="logo-text-dark" />
+                </a>
+
+                <!-- Navigation Links (Desktop) -->
+                <div class="nav-links d-none d-lg-flex flex-grow-1" id="mainNavigation">
+                    <a asp-page="/Index" class="nav-link-item @(ViewContext.RouteData.Values["page"]?.ToString() == "/Index" ? "active" : "")">
+                        <span class="material-icons" style="font-size: 1.1rem; vertical-align: middle; margin-right: 0.25rem;">home</span>
+                        Trang chủ
+                    </a>
+                    <a asp-page="/Vehicles" class="nav-link-item">
+                        <span class="material-icons" style="font-size: 1.1rem; vertical-align: middle; margin-right: 0.25rem;">electric_car</span>
+                        Xe điện
+                    </a>
+                    <a asp-page="/Stations" class="nav-link-item">
+                        <span class="material-icons" style="font-size: 1.1rem; vertical-align: middle; margin-right: 0.25rem;">location_on</span>
+                        Trạm
+                    </a>
+                    <a asp-page="/About" class="nav-link-item">
+                        <span class="material-icons" style="font-size: 1.1rem; vertical-align: middle; margin-right: 0.25rem;">info</span>
+                        Giới thiệu
+                    </a>
                 </div>
+
+                <!-- Mobile Menu Toggle -->
+                <button class="mobile-menu-toggle d-lg-none" type="button" aria-label="Toggle navigation" onclick="toggleMobileMenu()">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+
+                <!-- Right Actions -->
+                <div class="header-actions ms-auto">
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <!-- Authenticated User Section -->
+                        
+                        <!-- Notifications (Optional) -->
+                        <a asp-page="/Notifications" class="btn btn-icon-text text-decoration-none notification-badge d-none d-sm-inline-flex" title="Thông báo">
+                            <span class="material-icons">notifications</span>
+                        </a>
+
+                        <!-- User Profile Dropdown -->
+                        <div class="dropdown user-profile-dropdown">
+                            <button class="user-profile-btn" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <div class="user-avatar">
+                                    @{
+                                        var userInitials = User.Identity.Name?.Substring(0, Math.Min(2, User.Identity.Name.Length)).ToUpper() ?? "U";
+                                    }
+                                    @userInitials
+                                </div>
+                                <div class="user-info d-none d-md-flex">
+                                    <span class="user-name">@(User.Identity.Name ?? "User")</span>
+                                    <span class="user-role">
+                                        @if (User.IsInRole("Admin"))
+                                        {
+                                            <text>Quản trị viên</text>
+                                        }
+                                        else if (User.IsInRole("Staff"))
+                                        {
+                                            <text>Nhân viên</text>
+                                        }
+                                        else if (User.IsInRole("Renter"))
+                                        {
+                                            <text>Người thuê</text>
+                                        }
+                                        else
+                                        {
+                                            <text>Thành viên</text>
+                                        }
+                                    </span>
+                                </div>
+                                <svg class="dropdown-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
+                            
+                            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-custom">
+                                <li>
+                                    <a class="dropdown-item-custom" asp-area="Identity" asp-page="/Account/Manage/Index">
+                                        <span class="material-icons">person</span>
+                                        Hồ sơ cá nhân
+                                    </a>
+                                </li>
+                                @if (User.IsInRole("Renter"))
+                                {
+                                    <li>
+                                        <a class="dropdown-item-custom" asp-area="Renter" asp-page="/RenterProfile">
+                                            <span class="material-icons">person</span>
+                                            Hồ sơ người thuê
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item-custom" asp-page="/MyBookings">
+                                            <span class="material-icons">event</span>
+                                            Đặt xe của tôi
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item-custom" asp-page="/MyRentals">
+                                            <span class="material-icons">key</span>
+                                            Thuê xe của tôi
+                                        </a>
+                                    </li>
+                                }
+                                @if (User.IsInRole("Staff") || User.IsInRole("Admin"))
+                                {
+                                    <li>
+                                        <a class="dropdown-item-custom" asp-page="/Staff/Dashboard">
+                                            <span class="material-icons">dashboard</span>
+                                            Bảng điều khiển
+                                        </a>
+                                    </li>
+                                }
+                                <li>
+                                    <a class="dropdown-item-custom" asp-area="Identity" asp-page="/Account/Manage/Index">
+                                        <span class="material-icons">settings</span>
+                                        Cài đặt
+                                    </a>
+                                </li>
+                                <li><div class="dropdown-divider-custom"></div></li>
+                                <li>
+                                    <form method="post" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Page("/Index")">
+                                        <button type="submit" class="dropdown-item-custom w-100 text-start border-0 bg-transparent">
+                                            <span class="material-icons">logout</span>
+                                            Đăng xuất
+                                        </button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+                    }
+                    else
+                    {
+                        <!-- Guest User Section -->
+                        <a asp-area="Identity" asp-page="/Account/Login" class="btn btn-outline-primary btn-icon-text text-decoration-none">
+                            <span class="material-icons">login</span>
+                            <span class="btn-text">Đăng nhập</span>
+                        </a>
+                        <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-signup btn-icon-text text-decoration-none d-none d-sm-inline-flex">
+                            <span class="material-icons">person_add</span>
+                            <span class="btn-text">Đăng ký</span>
+                        </a>
+                    }
+                </div>
+            </div>
+
+            <!-- Mobile Navigation Menu -->
+            <div class="nav-links d-lg-none" id="mobileNavigation">
+                <a asp-page="/Index" class="nav-link-item @(ViewContext.RouteData.Values["page"]?.ToString() == "/Index" ? "active" : "")">
+                    <span class="material-icons" style="font-size: 1.1rem; vertical-align: middle; margin-right: 0.5rem;">home</span>
+                    Trang chủ
+                </a>
+                <a asp-page="/Vehicles" class="nav-link-item">
+                    <span class="material-icons" style="font-size: 1.1rem; vertical-align: middle; margin-right: 0.5rem;">electric_car</span>
+                    Xe điện
+                </a>
+                <a asp-page="/Stations" class="nav-link-item">
+                    <span class="material-icons" style="font-size: 1.1rem; vertical-align: middle; margin-right: 0.5rem;">location_on</span>
+                    Trạm
+                </a>
+                <a asp-page="/About" class="nav-link-item">
+                    <span class="material-icons" style="font-size: 1.1rem; vertical-align: middle; margin-right: 0.5rem;">info</span>
+                    Giới thiệu
+                </a>
+                @if (User.Identity?.IsAuthenticated != true)
+                {
+                    <a asp-area="Identity" asp-page="/Account/Register" class="nav-link-item d-sm-none">
+                        <span class="material-icons" style="font-size: 1.1rem; vertical-align: middle; margin-right: 0.5rem;">person_add</span>
+                        Đăng ký
+                    </a>
+                }
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
+    
+    <div class="layout-container">
+        <main role="main">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2025 - WebApp - <a asp-area="" asp-page="/Privacy">Privacy</a>
-        </div>
-    </footer>
-
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <script>
+        // Mobile menu toggle
+        function toggleMobileMenu() {
+            const mobileNav = document.getElementById('mobileNavigation');
+            mobileNav.classList.toggle('show');
+        }
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const mobileNav = document.getElementById('mobileNavigation');
+            const toggle = document.querySelector('.mobile-menu-toggle');
+            
+            if (mobileNav && toggle && !mobileNav.contains(event.target) && !toggle.contains(event.target)) {
+                mobileNav.classList.remove('show');
+            }
+        });
+
+        // Close mobile menu when window resizes to desktop
+        window.addEventListener('resize', function() {
+            if (window.innerWidth >= 992) {
+                const mobileNav = document.getElementById('mobileNavigation');
+                if (mobileNav) {
+                    mobileNav.classList.remove('show');
+                }
+            }
+        });
+    </script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>

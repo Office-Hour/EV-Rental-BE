@@ -1,0 +1,401 @@
+﻿@page
+@using System.Security.Claims
+@using Domain.Enums
+@model WebApp.Areas.Renter.RenterProfileModel
+@{
+    ViewData["Title"] = "Hồ Sơ Người Thuê";
+}
+
+<link rel="stylesheet" href="~/css/renter-profile.css" asp-append-version="true" />
+
+<div class="profile-container">
+    <!-- Profile Header -->
+    <div class="profile-header">
+        <div class="profile-header-content">
+            <div class="profile-avatar-section">
+                <div class="profile-avatar-large">
+                    @{
+                        var userInitials = User.Identity?.Name?.Substring(0, Math.Min(2, User.Identity.Name.Length)).ToUpper() ?? "RT";
+                    }
+                    @userInitials
+                </div>
+                <button class="btn-change-avatar" title="Thay đổi ảnh đại diện">
+                    <span class="material-icons"></span>
+                </button>
+            </div>
+            
+            <div class="profile-info">
+                <h1 class="profile-name">@(User.Identity?.Name ?? "Người thuê")</h1>
+                <p class="profile-email">
+                    <span class="material-icons"></span>
+                    @(User.FindFirst(ClaimTypes.Email)?.Value ?? User.Identity?.Name)
+                </p>
+                <div class="profile-badges">
+                    <span class="badge badge-renter">
+                        <span class="material-icons"></span>
+                        Người Thuê
+                    </span>
+                    @if (Model.RiskScore <= 30)
+                    {
+                        <span class="badge badge-excellent">
+                            <span class="material-icons"></span>
+                            Uy Tín Cao
+                        </span>
+                    }
+                    else if (Model.RiskScore <= 50)
+                    {
+                        <span class="badge badge-good">
+                            <span class="material-icons"></span>
+                            Uy Tín Tốt
+                        </span>
+                    }
+                </div>
+            </div>
+
+            <div class="profile-actions">
+                <a asp-area="Identity" asp-page="/Account/Manage/Index" class="btn btn-outline-primary">
+                    <span class="material-icons"></span>
+                    Chỉnh sửa
+                </a>
+                <a asp-area="Renter" asp-page="/UploadKyc" class="btn btn-primary">
+                    <span class="material-icons"></span>
+                    Upload KYC
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="profile-content">
+        <div class="row g-4">
+            <!-- Left Column: Profile Details -->
+            <div class="col-lg-8">
+                <!-- Personal Information Card -->
+                <div class="profile-card">
+                    <div class="profile-card-header">
+                        <h2 class="profile-card-title">
+                            <span class="material-icons"></span>
+                            Thông Tin Cá Nhân
+                        </h2>
+                    </div>
+                    <div class="profile-card-body">
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <label class="info-label">
+                                    <span class="material-icons"></span>
+                                    Mã Người Thuê
+                                </label>
+                                <div class="info-value">@Model.RenterId.ToString().Substring(0, 8).ToUpper()</div>
+                            </div>
+
+                            <div class="info-item">
+                                <label class="info-label">
+                                    <span class="material-icons"></span>
+                                    Ngày Sinh
+                                </label>
+                                <div class="info-value">
+                                    @if (Model.DateOfBirth.HasValue)
+                                    {
+                                        @Model.DateOfBirth.Value.ToString("dd/MM/yyyy")
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">Chưa cập nhật</span>
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="info-item">
+                                <label class="info-label">
+                                    <span class="material-icons"></span>
+                                    Số GPLX
+                                </label>
+                                <div class="info-value">
+                                    @if (!string.IsNullOrEmpty(Model.DriverLicenseNo))
+                                    {
+                                        @Model.DriverLicenseNo
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">Chưa cập nhật</span>
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="info-item full-width">
+                                <label class="info-label">
+                                    <span class="material-icons"></span>
+                                    Địa Chỉ
+                                </label>
+                                <div class="info-value">
+                                    @if (!string.IsNullOrEmpty(Model.Address))
+                                    {
+                                        @Model.Address
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">Chưa cập nhật</span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KYC Status Card -->
+                <div class="profile-card">
+                    <div class="profile-card-header">
+                        <h2 class="profile-card-title">
+                            <span class="material-icons"></span>
+                            Trạng Thái Xác Minh KYC
+                        </h2>
+                    </div>
+                    <div class="profile-card-body">
+                        @if (Model.Kycs?.Items?.Count > 0)
+                        {
+                            <!-- Display KYC Documents -->
+                            <div class="kyc-documents-list">
+                                @foreach (var kyc in Model.Kycs.Items)
+                                {
+                                    var (statusClass, statusIcon, statusTitle, statusDescription) = kyc.Status switch
+                                    {
+                                        KycStatus.Verified => ("kyc-verified", "check_circle", "Đã Xác Minh", "Tài liệu của bạn đã được xác minh thành công"),
+                                        KycStatus.Rejected => ("kyc-rejected", "cancel", "Bị Từ Chối", kyc.RejectionReason ?? "Tài liệu không hợp lệ"),
+                                        KycStatus.Expired => ("kyc-expired", "event_busy", "Đã Hết Hạn", "Tài liệu đã hết hạn, vui lòng upload lại"),
+                                        _ => ("kyc-pending", "hourglass_empty", "Đang Chờ Xác Minh", "Tài liệu đang được xem xét")
+                                    };
+
+                                    var documentTypeText = kyc.Type switch
+                                    {
+                                        KycType.National_ID => "CMND/CCCD",
+                                        KycType.Passport => "Hộ Chiếu",
+                                        KycType.Driver_License => "Giấy Phép Lái Xe",
+                                        _ => "Tài Liệu Khác"
+                                    };
+
+                                    <div class="kyc-status-container mb-3">
+                                        <div class="kyc-status-icon @statusClass">
+                                            <span class="material-icons"></span>
+                                        </div>
+                                        <div class="kyc-status-info">
+                                            <div class="d-flex justify-content-between align-items-start">
+                                                <div>
+                                                    <h3>@statusTitle</h3>
+                                                    <p class="kyc-document-type">
+                                                        <strong>@documentTypeText</strong> - @kyc.DocumentNumber
+                                                    </p>
+                                                    <p class="kyc-description">@statusDescription</p>
+                                                    <div class="kyc-meta">
+                                                        <small class="text-muted">
+                                                            <span class="material-icons" style="font-size: 14px; vertical-align: middle;">schedule</span>
+                                                            Ngày gửi: @kyc.SubmittedAt.ToString("dd/MM/yyyy HH:mm")
+                                                        </small>
+                                                        @if (kyc.VerifiedAt.HasValue)
+                                                        {
+                                                            <small class="text-muted ms-3">
+                                                                <span class="material-icons" style="font-size: 14px; vertical-align: middle;">verified</span>
+                                                                Xác minh: @kyc.VerifiedAt.Value.ToString("dd/MM/yyyy HH:mm")
+                                                            </small>
+                                                        }
+                                                        @if (kyc.ExpiryDate.HasValue)
+                                                        {
+                                                            <small class="text-muted ms-3">
+                                                                <span class="material-icons" style="font-size: 14px; vertical-align: middle;">event</span>
+                                                                Hết hạn: @kyc.ExpiryDate.Value.ToString("dd/MM/yyyy")
+                                                            </small>
+                                                        }
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+
+                            @if (Model.Kycs.Items.All(k => k.Status == KycStatus.Rejected || k.Status == KycStatus.Expired))
+                            {
+                                <div class="alert alert-warning mt-3" role="alert">
+                                    <span class="material-icons"></span>
+                                    <div>
+                                        <strong>Cần Hành Động!</strong>
+                                        <p class="mb-0">Vui lòng upload lại tài liệu KYC hợp lệ để tiếp tục sử dụng dịch vụ.</p>
+                                    </div>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <!-- No KYC documents -->
+                            <div class="kyc-status-container">
+                                <div class="kyc-status-icon kyc-pending">
+                                    <span class="material-icons"></span>
+                                </div>
+                                <div class="kyc-status-info">
+                                    <h3>Chưa Xác Minh</h3>
+                                    <p>Vui lòng upload tài liệu KYC của bạn để hoàn tất xác minh danh tính.</p>
+                                    <a asp-area="Renter" asp-page="/UploadKyc" class="btn btn-sm btn-primary mt-2">
+                                        <span class="material-icons"></span>
+                                        Upload KYC Ngay
+                                    </a>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Recent Bookings Card -->
+                <div class="profile-card">
+                    <div class="profile-card-header">
+                        <h2 class="profile-card-title">
+                            <span class="material-icons"></span>
+                            Đặt Chỗ Gần Đây
+                        </h2>
+                        <a asp-page="/Renter/Bookings" class="btn btn-sm btn-text">
+                            Xem Tất Cả
+                            <span class="material-icons"></span>
+                        </a>
+                    </div>
+                    <div class="profile-card-body">
+                        <div class="empty-state">
+                            <span class="material-icons"></span>
+                            <p>Bạn chưa có đặt chỗ nào</p>
+                            <a asp-page="/Index" class="btn btn-sm btn-primary mt-2">
+                                <span class="material-icons"></span>
+                                Tìm Xe Ngay
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Stats & Quick Actions -->
+            <div class="col-lg-4">
+                <!-- Risk Score Card -->
+                <div class="profile-card stats-card">
+                    <div class="profile-card-body">
+                        <div class="stat-item-large">
+                            <div class="stat-icon-large risk-score-@(Model.RiskScore <= 30 ? "excellent" : Model.RiskScore <= 50 ? "good" : "warning")">
+                                <span class="material-icons"></span>
+                            </div>
+                            <div class="stat-info-large">
+                                <div class="stat-label">Điểm Rủi Ro</div>
+                                <div class="stat-value-large">@Model.RiskScore<span class="stat-unit">/100</span></div>
+                                <div class="stat-description">
+                                    @if (Model.RiskScore <= 30)
+                                    {
+                                        <span>Xuất sắc - Người thuê đáng tin cậy</span>
+                                    }
+                                    else if (Model.RiskScore <= 50)
+                                    {
+                                        <span>Tốt - Lịch sử thuê xe ổn định</span>
+                                    }
+                                    else if (Model.RiskScore <= 70)
+                                    {
+                                        <span>Bình thường - Cần cải thiện</span>
+                                    }
+                                    else
+                                    {
+                                        <span>Cần chú ý - Hãy tuân thủ quy định</span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        <div class="progress-bar-container mt-3">
+                            <div class="progress-bar-fill" style="width: @(100 - Model.RiskScore)%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Statistics Card -->
+                <div class="profile-card">
+                    <div class="profile-card-header">
+                        <h2 class="profile-card-title">
+                            <span class="material-icons"></span>
+                            Thống Kê
+                        </h2>
+                    </div>
+                    <div class="profile-card-body">
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <div class="stat-icon stat-icon-blue">
+                                    <span class="material-icons"></span>
+                                </div>
+                                <div class="stat-info">
+                                    <div class="stat-value">0</div>
+                                    <div class="stat-label">Tổng Đặt Chỗ</div>
+                                </div>
+                            </div>
+
+                            <div class="stat-item">
+                                <div class="stat-icon stat-icon-green">
+                                    <span class="material-icons"></span>
+                                </div>
+                                <div class="stat-info">
+                                    <div class="stat-value">0</div>
+                                    <div class="stat-label">Hoàn Thành</div>
+                                </div>
+                            </div>
+
+                            <div class="stat-item">
+                                <div class="stat-icon stat-icon-orange">
+                                    <span class="material-icons"></span>
+                                </div>
+                                <div class="stat-info">
+                                    <div class="stat-value">0</div>
+                                    <div class="stat-label">Đang Chờ</div>
+                                </div>
+                            </div>
+
+                            <div class="stat-item">
+                                <div class="stat-icon stat-icon-purple">
+                                    <span class="material-icons"></span>
+                                </div>
+                                <div class="stat-info">
+                                    <div class="stat-value">0</div>
+                                    <div class="stat-label">Xe Đã Thuê</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions Card -->
+                <div class="profile-card">
+                    <div class="profile-card-header">
+                        <h2 class="profile-card-title">
+                            <span class="material-icons"></span>
+                            Thao Tác Nhanh
+                        </h2>
+                    </div>
+                    <div class="profile-card-body">
+                        <div class="quick-actions">
+                            <a asp-page="/Renter/Bookings" class="quick-action-item">
+                                <span class="material-icons"></span>
+                                <span>Đặt Chỗ Của Tôi</span>
+                            </a>
+                            <a asp-page="/Renter/Rentals" class="quick-action-item">
+                                <span class="material-icons"></span>
+                                <span>Thuê Xe Của Tôi</span>
+                            </a>
+                            <a asp-page="/Index" class="quick-action-item">
+                                <span class="material-icons"></span>
+                                <span>Tìm Xe</span>
+                            </a>
+                            <a asp-page="/Stations" class="quick-action-item">
+                                <span class="material-icons"></span>
+                                <span>Trạm Gần Tôi</span>
+                            </a>
+                            <a asp-area="Identity" asp-page="/Account/Manage/ChangePassword" class="quick-action-item">
+                                <span class="material-icons"></span>
+                                <span>Đổi Mật Khẩu</span>
+                            </a>
+                            <a asp-area="Identity" asp-page="/Account/Manage/PersonalData" class="quick-action-item">
+                                <span class="material-icons"></span>
+                                <span>Dữ Liệu Cá Nhân</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,160 @@
+﻿@page
+@model WebApp.Areas.Renter.Pages.UploadKycModel
+@{
+    ViewData["Title"] = "Upload KYC";
+}
+<link rel="stylesheet" href="~/css/kyc-upload.css" />
+<div class="kyc-upload-container">
+    <div class="kyc-upload-card">
+        <!-- Header -->
+        <div class="kyc-upload-header">
+            <div class="kyc-header-icon">
+                <span class="material-icons">verified_user</span>
+            </div>
+            <h1 class="kyc-title">Xác Minh Danh Tính (KYC)</h1>
+            <p class="kyc-subtitle">
+                Vui lòng cung cấp thông tin tài liệu xác minh danh tính của bạn để tiếp tục sử dụng dịch vụ
+            </p>
+        </div>
+
+        @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <span class="material-icons">check_circle</span>
+                @Model.SuccessMessage
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <span class="material-icons">error</span>
+                @Model.ErrorMessage
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        <!-- Form -->
+        <form method="post" class="kyc-form">
+            <div class="form-section">
+                <h3 class="section-title">
+                    <span class="material-icons">description</span>
+                    Loại Tài Liệu
+                </h3>
+                
+                <div class="document-type-grid">
+                    <div class="document-type-option">
+                        <input type="radio" asp-for="Type" value="@Domain.Enums.KycType.National_ID" id="nationalId" checked />
+                        <label for="nationalId" class="document-type-label">
+                            <div class="document-icon">
+                                <span class="material-icons">badge</span>
+                            </div>
+                            <div class="document-info">
+                                <strong>CMND/CCCD</strong>
+                                <p>Chứng minh nhân dân hoặc Căn cước công dân</p>
+                            </div>
+                        </label>
+                    </div>
+
+                    <div class="document-type-option">
+                        <input type="radio" asp-for="Type" value="@Domain.Enums.KycType.Passport" id="passport" />
+                        <label for="passport" class="document-type-label">
+                            <div class="document-icon">
+                                <span class="material-icons">flight_takeoff</span>
+                            </div>
+                            <div class="document-info">
+                                <strong>Hộ Chiếu</strong>
+                                <p>Passport quốc tế</p>
+                            </div>
+                        </label>
+                    </div>
+
+                    <div class="document-type-option">
+                        <input type="radio" asp-for="Type" value="@Domain.Enums.KycType.Driver_License" id="driverLicense" />
+                        <label for="driverLicense" class="document-type-label">
+                            <div class="document-icon">
+                                <span class="material-icons">drive_eta</span>
+                            </div>
+                            <div class="document-info">
+                                <strong>Giấy Phép Lái Xe</strong>
+                                <p>Bằng lái xe hợp lệ</p>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+                <span asp-validation-for="Type" class="text-danger"></span>
+            </div>
+
+            <div class="form-section">
+                <h3 class="section-title">
+                    <span class="material-icons">info</span>
+                    Thông Tin Tài Liệu
+                </h3>
+
+                <div class="form-group">
+                    <label asp-for="DocumentNumber" class="form-label">
+                        <span class="material-icons">pin</span>
+                        Số Tài Liệu
+                    </label>
+                    <input asp-for="DocumentNumber" class="form-control form-control-lg" 
+                           placeholder="Nhập số CMND/CCCD/Hộ chiếu/GPLX" required />
+                    <span asp-validation-for="DocumentNumber" class="text-danger"></span>
+                    <small class="form-text">Nhập chính xác số tài liệu như trên giấy tờ</small>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="ExpiryDate" class="form-label">
+                        <span class="material-icons">event</span>
+                        Ngày Hết Hạn (nếu có)
+                    </label>
+                    <input asp-for="ExpiryDate" type="date" class="form-control form-control-lg" 
+                           min="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                    <span asp-validation-for="ExpiryDate" class="text-danger"></span>
+                    <small class="form-text">Để trống nếu tài liệu không có ngày hết hạn</small>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <div class="info-box">
+                    <div class="info-box-icon">
+                        <span class="material-icons">info</span>
+                    </div>
+                    <div class="info-box-content">
+                        <h4>Lưu Ý Quan Trọng</h4>
+                        <ul>
+                            <li>Tài liệu phải còn hiệu lực và rõ ràng</li>
+                            <li>Thông tin trên tài liệu phải khớp với thông tin đã đăng ký</li>
+                            <li>Quá trình xác minh có thể mất 24-48 giờ làm việc</li>
+                            <li>Bạn sẽ nhận được thông báo qua email khi xác minh hoàn tất</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <a asp-page="/Renter/RenterProfile" class="btn btn-outline-secondary btn-lg">
+                    <span class="material-icons">arrow_back</span>
+                    Quay Lại
+                </a>
+                <button type="submit" class="btn btn-primary btn-lg">
+                    <span class="material-icons">upload</span>
+                    Upload Tài Liệu
+                </button>
+            </div>
+        </form>
+
+        <!-- Security Notice -->
+        <div class="security-notice">
+            <span class="material-icons">lock</span>
+            <p>
+                Thông tin của bạn được mã hóa và bảo mật theo tiêu chuẩn quốc tế. 
+                Chúng tôi cam kết không chia sẻ thông tin cá nhân của bạn với bên thứ ba.
+            </p>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
