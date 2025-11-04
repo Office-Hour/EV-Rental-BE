@@ -12,6 +12,7 @@ using WebAPI;
 using WebAPI.Behaviors;
 using WebAPI.FilterException;
 using WebAPI.Middlewares;
+using Microsoft.OpenApi.Models; // added for Swagger/OpenAPI
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,6 +30,57 @@ builder.Services.AddExceptionHandler<ErrorExceptionHandler>();
 builder.Services.AddProblemDetails();
 // Add Pipeline Behavior for validation flow.
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+
+// CORS: add a default policy (adjust AllowedOrigins as needed)
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("DefaultCorsPolicy", policy =>
+    {
+        policy
+            .AllowAnyOrigin()
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+
+// Swagger / OpenAPI (Swashbuckle)
+builder.Services.AddEndpointsApiExplorer();
+
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "EV Rental API",
+        Version = "v1"
+    });
+
+    // JWT Bearer token support in Swagger UI
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header using the Bearer scheme. Example: \"Bearer {token}\"",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT"
+    });
+
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] { }
+        }
+    });
+    options.EnableAnnotations();
+});
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
@@ -50,6 +102,14 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 //if (app.Environment.IsDevelopment())
 {
+    // Enable Swashbuckle middleware (swagger.json + swagger UI)
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "EV Rental API v1");
+        c.RoutePrefix = "swagger"; // serves UI at /swagger; set to string.Empty to serve at root
+    });
+
     app.MapOpenApi();
     app.MapScalarApiReference((options, httpContext) =>
     {
@@ -75,6 +135,9 @@ app.UseExceptionHandler();
 app.UseHttpsRedirection();
 app.UseHsts();// Enables HTTP Strict Transport Security (HSTS) for the application.
 
+// Enable CORS - must be before Authentication/Authorization and before endpoints
+app.UseCors("DefaultCorsPolicy");
+
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -88,18 +151,18 @@ using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     await services.Database.ExecuteSqlRawAsync(@"
-IF NOT EXISTS (SELECT 1 FROM [dbo].[AspNetRoles] WHERE [NormalizedName]='ADMIN')
-INSERT [dbo].[AspNetRoles] ([Id],[Name],[NormalizedName],[ConcurrencyStamp])
-VALUES ('90000000-0000-0000-0000-000000000001','Admin','ADMIN','c0c2f3f6-38c3-4a3f-8a8f-8f3a0a5b1111');
+    IF NOT EXISTS (SELECT 1 FROM [dbo].[AspNetRoles] WHERE [NormalizedName]='ADMIN')
+    INSERT [dbo].[AspNetRoles] ([Id],[Name],[NormalizedName],[ConcurrencyStamp])
+    VALUES ('90000000-0000-0000-0000-000000000001','Admin','ADMIN','c0c2f3f6-38c3-4a3f-8a8f-8f3a0a5b1111');
 
-IF NOT EXISTS (SELECT 1 FROM [dbo].[AspNetRoles] WHERE [NormalizedName]='STAFF')
-INSERT [dbo].[AspNetRoles] ([Id],[Name],[NormalizedName],[ConcurrencyStamp])
-VALUES ('90000000-0000-0000-0000-000000000002','Staff','STAFF','d1d2e3e4-45f6-47a1-9c9a-2b2c3d4e2222');
+    IF NOT EXISTS (SELECT 1 FROM [dbo].[AspNetRoles] WHERE [NormalizedName]='STAFF')
+    INSERT [dbo].[AspNetRoles] ([Id],[Name],[NormalizedName],[ConcurrencyStamp])
+    VALUES ('90000000-0000-0000-0000-000000000002','Staff','STAFF','d1d2e3e4-45f6-47a1-9c9a-2b2c3d4e2222');
 
-IF NOT EXISTS (SELECT 1 FROM [dbo].[AspNetRoles] WHERE [NormalizedName]='RENTER')
-INSERT [dbo].[AspNetRoles] ([Id],[Name],[NormalizedName],[ConcurrencyStamp])
-VALUES ('90000000-0000-0000-0000-000000000003','Renter','RENTER','e2e3f4f5-56a7-48b2-8d8e-3c3d4e5f3333');
-");
+    IF NOT EXISTS (SELECT 1 FROM [dbo].[AspNetRoles] WHERE [NormalizedName]='RENTER')
+    INSERT [dbo].[AspNetRoles] ([Id],[Name],[NormalizedName],[ConcurrencyStamp])
+    VALUES ('90000000-0000-0000-0000-000000000003','Renter','RENTER','e2e3f4f5-56a7-48b2-8d8e-3c3d4e5f3333');
+    ");
     await services.Database.MigrateAsync();
 }
 
