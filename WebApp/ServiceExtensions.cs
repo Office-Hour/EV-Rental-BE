@@ -37,9 +37,9 @@ public static class ServiceExtensions
         {
             // If your pages are under /Account/*, use "/Account/Login".
             // If you scaffolded the Identity Area, keep "/Identity/Account/Login".
-            opt.LoginPath = "/Account/Login";          // <-- change if you use the Identity Area
-            opt.LogoutPath = "/Account/Logout";
-            opt.AccessDeniedPath = "/Account/AccessDenied";
+            opt.LoginPath = "/Identity/Account/Login";          // <-- change if you use the Identity Area
+            opt.LogoutPath = "/Identity/Account/Logout";
+            opt.AccessDeniedPath = "/Identity/Account/AccessDenied";
 
             opt.SlidingExpiration = true;
             opt.ExpireTimeSpan = TimeSpan.FromHours(8);

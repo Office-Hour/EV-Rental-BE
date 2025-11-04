@@ -2,8 +2,12 @@
 
 @if (!string.IsNullOrEmpty(Model))
 {
-    var cls = Model.StartsWith("Error", StringComparison.OrdinalIgnoreCase) ? "danger" : "success";
-    <div class="alert alert-@cls" role="alert">
-        @Model
+    var isError = Model.StartsWith("Error", StringComparison.OrdinalIgnoreCase);
+    var cls = isError ? "danger" : "success";
+    var icon = isError ? "error" : "check_circle";
+    
+    <div class="@(isError ? "validation-summary-errors" : "auth-success")" role="alert" style="display: flex; align-items: center; gap: 0.75rem;">
+        <span class="material-icons">@icon</span>
+        <div>@Model</div>
     </div>
 }

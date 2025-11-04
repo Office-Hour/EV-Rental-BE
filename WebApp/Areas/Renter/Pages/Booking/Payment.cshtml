@@ -1,0 +1,268 @@
+﻿@page
+@using Domain.Enums
+@model WebApp.Areas.Renter.Pages.Booking.PaymentModel
+@{
+    ViewData["Title"] = "Thanh Toán Đặt Cọc";
+}
+
+<link rel="stylesheet" href="~/css/Index.css" />
+<link rel="stylesheet" href="~/css/identity.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/booking-create.css" asp-append-version="true" />
+
+<!-- Hero Section -->
+<section class="booking-hero hero-gradient">
+    <div class="container" style="max-width: 72rem;">
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb-custom">
+                <li class="breadcrumb-item">
+                    <a asp-page="/Index" class="breadcrumb-link">
+                        <span class="material-icons">home</span>
+                        Trang chủ
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a asp-page="./Create" class="breadcrumb-link">
+                        <span class="material-icons">event</span>
+                        Tạo đặt chỗ
+                    </a>
+                </li>
+                <li class="breadcrumb-item active">Thanh toán</li>
+            </ol>
+        </nav>
+
+        <!-- Progress Steps -->
+        <div class="booking-progress">
+            <div class="progress-step completed">
+                <div class="progress-circle">
+                    <span class="material-icons">check</span>
+                </div>
+                <span class="progress-label">Chọn Thời Gian</span>
+            </div>
+            <div class="progress-line completed"></div>
+            <div class="progress-step active">
+                <div class="progress-circle">
+                    <span class="material-icons">payment</span>
+                </div>
+                <span class="progress-label">Thanh Toán</span>
+            </div>
+            <div class="progress-line"></div>
+            <div class="progress-step">
+                <div class="progress-circle">
+                    <span class="material-icons">check_circle</span>
+                </div>
+                <span class="progress-label">Xác Nhận</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Form Section -->
+<section class="py-5 bg-slate-50">
+    <div class="container" style="max-width: 60rem;">
+        <div class="row g-4">
+            <!-- Left: Payment Form -->
+            <div class="col-lg-7">
+                <div class="auth-card">
+                    <div class="auth-header">
+                        <div class="auth-icon">
+                            <span class="material-icons">account_balance_wallet</span>
+                        </div>
+                        <h1 class="auth-title">Thanh Toán Đặt Cọc</h1>
+                        <p class="auth-subtitle">Bước 2 của 3: Chọn phương thức thanh toán</p>
+                    </div>
+
+                    <div class="auth-body">
+                        <form method="post">
+                            <div asp-validation-summary="ModelOnly" class="validation-summary-errors" role="alert"></div>
+
+                            <!-- Hidden Fields -->
+                            <input type="hidden" asp-for="Input.Type" />
+                            <input type="hidden" asp-for="Input.Description" />
+                            <input type="hidden" asp-for="Input.Amount" />
+                            <input type="hidden" asp-for="Input.Currency" />
+
+                            <!-- Payment Amount Display -->
+                            <div class="payment-amount-card">
+                                <div class="payment-label">Số tiền cần thanh toán</div>
+                                <div class="payment-amount">@Model.DepositAmount.ToString("N0") VNĐ</div>
+                                <div class="payment-note">Tiền đặt cọc (20% giá trị đơn hàng)</div>
+                            </div>
+
+                            <!-- Payment Method Selection -->
+                            <div class="form-section">
+                                <label class="section-label">
+                                    <span class="material-icons">payment</span>
+                                    Chọn Phương Thức Thanh Toán
+                                </label>
+
+                                <div class="payment-methods">
+                                    <!-- Cash -->
+                                    <label class="payment-method-option">
+                                        <input type="radio" asp-for="Input.Method" value="@PaymentMethod.Cash" />
+                                        <div class="payment-method-card">
+                                            <div class="payment-method-icon">
+                                                <span class="material-icons">payments</span>
+                                            </div>
+                                            <div class="payment-method-info">
+                                                <strong>Tiền Mặt</strong>
+                                                <small>Thanh toán tại trạm</small>
+                                            </div>
+                                            <span class="material-icons check-icon">check_circle</span>
+                                        </div>
+                                    </label>
+
+                                    <!-- Card -->
+                                    <label class="payment-method-option">
+                                        <input type="radio" asp-for="Input.Method" value="@PaymentMethod.Card" />
+                                        <div class="payment-method-card">
+                                            <div class="payment-method-icon">
+                                                <span class="material-icons">credit_card</span>
+                                            </div>
+                                            <div class="payment-method-info">
+                                                <strong>Thẻ Tín Dụng/Ghi Nợ</strong>
+                                                <small>Visa, Mastercard, JCB</small>
+                                            </div>
+                                            <span class="material-icons check-icon">check_circle</span>
+                                        </div>
+                                    </label>
+
+                                    <!-- E-wallet -->
+                                    <label class="payment-method-option">
+                                        <input type="radio" asp-for="Input.Method" value="@PaymentMethod.Ewallet" />
+                                        <div class="payment-method-card">
+                                            <div class="payment-method-icon">
+                                                <span class="material-icons">account_balance_wallet</span>
+                                            </div>
+                                            <div class="payment-method-info">
+                                                <strong>Ví Điện Tử</strong>
+                                                <small>Momo, ZaloPay, VNPay</small>
+                                            </div>
+                                            <span class="material-icons check-icon">check_circle</span>
+                                        </div>
+                                    </label>
+
+                                    <!-- Bank Transfer -->
+                                    <label class="payment-method-option">
+                                        <input type="radio" asp-for="Input.Method" value="@PaymentMethod.Bank_Transfer" />
+                                        <div class="payment-method-card">
+                                            <div class="payment-method-icon">
+                                                <span class="material-icons">account_balance</span>
+                                            </div>
+                                            <div class="payment-method-info">
+                                                <strong>Chuyển Khoản Ngân Hàng</strong>
+                                                <small>Chuyển khoản trực tuyến</small>
+                                            </div>
+                                            <span class="material-icons check-icon">check_circle</span>
+                                        </div>
+                                    </label>
+                                </div>
+                                <span asp-validation-for="Input.Method" class="text-danger"></span>
+                            </div>
+
+                            <!-- Mock Payment Notice -->
+                            <div class="auth-info">
+                                <span class="material-icons">info</span>
+                                <div>
+                                    <strong>Lưu ý: Đây là giao dịch mô phỏng</strong>
+                                    <p class="mb-0">Đây là môi trường demo. Không có giao dịch thực tế nào được thực hiện.</p>
+                                </div>
+                            </div>
+
+                            <!-- Buttons -->
+                            <div class="button-group">
+                                <button type="submit" class="btn-auth-primary">
+                                    <span class="material-icons">lock</span>
+                                    Xác Nhận Thanh Toán
+                                </button>
+                                <a asp-page="./Create" class="btn-auth-secondary">
+                                    <span class="material-icons">arrow_back</span>
+                                    Quay Lại
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Summary -->
+            <div class="col-lg-5">
+                <div class="detail-card">
+                    <div class="detail-card-header">
+                        <h2 class="detail-card-title">
+                            <span class="material-icons">receipt</span>
+                            Tóm Tắt Đặt Chỗ
+                        </h2>
+                    </div>
+                    <div class="detail-card-body">
+                        <div class="summary-item">
+                            <span class="material-icons">event</span>
+                            <div>
+                                <strong>Thời gian bắt đầu</strong>
+                                <div>@Model.BookingData?.StartTime.ToString("dd/MM/yyyy HH:mm")</div>
+                            </div>
+                        </div>
+
+                        <div class="summary-item">
+                            <span class="material-icons">event</span>
+                            <div>
+                                <strong>Thời gian kết thúc</strong>
+                                <div>@Model.BookingData?.EndTime.ToString("dd/MM/yyyy HH:mm")</div>
+                            </div>
+                        </div>
+
+                        <div class="summary-item">
+                            <span class="material-icons">schedule</span>
+                            <div>
+                                <strong>Thời gian thuê</strong>
+                                <div>
+                                    @{
+                                        var days = Model.RentalDuration.Days;
+                                        var hours = Model.RentalDuration.Hours;
+                                    }
+                                    @if (days > 0)
+                                    {
+                                        <span>@days ngày @hours giờ</span>
+                                    }
+                                    else
+                                    {
+                                        <span>@hours giờ</span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="summary-divider"></div>
+
+                        <div class="summary-item">
+                            <span class="material-icons">electric_car</span>
+                            <div>
+                                <strong>ID Xe</strong>
+                                <div>@Model.BookingData?.VehicleAtStationId.ToString().Substring(0, 8).ToUpper()</div>
+                            </div>
+                        </div>
+
+                        <div class="summary-divider"></div>
+
+                        <div class="summary-total">
+                            <div>
+                                <strong>Tiền đặt cọc</strong>
+                                <div class="text-muted" style="font-size: 0.875rem;">20% giá trị đơn hàng</div>
+                            </div>
+                            <div class="total-amount">@Model.DepositAmount.ToString("N0") VNĐ</div>
+                        </div>
+
+                        <div class="auth-info mt-3" style="font-size: 0.875rem;">
+                            <span class="material-icons">info</span>
+                            <p class="mb-0">Tiền đặt cọc sẽ được hoàn lại 95% nếu bạn hủy trước khi xác minh tại trạm.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,229 @@
+﻿@page
+@model WebApp.Areas.Renter.Pages.Booking.ConfirmModel
+@{
+    ViewData["Title"] = "Xác Nhận Đặt Chỗ";
+}
+
+<link rel="stylesheet" href="~/css/Index.css" />
+<link rel="stylesheet" href="~/css/identity.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/booking-create.css" asp-append-version="true" />
+
+<!-- Hero Section -->
+<section class="booking-hero hero-gradient">
+    <div class="container" style="max-width: 72rem;">
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb-custom">
+                <li class="breadcrumb-item">
+                    <a asp-page="/Index" class="breadcrumb-link">
+                        <span class="material-icons">home</span>
+                        Trang chủ
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a asp-page="./Create" class="breadcrumb-link">
+                        <span class="material-icons">event</span>
+                        Tạo đặt chỗ
+                    </a>
+                </li>
+                <li class="breadcrumb-item active">Xác nhận</li>
+            </ol>
+        </nav>
+
+        <!-- Progress Steps -->
+        <div class="booking-progress">
+            <div class="progress-step completed">
+                <div class="progress-circle">
+                    <span class="material-icons">check</span>
+                </div>
+                <span class="progress-label">Chọn Thời Gian</span>
+            </div>
+            <div class="progress-line completed"></div>
+            <div class="progress-step completed">
+                <div class="progress-circle">
+                    <span class="material-icons">check</span>
+                </div>
+                <span class="progress-label">Thanh Toán</span>
+            </div>
+            <div class="progress-line completed"></div>
+            <div class="progress-step active">
+                <div class="progress-circle">
+                    <span class="material-icons">check_circle</span>
+                </div>
+                <span class="progress-label">Xác Nhận</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Confirmation Section -->
+<section class="py-5 bg-slate-50">
+    <div class="container" style="max-width: 60rem;">
+        @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+                <span class="material-icons">error</span>
+                @Model.ErrorMessage
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        <div class="auth-card">
+            <!-- Header -->
+            <div class="auth-header">
+                <div class="auth-icon">
+                    <span class="material-icons">preview</span>
+                </div>
+                <h1 class="auth-title">Xác Nhận Thông Tin</h1>
+                <p class="auth-subtitle">Bước 3 của 3: Kiểm tra và xác nhận đặt chỗ</p>
+            </div>
+
+            <!-- Body -->
+            <div class="auth-body">
+                <!-- Booking Details -->
+                <div class="confirmation-section">
+                    <h3 class="section-title">
+                        <span class="material-icons">event</span>
+                        Thông Tin Đặt Chỗ
+                    </h3>
+                    <div class="confirmation-grid">
+                        <div class="confirmation-item">
+                            <span class="item-label">ID Xe Tại Trạm</span>
+                            <span class="item-value">@Model.BookingData?.VehicleAtStationId.ToString().Substring(0, 8).ToUpper()</span>
+                        </div>
+                        <div class="confirmation-item">
+                            <span class="item-label">Thời gian bắt đầu</span>
+                            <span class="item-value">@Model.BookingData?.StartTime.ToString("dd/MM/yyyy HH:mm")</span>
+                        </div>
+                        <div class="confirmation-item">
+                            <span class="item-label">Thời gian kết thúc</span>
+                            <span class="item-value">@Model.BookingData?.EndTime.ToString("dd/MM/yyyy HH:mm")</span>
+                        </div>
+                        <div class="confirmation-item">
+                            <span class="item-label">Thời gian thuê</span>
+                            <span class="item-value">
+                                @{
+                                    var days = Model.RentalDuration.Days;
+                                    var hours = Model.RentalDuration.Hours;
+                                }
+                                @if (days > 0)
+                                {
+                                    <span>@days ngày @hours giờ</span>
+                                }
+                                else
+                                {
+                                    <span>@hours giờ</span>
+                                }
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Details -->
+                <div class="confirmation-section">
+                    <h3 class="section-title">
+                        <span class="material-icons">payment</span>
+                        Thông Tin Thanh Toán
+                    </h3>
+                    <div class="confirmation-grid">
+                        <div class="confirmation-item">
+                            <span class="item-label">Loại phí</span>
+                            <span class="item-value">
+                                @switch (Model.PaymentData?.Type)
+                                {
+                                    case Domain.Enums.FeeType.Deposit:
+                                        @:Tiền Đặt Cọc
+                                        break;
+                                    default:
+                                        @Model.PaymentData?.Type.ToString()
+                                        break;
+                                }
+                            </span>
+                        </div>
+                        <div class="confirmation-item">
+                            <span class="item-label">Phương thức</span>
+                            <span class="item-value">
+                                @switch (Model.PaymentData?.Method)
+                                {
+                                    case Domain.Enums.PaymentMethod.Cash:
+                                        @:Tiền Mặt
+                                        break;
+                                    case Domain.Enums.PaymentMethod.Card:
+                                        @:Thẻ Tín Dụng/Ghi Nợ
+                                        break;
+                                    case Domain.Enums.PaymentMethod.Ewallet:
+                                        @:Ví Điện Tử
+                                        break;
+                                    case Domain.Enums.PaymentMethod.Bank_Transfer:
+                                        @:Chuyển Khoản
+                                        break;
+                                    default:
+                                        @:Chưa xác định
+                                        break;
+                                }
+                            </span>
+                        </div>
+                        <div class="confirmation-item">
+                            <span class="item-label">Số tiền đặt cọc</span>
+                            <span class="item-value highlight">@Model.PaymentData?.Amount.ToString("N0") VNĐ</span>
+                        </div>
+                        <div class="confirmation-item">
+                            <span class="item-label">Đã thanh toán</span>
+                            <span class="item-value">@Model.PaymentData?.AmountPaid.ToString("N0") VNĐ</span>
+                        </div>
+                        <div class="confirmation-item">
+                            <span class="item-label">Mã tham chiếu</span>
+                            <span class="item-value">@Model.PaymentData?.ProviderReference</span>
+                        </div>
+                        <div class="confirmation-item">
+                            <span class="item-label">Thời gian thanh toán</span>
+                            <span class="item-value">@Model.PaymentData?.PaidAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm:ss")</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Important Notice -->
+                <div class="auth-info">
+                    <span class="material-icons">info</span>
+                    <div>
+                        <strong>Những điều cần lưu ý</strong>
+                        <ul class="mb-0 mt-2" style="padding-left: 1.25rem;">
+                            <li>Sau khi xác nhận, bạn cần đến trạm để nhân viên xác minh danh tính</li>
+                            <li>Vui lòng mang theo CMND/CCCD hoặc Passport khi đến trạm</li>
+                            <li>Bạn có thể hủy đặt chỗ trước khi xác minh và nhận lại 95% tiền đặt cọc</li>
+                            <li>Thông tin chi tiết sẽ được gửi qua email của bạn</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Confirmation Form -->
+                <form method="post">
+                    <div class="terms-checkbox">
+                        <input type="checkbox" id="termsAccept" required />
+                        <label for="termsAccept">
+                            Tôi đã đọc và đồng ý với <a href="#" target="_blank">Điều khoản dịch vụ</a> và <a href="#" target="_blank">Chính sách hủy</a>
+                        </label>
+                    </div>
+
+                    <div class="button-group">
+                        <button type="submit" class="btn-auth-primary" @(Model.IsProcessing ? "disabled" : "")>
+                            <span class="material-icons">@(Model.IsProcessing ? "hourglass_empty" : "check_circle")</span>
+                            @if (Model.IsProcessing)
+                            {
+                                @:Đang xử lý...
+                            }
+                            else
+                            {
+                                @:Xác Nhận Đặt Chỗ
+                            }
+                        </button>
+                        <a asp-page="./Payment" class="btn-auth-secondary">
+                            <span class="material-icons">arrow_back</span>
+                            Quay Lại
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>

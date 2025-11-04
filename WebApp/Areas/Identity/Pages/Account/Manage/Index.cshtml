@@ -1,27 +1,54 @@
 ﻿@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Profile";
+    ViewData["Title"] = "Hồ Sơ";
     ViewData["ActivePage"] = ManageNavPages.Index;
 }
 
-<h3>@ViewData["Title"]</h3>
-<partial name="_StatusMessage" for="StatusMessage" />
-<div class="row">
-    <div class="col-md-6">
-        <form id="profile-form" method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
-            <div class="form-floating mb-3">
-                <input asp-for="Username" class="form-control" placeholder="Please choose your username." disabled />
-                <label asp-for="Username" class="form-label"></label>
+<link rel="stylesheet" href="~/css/Index.css" />
+<link rel="stylesheet" href="~/css/identity.css" asp-append-version="true" />
+
+<div class="manage-container">
+    <div class="manage-card">
+        <div class="manage-header">
+            <h1 class="manage-title">Quản Lý Tài Khoản</h1>
+            <p class="manage-subtitle">Cập nhật thông tin cá nhân của bạn</p>
+        </div>
+
+        <div class="manage-body">
+            <div class="manage-nav">
+                <a asp-page="./Index" class="manage-nav-link active">
+                    <span class="material-icons" style="font-size: 1.125rem; vertical-align: middle;">person</span>
+                    Hồ Sơ
+                </a>
+                <a asp-page="./ChangePassword" class="manage-nav-link">
+                    <span class="material-icons" style="font-size: 1.125rem; vertical-align: middle;">lock</span>
+                    Mật Khẩu
+                </a>
             </div>
-            <div class="form-floating mb-3">
-                <input asp-for="Input.PhoneNumber" class="form-control" placeholder="Please enter your phone number."/>
-                <label asp-for="Input.PhoneNumber" class="form-label"></label>
-                <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
-            </div>
-            <button id="update-profile-button" type="submit" class="w-100 btn btn-lg btn-primary">Save</button>
-        </form>
+
+            <partial name="_StatusMessage" for="StatusMessage" />
+
+            <form id="profile-form" method="post">
+                <div asp-validation-summary="ModelOnly" class="validation-summary-errors" role="alert"></div>
+
+                <div class="form-floating">
+                    <input asp-for="Username" class="form-control" placeholder="Username" disabled />
+                    <label asp-for="Username">Tên Người Dùng</label>
+                </div>
+
+                <div class="form-floating">
+                    <input asp-for="Input.PhoneNumber" class="form-control" placeholder="Phone number" />
+                    <label asp-for="Input.PhoneNumber">Số Điện Thoại</label>
+                    <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+                </div>
+
+                <button id="update-profile-button" type="submit" class="btn-auth-primary">
+                    <span class="material-icons">save</span>
+                    Lưu Thay Đổi
+                </button>
+            </form>
+        </div>
     </div>
 </div>
 

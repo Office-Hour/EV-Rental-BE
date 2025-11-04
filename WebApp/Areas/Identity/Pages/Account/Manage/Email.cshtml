@@ -1,41 +1,87 @@
 ﻿@page
 @model EmailModel
 @{
-    ViewData["Title"] = "Manage Email";
+    ViewData["Title"] = "Quản Lý Email";
     ViewData["ActivePage"] = ManageNavPages.Email;
 }
 
-<h3>@ViewData["Title"]</h3>
-<partial name="_StatusMessage" for="StatusMessage" />
-<div class="row">
-    <div class="col-md-6">
-        <form id="email-form" method="post">
-            <div asp-validation-summary="All" class="text-danger" role="alert"></div>
-            @if (Model.IsEmailConfirmed)
-            {
-                <div class="form-floating mb-3 input-group">
-                    <input asp-for="Email" class="form-control" placeholder="Please enter your email." disabled />
-                        <div class="input-group-append">
-                            <span class="h-100 input-group-text text-success font-weight-bold">✓</span>
-                        </div>
-                    <label asp-for="Email" class="form-label"></label>
-                </div>
-            }
-            else
-            {
-                <div class="form-floating mb-3">
-                    <input asp-for="Email" class="form-control" placeholder="Please enter your email." disabled />
-                    <label asp-for="Email" class="form-label"></label>
-                    <button id="email-verification" type="submit" asp-page-handler="SendVerificationEmail" class="btn btn-link">Send verification email</button>
-                </div>
-            }
-            <div class="form-floating mb-3">
-                <input asp-for="Input.NewEmail" class="form-control" autocomplete="email" aria-required="true" placeholder="Please enter new email." />
-                <label asp-for="Input.NewEmail" class="form-label"></label>
-                <span asp-validation-for="Input.NewEmail" class="text-danger"></span>
+<link rel="stylesheet" href="~/css/Index.css" />
+<link rel="stylesheet" href="~/css/identity.css" asp-append-version="true" />
+
+<div class="manage-container">
+    <div class="manage-card">
+        <div class="manage-header">
+            <h1 class="manage-title">Quản Lý Tài Khoản</h1>
+            <p class="manage-subtitle">Cập nhật địa chỉ email của bạn</p>
+        </div>
+
+        <div class="manage-body">
+            <div class="manage-nav">
+                <a asp-page="./Index" class="manage-nav-link">
+                    <span class="material-icons" style="font-size: 1.125rem; vertical-align: middle;">person</span>
+                    Hồ Sơ
+                </a>
+                <a asp-page="./Email" class="manage-nav-link active">
+                    <span class="material-icons" style="font-size: 1.125rem; vertical-align: middle;">email</span>
+                    Email
+                </a>
+                <a asp-page="./ChangePassword" class="manage-nav-link">
+                    <span class="material-icons" style="font-size: 1.125rem; vertical-align: middle;">lock</span>
+                    Mật Khẩu
+                </a>
+                <a asp-page="./PersonalData" class="manage-nav-link">
+                    <span class="material-icons" style="font-size: 1.125rem; vertical-align: middle;">shield</span>
+                    Dữ Liệu
+                </a>
             </div>
-            <button id="change-email-button" type="submit" asp-page-handler="ChangeEmail" class="w-100 btn btn-lg btn-primary">Change email</button>
-        </form>
+
+            <partial name="_StatusMessage" for="StatusMessage" />
+
+            <form id="email-form" method="post">
+                <div asp-validation-summary="All" class="validation-summary-errors" role="alert"></div>
+
+                @if (Model.IsEmailConfirmed)
+                {
+                    <div class="form-floating" style="position: relative;">
+                        <input asp-for="Email" class="form-control" placeholder="Email" disabled style="padding-right: 3rem;" />
+                        <label asp-for="Email">Email Hiện Tại</label>
+                        <div style="position: absolute; right: 1rem; top: 50%; transform: translateY(-50%);">
+                            <span class="material-icons" style="color: #10b981; font-size: 1.5rem;">verified</span>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="form-floating">
+                        <input asp-for="Email" class="form-control" placeholder="Email" disabled />
+                        <label asp-for="Email">Email Hiện Tại</label>
+                    </div>
+                    <button id="email-verification" type="submit" asp-page-handler="SendVerificationEmail" class="btn-auth-secondary mb-3">
+                        <span class="material-icons">email</span>
+                        Gửi Email Xác Minh
+                    </button>
+                }
+
+                <div class="form-floating">
+                    <input asp-for="Input.NewEmail" class="form-control" autocomplete="email" aria-required="true" placeholder="New email" />
+                    <label asp-for="Input.NewEmail">Email Mới</label>
+                    <span asp-validation-for="Input.NewEmail" class="text-danger"></span>
+                </div>
+
+                <div class="auth-info">
+                    <span class="material-icons">info</span>
+                    <div>
+                        <strong>Lưu ý:</strong>
+                        <p class="mb-0">Bạn sẽ nhận được email xác minh tại địa chỉ email mới.</p>
+                    </div>
+                </div>
+
+                <button id="change-email-button" type="submit" asp-page-handler="ChangeEmail" class="btn-auth-primary">
+                    <span class="material-icons">email</span>
+                    Thay Đổi Email
+                </button>
+            </form>
+        </div>
     </div>
 </div>
 

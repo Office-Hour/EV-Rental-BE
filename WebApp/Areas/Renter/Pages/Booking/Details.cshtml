@@ -1,0 +1,398 @@
+﻿@page "{id:guid}"
+@using Domain.Enums
+@model WebApp.Areas.Renter.Pages.Booking.DetailsModel
+@{
+    ViewData["Title"] = "Chi Tiết Đặt Chỗ";
+}
+
+<link rel="stylesheet" href="~/css/Index.css" />
+<link rel="stylesheet" href="~/css/identity.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/booking-details.css" asp-append-version="true" />
+
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div class="alert alert-danger alert-dismissible fade show m-4" role="alert">
+        <span class="material-icons">error</span>
+        @Model.ErrorMessage
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (Model.Booking != null)
+{
+    <!-- Hero Section with Booking Header -->
+    <section class="booking-hero hero-gradient">
+        <div class="container" style="max-width: 72rem;">
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb-custom">
+                    <li class="breadcrumb-item">
+                        <a asp-page="/Index" class="breadcrumb-link">
+                            <span class="material-icons">home</span>
+                            Trang chủ
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a asp-area="Renter" asp-page="/Booking/Index" class="breadcrumb-link">
+                            <span class="material-icons">event</span>
+                            Đặt chỗ của tôi
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item active">Chi tiết</li>
+                </ol>
+            </nav>
+
+            <!-- Booking Header Card -->
+            <div class="booking-header-card">
+                <div class="booking-header-content">
+                    <div class="booking-icon-large">
+                        <span class="material-icons">confirmation_number</span>
+                    </div>
+                    <div class="booking-header-info">
+                        <div class="booking-id-badge">
+                            Mã đặt chỗ: <strong>@Model.Booking.BookingId.ToString().Substring(0, 8).ToUpper()</strong>
+                        </div>
+                        <h1 class="booking-title">Thông Tin Đặt Chỗ</h1>
+                        <p class="booking-subtitle">
+                            Đặt lúc: @Model.Booking.BookingCreatedAt.ToString("dd/MM/yyyy HH:mm")
+                        </p>
+                    </div>
+                    <div class="booking-status-badge status-@Model.Booking.Status.ToString().ToLower()">
+                        <span class="material-icons">
+                            @switch (Model.Booking.Status)
+                            {
+                                case BookingStatus.Pending_Verification:
+                                    @:hourglass_empty
+                                    break;
+                                case BookingStatus.Verified:
+                                    @:verified
+                                    break;
+                                case BookingStatus.Cancelled:
+                                    @:cancel
+                                    break;
+                            }
+                        </span>
+                        <span>
+                            @switch (Model.Booking.Status)
+                            {
+                                case BookingStatus.Pending_Verification:
+                                    @:Chờ Xác Minh
+                                    break;
+                                case BookingStatus.Verified:
+                                    @:Đã Xác Minh
+                                    break;
+                                case BookingStatus.Cancelled:
+                                    @:Đã Hủy
+                                    break;
+                            }
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Details Section -->
+    <section class="py-5 bg-slate-50">
+        <div class="container" style="max-width: 72rem;">
+            <div class="row g-4">
+                <!-- Left Column: Booking Information -->
+                <div class="col-lg-8">
+                    <!-- Timeline Card -->
+                    <div class="detail-card">
+                        <div class="detail-card-header">
+                            <h2 class="detail-card-title">
+                                <span class="material-icons">timeline</span>
+                                Trạng Thái Đặt Chỗ
+                            </h2>
+                        </div>
+                        <div class="detail-card-body">
+                            <div class="status-timeline">
+                                <!-- Step 1: Created -->
+                                <div class="timeline-step completed">
+                                    <div class="timeline-icon">
+                                        <span class="material-icons">add_circle</span>
+                                    </div>
+                                    <div class="timeline-content">
+                                        <h3 class="timeline-title">Đặt Chỗ Đã Tạo</h3>
+                                        <p class="timeline-time">@Model.Booking.BookingCreatedAt.ToString("dd/MM/yyyy HH:mm")</p>
+                                        <p class="timeline-description">Bạn đã hoàn tất đặt chỗ và thanh toán đặt cọc</p>
+                                    </div>
+                                </div>
+
+                                <!-- Step 2: Verification -->
+                                <div class="timeline-step @(Model.Booking.Status != BookingStatus.Pending_Verification ? "completed" : "active")">
+                                    <div class="timeline-icon">
+                                        <span class="material-icons">
+                                            @if (Model.Booking.VerificationStatus == BookingVerificationStatus.Approved)
+                                            {
+                                                @:check_circle
+                                            }
+                                            else if (Model.Booking.VerificationStatus == BookingVerificationStatus.Rejected_Mismatch || Model.Booking.VerificationStatus == BookingVerificationStatus.Rejected_Other)
+                                            {
+                                                @:cancel
+                                            }
+                                            else
+                                            {
+                                                @:pending
+                                            }
+                                        </span>
+                                    </div>
+                                    <div class="timeline-content">
+                                        <h3 class="timeline-title">
+                                            @switch (Model.Booking.VerificationStatus)
+                                            {
+                                                case BookingVerificationStatus.Pending:
+                                                    @:Chờ Xác Minh Tại Trạm
+                                                    break;
+                                                case BookingVerificationStatus.Approved:
+                                                    @:Đã Xác Minh
+                                                    break;
+                                                case BookingVerificationStatus.Rejected_Mismatch:
+                                                    @:Bị Từ Chối - Không Khớp
+                                                    break;
+                                                case BookingVerificationStatus.Rejected_Other:
+                                                    @:Bị Từ Chối
+                                                    break;
+                                            }
+                                        </h3>
+                                        @if (Model.Booking.VerifiedAt.HasValue)
+                                        {
+                                            <p class="timeline-time">@Model.Booking.VerifiedAt.Value.ToString("dd/MM/yyyy HH:mm")</p>
+                                        }
+                                        <p class="timeline-description">
+                                            @if (Model.Booking.VerificationStatus == BookingVerificationStatus.Pending)
+                                            {
+                                                @:Vui lòng đến trạm để nhân viên xác minh danh tính
+                                            }
+                                            else if (Model.Booking.VerificationStatus == BookingVerificationStatus.Approved)
+                                            {
+                                                @:Nhân viên đã xác minh thành công
+                                            }
+                                            else
+                                            {
+                                                @:Đặt chỗ đã bị từ chối xác minh
+                                            }
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <!-- Step 3: Ready -->
+                                @if (Model.Booking.Status == BookingStatus.Verified)
+                                {
+                                    <div class="timeline-step completed">
+                                        <div class="timeline-icon">
+                                            <span class="material-icons">electric_car</span>
+                                        </div>
+                                        <div class="timeline-content">
+                                            <h3 class="timeline-title">Sẵn Sàng Nhận Xe</h3>
+                                            <p class="timeline-description">Bạn có thể nhận xe và bắt đầu hành trình</p>
+                                        </div>
+                                    </div>
+                                }
+
+                                <!-- Cancelled State -->
+                                @if (Model.Booking.Status == BookingStatus.Cancelled)
+                                {
+                                    <div class="timeline-step cancelled">
+                                        <div class="timeline-icon">
+                                            <span class="material-icons">cancel</span>
+                                        </div>
+                                        <div class="timeline-content">
+                                            <h3 class="timeline-title">Đã Hủy</h3>
+                                            <p class="timeline-description">
+                                                @if (!string.IsNullOrEmpty(Model.Booking.CancelReason))
+                                                {
+                                                    <span>Lý do: @Model.Booking.CancelReason</span>
+                                                }
+                                                else
+                                                {
+                                                    <span>Đặt chỗ đã được hủy</span>
+                                                }
+                                            </p>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Booking Details Card -->
+                    <div class="detail-card">
+                        <div class="detail-card-header">
+                            <h2 class="detail-card-title">
+                                <span class="material-icons">info</span>
+                                Chi Tiết Đặt Chỹ
+                            </h2>
+                        </div>
+                        <div class="detail-card-body">
+                            <div class="info-grid">
+                                <div class="info-row">
+                                    <div class="info-label">
+                                        <span class="material-icons">event</span>
+                                        Thời Gian Bắt Đầu
+                                    </div>
+                                    <div class="info-value">
+                                        @Model.Booking.StartTime.ToString("dd/MM/yyyy HH:mm")
+                                    </div>
+                                </div>
+
+                                <div class="info-row">
+                                    <div class="info-label">
+                                        <span class="material-icons">event</span>
+                                        Thời Gian Kết Thúc
+                                    </div>
+                                    <div class="info-value">
+                                        @Model.Booking.EndTime.ToString("dd/MM/yyyy HH:mm")
+                                    </div>
+                                </div>
+
+                                <div class="info-row">
+                                    <div class="info-label">
+                                        <span class="material-icons">schedule</span>
+                                        Thời Gian Thuê
+                                    </div>
+                                    <div class="info-value">
+                                        @{
+                                            var duration = Model.Booking.EndTime - Model.Booking.StartTime;
+                                            var days = duration.Days;
+                                            var hours = duration.Hours;
+                                        }
+                                        @if (days > 0)
+                                        {
+                                            <span>@days ngày @hours giờ</span>
+                                        }
+                                        else
+                                        {
+                                            <span>@hours giờ</span>
+                                        }
+                                    </div>
+                                </div>
+
+                                <div class="info-row">
+                                    <div class="info-label">
+                                        <span class="material-icons">electric_car</span>
+                                        ID Xe Tại Trạm
+                                    </div>
+                                    <div class="info-value">
+                                        @Model.Booking.VehicleAtStationId.ToString().Substring(0, 8).ToUpper()
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Actions & Info -->
+                <div class="col-lg-4">
+                    <!-- Actions Card -->
+                    @if (Model.CanCancel || Model.CanRequestCancel)
+                    {
+                        <div class="detail-card">
+                            <div class="detail-card-header">
+                                <h2 class="detail-card-title">
+                                    <span class="material-icons">settings</span>
+                                    Thao Tác
+                                </h2>
+                            </div>
+                            <div class="detail-card-body">
+                                @if (Model.CanRequestCancel)
+                                {
+                                    <div class="auth-info mb-3">
+                                        <span class="material-icons">info</span>
+                                        <div>
+                                            <strong>Hủy đặt chỗ</strong>
+                                            <p class="mb-0" style="font-size: 0.875rem;">Bạn sẽ được hoàn lại 95% tiền đặt cọc (trừ 5% phí giao dịch)</p>
+                                        </div>
+                                    </div>
+
+                                    <form method="post" asp-page-handler="RequestCancel" asp-route-id="@Model.Booking.BookingId">
+                                        <button type="submit" class="btn-auth-secondary w-100" style="background: linear-gradient(135deg, #fee2e2, #fecaca); border-color: #ef4444; color: #dc2626;">
+                                            <span class="material-icons">cancel</span>
+                                            Yêu Cầu Hủy Đặt Chỗ
+                                        </button>
+                                    </form>
+                                }
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Help Card -->
+                    <div class="detail-card">
+                        <div class="detail-card-header">
+                            <h2 class="detail-card-title">
+                                <span class="material-icons">help</span>
+                                Cần Hỗ Trợ?
+                            </h2>
+                        </div>
+                        <div class="detail-card-body">
+                            <p class="text-slate-600 mb-3">
+                                Liên hệ với chúng tôi nếu bạn có bất kỳ câu hỏi nào về đặt chỗ của mình.
+                            </p>
+                            <div class="d-grid gap-2">
+                                <a href="tel:1900xxxx" class="btn-auth-secondary">
+                                    <span class="material-icons">phone</span>
+                                    Gọi Hotline
+                                </a>
+                                <a href="mailto:support@voltera.vn" class="btn-auth-secondary">
+                                    <span class="material-icons">email</span>
+                                    Gửi Email
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Links Card -->
+                    <div class="detail-card">
+                        <div class="detail-card-header">
+                            <h2 class="detail-card-title">
+                                <span class="material-icons">link</span>
+                                Liên Kết Nhanh
+                            </h2>
+                        </div>
+                        <div class="detail-card-body">
+                            <div class="quick-links-list">
+                                <a asp-area="Renter" asp-page="/Booking/Index" class="quick-link-item">
+                                    <span class="material-icons">event</span>
+                                    <span>Tất Cả Đặt Chỗ</span>
+                                    <span class="material-icons">chevron_right</span>
+                                </a>
+                                <a asp-area="Renter" asp-page="/Rentals/Index" class="quick-link-item">
+                                    <span class="material-icons">electric_car</span>
+                                    <span>Thuê Xe Của Tôi</span>
+                                    <span class="material-icons">chevron_right</span>
+                                </a>
+                                <a asp-page="/Stations" class="quick-link-item">
+                                    <span class="material-icons">ev_station</span>
+                                    <span>Tìm Trạm</span>
+                                    <span class="material-icons">chevron_right</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+}
+else
+{
+    <!-- Booking Not Found -->
+    <section class="min-vh-100 d-flex align-items-center justify-content-center bg-slate-50">
+        <div class="container" style="max-width: 48rem;">
+            <div class="empty-state-section">
+                <div class="empty-state-icon">
+                    <span class="material-icons">search_off</span>
+                </div>
+                <h3 class="empty-state-title">Không Tìm Thấy Đặt Chỗ</h3>
+                <p class="empty-state-description">
+                    Đặt chỗ bạn đang tìm kiếm không tồn tại hoặc bạn không có quyền truy cập.
+                </p>
+                <a asp-area="Renter" asp-page="/Booking/Index" class="btn btn-gradient mt-3">
+                    <span class="material-icons">event</span>
+                    Xem Tất Cả Đặt Chỗ
+                </a>
+            </div>
+        </div>
+    </section>
+}

@@ -1,24 +1,70 @@
 ﻿@page
 @model PersonalDataModel
 @{
-    ViewData["Title"] = "Personal Data";
+    ViewData["Title"] = "Dữ Liệu Cá Nhân";
     ViewData["ActivePage"] = ManageNavPages.PersonalData;
 }
 
-<h3>@ViewData["Title"]</h3>
+<link rel="stylesheet" href="~/css/Index.css" />
+<link rel="stylesheet" href="~/css/identity.css" asp-append-version="true" />
 
-<div class="row">
-    <div class="col-md-6">
-        <p>Your account contains personal data that you have given us. This page allows you to download or delete that data.</p>
-        <p>
-            <strong>Deleting this data will permanently remove your account, and this cannot be recovered.</strong>
-        </p>
-        <form id="download-data" asp-page="DownloadPersonalData" method="post">
-            <button class="btn btn-primary" type="submit">Download</button>
-        </form>
-        <p>
-            <a id="delete" asp-page="DeletePersonalData" class="btn btn-danger">Delete</a>
-        </p>
+<div class="manage-container">
+    <div class="manage-card">
+        <div class="manage-header">
+            <h1 class="manage-title">Quản Lý Tài Khoản</h1>
+            <p class="manage-subtitle">Quản lý dữ liệu cá nhân của bạn</p>
+        </div>
+
+        <div class="manage-body">
+            <div class="manage-nav">
+                <a asp-page="./Index" class="manage-nav-link">
+                    <span class="material-icons" style="font-size: 1.125rem; vertical-align: middle;">person</span>
+                    Hồ Sơ
+                </a>
+                <a asp-page="./Email" class="manage-nav-link">
+                    <span class="material-icons" style="font-size: 1.125rem; vertical-align: middle;">email</span>
+                    Email
+                </a>
+                <a asp-page="./ChangePassword" class="manage-nav-link">
+                    <span class="material-icons" style="font-size: 1.125rem; vertical-align: middle;">lock</span>
+                    Mật Khẩu
+                </a>
+                <a asp-page="./PersonalData" class="manage-nav-link active">
+                    <span class="material-icons" style="font-size: 1.125rem; vertical-align: middle;">shield</span>
+                    Dữ Liệu
+                </a>
+            </div>
+
+            <div class="auth-info">
+                <span class="material-icons">info</span>
+                <div>
+                    <strong>Thông tin quan trọng</strong>
+                    <p class="mb-0">Tài khoản của bạn chứa dữ liệu cá nhân mà bạn đã cung cấp. Trang này cho phép bạn tải xuống hoặc xóa dữ liệu đó.</p>
+                </div>
+            </div>
+
+            <div style="background: linear-gradient(135deg, #fee2e2, #fecaca); border: 2px solid #ef4444; border-radius: 0.75rem; padding: 1rem; margin-bottom: 1.5rem; color: #991b1b; display: flex; align-items: flex-start; gap: 0.75rem;">
+                <span class="material-icons" style="color: #ef4444; font-size: 1.5rem; flex-shrink: 0;">warning</span>
+                <div>
+                    <strong>Cảnh báo!</strong>
+                    <p class="mb-0">Xóa dữ liệu này sẽ loại bỏ vĩnh viễn tài khoản của bạn và không thể khôi phục.</p>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                <form id="download-data" asp-page="DownloadPersonalData" method="post" style="flex: 1; min-width: 200px;">
+                    <button class="btn-auth-secondary w-100" type="submit">
+                        <span class="material-icons">download</span>
+                        Tải Xuống Dữ Liệu
+                    </button>
+                </form>
+
+                <a id="delete" asp-page="DeletePersonalData" class="btn-auth-secondary w-100" style="flex: 1; min-width: 200px; background: linear-gradient(135deg, #fee2e2, #fecaca); border-color: #ef4444; color: #dc2626;">
+                    <span class="material-icons">delete_forever</span>
+                    Xóa Tài Khoản
+                </a>
+            </div>
+        </div>
     </div>
 </div>
 

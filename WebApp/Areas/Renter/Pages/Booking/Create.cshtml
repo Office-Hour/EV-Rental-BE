@@ -1,0 +1,224 @@
+﻿@page
+@model WebApp.Areas.Renter.Pages.Booking.CreateModel
+@{
+    ViewData["Title"] = "Tạo Đặt Chỗ";
+}
+
+<link rel="stylesheet" href="~/css/Index.css" />
+<link rel="stylesheet" href="~/css/identity.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/booking-create.css" asp-append-version="true" />
+
+<!-- Hero Section -->
+<section class="booking-hero hero-gradient">
+    <div class="container" style="max-width: 72rem;">
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb-custom">
+                <li class="breadcrumb-item">
+                    <a asp-page="/Index" class="breadcrumb-link">
+                        <span class="material-icons">home</span>
+                        Trang chủ
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a asp-page="/Stations" class="breadcrumb-link">
+                        <span class="material-icons">ev_station</span>
+                        Trạm
+                    </a>
+                </li>
+                <li class="breadcrumb-item active">Tạo đặt chỗ</li>
+            </ol>
+        </nav>
+
+        <!-- Progress Steps -->
+        <div class="booking-progress">
+            <div class="progress-step active">
+                <div class="progress-circle">
+                    <span class="material-icons">edit_calendar</span>
+                </div>
+                <span class="progress-label">Chọn Thời Gian</span>
+            </div>
+            <div class="progress-line"></div>
+            <div class="progress-step">
+                <div class="progress-circle">
+                    <span class="material-icons">payment</span>
+                </div>
+                <span class="progress-label">Thanh Toán</span>
+            </div>
+            <div class="progress-line"></div>
+            <div class="progress-step">
+                <div class="progress-circle">
+                    <span class="material-icons">check_circle</span>
+                </div>
+                <span class="progress-label">Xác Nhận</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Form Section -->
+<section class="py-5 bg-slate-50">
+    <div class="container" style="max-width: 48rem;">
+        <div class="auth-card">
+            <!-- Header -->
+            <div class="auth-header">
+                <div class="auth-icon">
+                    <span class="material-icons">event</span>
+                </div>
+                <h1 class="auth-title">Chọn Thời Gian Thuê Xe</h1>
+                <p class="auth-subtitle">Bước 1 của 3: Xác định thời gian bắt đầu và kết thúc</p>
+            </div>
+
+            <!-- Body -->
+            <div class="auth-body">
+                @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+                {
+                    <div class="validation-summary-errors" role="alert">
+                        <span class="material-icons">error</span>
+                        <div>@Model.ErrorMessage</div>
+                    </div>
+                }
+
+                <form method="post">
+                    <div asp-validation-summary="ModelOnly" class="validation-summary-errors" role="alert"></div>
+
+                    <!-- Vehicle ID (Hidden) -->
+                    <input type="hidden" asp-for="Input.VehicleAtStationId" />
+
+                    <!-- Start Time -->
+                    <div class="form-floating">
+                        <input asp-for="Input.StartTime" 
+                               type="datetime-local" 
+                               class="form-control" 
+                               aria-required="true" />
+                        <label asp-for="Input.StartTime">
+                            <span class="material-icons input-icon">schedule</span>
+                            Thời Gian Bắt Đầu
+                        </label>
+                        <span asp-validation-for="Input.StartTime" class="text-danger"></span>
+                    </div>
+
+                    <div class="time-helper">
+                        <span class="material-icons">info</span>
+                        <span>Chọn thời điểm bạn muốn bắt đầu thuê xe</span>
+                    </div>
+
+                    <!-- End Time -->
+                    <div class="form-floating">
+                        <input asp-for="Input.EndTime" 
+                               type="datetime-local" 
+                               class="form-control" 
+                               aria-required="true" />
+                        <label asp-for="Input.EndTime">
+                            <span class="material-icons input-icon">event</span>
+                            Thời Gian Kết Thúc
+                        </label>
+                        <span asp-validation-for="Input.EndTime" class="text-danger"></span>
+                    </div>
+
+                    <div class="time-helper">
+                        <span class="material-icons">info</span>
+                        <span>Chọn thời điểm bạn muốn trả xe</span>
+                    </div>
+
+                    <!-- Duration Display -->
+                    <div class="duration-display" id="durationDisplay">
+                        <div class="duration-icon">
+                            <span class="material-icons">schedule</span>
+                        </div>
+                        <div class="duration-info">
+                            <strong>Thời gian thuê dự kiến</strong>
+                            <div class="duration-value" id="durationValue">
+                                Vui lòng chọn thời gian bắt đầu và kết thúc
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Info Box -->
+                    <div class="auth-info">
+                        <span class="material-icons">info</span>
+                        <div>
+                            <strong>Lưu ý quan trọng</strong>
+                            <ul class="mb-0 mt-2" style="padding-left: 1.25rem;">
+                                <li>Thời gian bắt đầu phải sau thời điểm hiện tại</li>
+                                <li>Thời gian kết thúc phải sau thời gian bắt đầu</li>
+                                <li>Bạn sẽ cần thanh toán đặt cọc ở bước tiếp theo</li>
+                                <li>Xe sẽ được giữ cho bạn sau khi thanh toán thành công</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="button-group">
+                        <button type="submit" class="btn-auth-primary">
+                            <span class="material-icons">arrow_forward</span>
+                            Tiếp Tục Thanh Toán
+                        </button>
+                        <a asp-page="/Stations" class="btn-auth-secondary">
+                            <span class="material-icons">arrow_back</span>
+                            Quay Lại
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Calculate duration dynamically
+        function updateDuration() {
+            const startInput = document.getElementById('Input_StartTime');
+            const endInput = document.getElementById('Input_EndTime');
+            const durationValue = document.getElementById('durationValue');
+
+            if (startInput && endInput && durationValue) {
+                const start = new Date(startInput.value);
+                const end = new Date(endInput.value);
+
+                if (start && end && !isNaN(start) && !isNaN(end)) {
+                    const diff = end - start;
+
+                    if (diff > 0) {
+                        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+                        let durationText = '';
+                        if (days > 0) durationText += `${days} ngày `;
+                        if (hours > 0) durationText += `${hours} giờ `;
+                        if (minutes > 0 && days === 0) durationText += `${minutes} phút`;
+
+                        durationValue.textContent = durationText.trim() || '0 phút';
+                        durationValue.style.color = '#10b981';
+                    } else {
+                        durationValue.textContent = 'Thời gian không hợp lệ';
+                        durationValue.style.color = '#ef4444';
+                    }
+                } else {
+                    durationValue.textContent = 'Vui lòng chọn thời gian bắt đầu và kết thúc';
+                    durationValue.style.color = '#64748b';
+                }
+            }
+        }
+
+        // Add event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            const startInput = document.getElementById('Input_StartTime');
+            const endInput = document.getElementById('Input_EndTime');
+
+            if (startInput) {
+                startInput.addEventListener('change', updateDuration);
+            }
+
+            if (endInput) {
+                endInput.addEventListener('change', updateDuration);
+            }
+
+            // Initial calculation
+            updateDuration();
+        });
+    </script>
+}

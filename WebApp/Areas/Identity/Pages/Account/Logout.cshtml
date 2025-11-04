@@ -2,13 +2,43 @@
 @model WebApp.Areas.Identity.Pages.Account.LogoutModel
 
 @{
-    ViewData["Title"] = "Log out";
+    ViewData["Title"] = "Đăng Xuất";
 }
 
-<h1 class="mb-3">Log out</h1>
+<link rel="stylesheet" href="~/css/Index.css" />
+<link rel="stylesheet" href="~/css/identity.css" asp-append-version="true" />
 
-<form method="post">
-    <p>Are you sure you want to log out?</p>
-    <button type="submit" class="btn btn-danger">Log out</button>
-    <a class="btn btn-secondary ms-2" href="~/">Cancel</a>
-</form>
+<div class="auth-page">
+    <div class="auth-card">
+        <!-- Header -->
+        <div class="auth-header">
+            <div class="auth-icon">
+                <span class="material-icons">logout</span>
+            </div>
+            <h1 class="auth-title">Đăng Xuất</h1>
+            <p class="auth-subtitle">Bạn có chắc chắn muốn đăng xuất?</p>
+        </div>
+
+        <!-- Body -->
+        <div class="auth-body">
+            <form method="post">
+                <div class="auth-info">
+                    <span class="material-icons">info</span>
+                    <div>
+                        <p class="mb-0">Bạn sẽ cần đăng nhập lại để sử dụng các tính năng của Voltera.</p>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-auth-primary mb-3" style="background: linear-gradient(90deg, #ef4444, #dc2626);">
+                    <span class="material-icons">logout</span>
+                    Đăng Xuất
+                </button>
+
+                <a class="btn-auth-secondary" href="~/">
+                    <span class="material-icons">arrow_back</span>
+                    Hủy
+                </a>
+            </form>
+        </div>
+    </div>
+</div>
