@@ -20,6 +20,7 @@ namespace Application
             services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
             services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
             services.AddScoped<ITokenService, TokenService>();
+            services.AddScoped<IPaymentService, PaymentService>();
             return services;
         }
     }

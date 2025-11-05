@@ -76,7 +76,7 @@ namespace WebApp.Areas.Renter.Pages.Booking
                     return RedirectToPage("./Create");
                 }
 
-                var renterId = Guid.Parse(User.FindFirstValue("RenterId"));
+                var renterId = Guid.Parse(User.FindFirstValue("RenterId")!);
                 // Create booking command
                 var command = new CreateBookingCommand
                 {

@@ -3,8 +3,13 @@ public enum UserRole { Unknown, Renter, Staff, Admin }
 public enum BookingStatus { Pending_Verification, Verified, Cancelled }
 public enum BookingVerificationStatus { Pending, Approved, Rejected_Mismatch, Rejected_Other }
 public enum FeeType { Deposit, Rental_Charge, Surcharge, Damage, Other }
-public enum PaymentStatus { Paid, Refunded }
-public enum PaymentMethod { Unknown, Cash, Card, Ewallet, Bank_Transfer }
+public enum PaymentStatus { Paid, Refunded,
+    Failed
+}
+public enum PaymentMethod { Unknown, Cash, Card, Ewallet, Bank_Transfer,
+    VNPay_QR,
+    International_Card
+}
 public enum RentalStatus { Reserved, In_Progress, Completed, Late, Cancelled }
 public enum InspectionType { Pre_Rental, Post_Rental }
 public enum VehicleAtStationStatus { Maintenance, Available, Booked }
