@@ -1,0 +1,312 @@
+/* Payment Gateway Simulator - Custom Styles */
+
+.payment-gateway-section {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0f172a, #1e293b 50%, #0f172a);
+    padding: 3rem 0;
+}
+
+.gateway-card {
+    background: white;
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    animation: fadeInUp 0.5s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.gateway-header {
+    text-align: center;
+    padding-bottom: 2rem;
+    border-bottom: 2px solid #f0f0f0;
+    margin-bottom: 2rem;
+}
+
+.vnpay-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.vnpay-logo .material-icons {
+    font-size: 48px;
+    color: #10b981;
+}
+
+.vnpay-logo h2 {
+    margin: 0;
+    color: #1f2937;
+    font-size: 1.75rem;
+    font-weight: 700;
+}
+
+.badge-simulator {
+    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+    color: #000;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.payment-info-box {
+    background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    border: 1px solid #e2e8f0;
+}
+
+.payment-info-box h3 {
+    font-size: 1.125rem;
+    margin-bottom: 1rem;
+    color: #1f2937;
+    font-weight: 600;
+}
+
+.info-grid {
+    display: grid;
+    gap: 1rem;
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.info-item:last-child {
+    border-bottom: none;
+}
+
+.info-item .label {
+    color: #64748b;
+    font-weight: 500;
+}
+
+.info-item .value {
+    color: #1f2937;
+    font-weight: 600;
+}
+
+.info-item .value.highlight {
+    color: #10b981;
+    font-size: 1.25rem;
+}
+
+.info-item .value.code {
+    font-family: 'Courier New', monospace;
+    background: #1f2937;
+    color: #34d399;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.875rem;
+}
+
+.simulation-options {
+    margin-bottom: 2rem;
+}
+
+.simulation-options h3 {
+    font-size: 1.125rem;
+    margin-bottom: 0.5rem;
+    color: #1f2937;
+    font-weight: 600;
+}
+
+.radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.radio-option {
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: block;
+}
+
+.radio-option:hover {
+    border-color: #10b981;
+    background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+    transform: translateX(4px);
+}
+
+.radio-option.success:has(input:checked) {
+    border-color: #10b981;
+    background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+}
+
+.radio-option.error:has(input:checked) {
+    border-color: #ef4444;
+    background: linear-gradient(135deg, #fee2e2, #fecaca);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+}
+
+.radio-option.warning:has(input:checked) {
+    border-color: #f59e0b;
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
+}
+
+.radio-option input[type="radio"] {
+    margin-right: 1rem;
+}
+
+.radio-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.radio-content .material-icons {
+    font-size: 32px;
+    color: #64748b;
+    transition: color 0.3s ease;
+}
+
+.radio-option.success .material-icons {
+    color: #10b981;
+}
+
+.radio-option.error .material-icons {
+    color: #ef4444;
+}
+
+.radio-option.warning .material-icons {
+    color: #f59e0b;
+}
+
+.radio-content strong {
+    display: block;
+    font-size: 1rem;
+    color: #1f2937;
+    margin-bottom: 0.25rem;
+}
+
+.radio-content p {
+    margin: 0;
+    font-size: 0.875rem;
+    color: #64748b;
+}
+
+.security-notice {
+    background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+    border-left: 4px solid #3b82f6;
+    padding: 1rem;
+    margin-bottom: 2rem;
+    border-radius: 8px;
+    display: flex;
+    gap: 1rem;
+}
+
+.security-notice .material-icons {
+    color: #2563eb;
+    font-size: 24px;
+}
+
+.security-notice strong {
+    display: block;
+    margin-bottom: 0.25rem;
+    color: #1e40af;
+    font-weight: 600;
+}
+
+.security-notice p {
+    font-size: 0.875rem;
+    color: #1e3a8a;
+    margin: 0;
+}
+
+.button-group {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.btn {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.875rem 1.5rem;
+    border-radius: 50px;
+    font-weight: 600;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #10b981, #14b8a6);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #059669, #0d9488);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+}
+
+.btn-secondary {
+    background: #64748b;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: #475569;
+    transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+    .gateway-card {
+        padding: 1.5rem;
+    }
+
+    .vnpay-logo .material-icons {
+        font-size: 36px;
+    }
+
+    .vnpay-logo h2 {
+        font-size: 1.5rem;
+    }
+
+    .button-group {
+        flex-direction: column;
+    }
+
+    .btn {
+        width: 100%;
+    }
+
+    .radio-content {
+        gap: 0.75rem;
+    }
+
+    .radio-content .material-icons {
+        font-size: 24px;
+    }
+}
+

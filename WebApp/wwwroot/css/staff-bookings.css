@@ -1,0 +1,75 @@
+/* Staff Bookings Pages - Custom Styles */
+
+/* Card Hover Effects for Booking Cards */
+.booking-card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(16, 185, 129, 0.15) !important;
+}
+
+/* Status Badge Animations */
+.status-badge {
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Form Select Enhanced Styling */
+.form-select.rounded-2:focus {
+    border-color: #10b981;
+    box-shadow: 0 0 0 0.25rem rgba(16, 185, 129, 0.15);
+}
+
+/* Verification Form Card */
+.verification-card {
+    transition: all 0.3s ease;
+}
+
+.verification-card:hover {
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+/* Empty State Animation */
+.empty-state-icon {
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+/* Responsive Grid Adjustments */
+@media (max-width: 768px) {
+    .booking-card {
+        margin-bottom: 1rem;
+    }
+}
+
+/* Badge Color Enhancements */
+.badge.rounded-pill {
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+}
+
+/* Info Grid Styling */
+.info-grid-item {
+    transition: background-color 0.2s ease;
+}
+
+.info-grid-item:hover {
+    background-color: #f1f5f9;
+}
+

@@ -1,7 +1,7 @@
-@page
+﻿@page
 @model WebApp.Areas.Renter.Pages.Booking.CancelResultModel
 @{
-    ViewData["Title"] = "H?y ??t Ch? Th�nh C�ng";
+    ViewData["Title"] = "Hủy Đặt Chỗ Thành Công";
 }
 
 <link rel="stylesheet" href="~/css/Index.css" />
@@ -16,10 +16,10 @@
                     <span class="material-icons">check_circle</span>
                 </div>
                 <h1 style="font-size: 2rem; color: #059669; margin-top: 1rem; margin-bottom: 0.5rem;">
-                    H?y ??t Ch? Th�nh C�ng!
+                    Hủy Đặt Chỗ Thành Công!
                 </h1>
                 <p style="color: #6b7280; font-size: 1.125rem;">
-                    ??t ch? c?a b?n ?� ???c h?y v� ti?n ??t c?c s? ???c ho�n l?i
+                    Đặt chỗ của bạn đã được hủy và tiền đặt cọc sẽ được hoàn lại
                 </p>
             </div>
 
@@ -27,29 +27,29 @@
             <div class="refund-details-card">
                 <h2 style="font-size: 1.25rem; margin-bottom: 1.5rem; text-align: center; color: #333;">
                     <span class="material-icons" style="vertical-align: middle; margin-right: 0.5rem;">account_balance_wallet</span>
-                    Chi Ti?t Ho�n Ti?n
+                    Chi Tiết Hoàn Tiền
                 </h2>
 
                 <div style="background: #f9fafb; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem;">
                     <div class="refund-row">
-                        <span class="refund-label">M� ??t ch?:</span>
+                        <span class="refund-label">Mã đặt chỗ:</span>
                         <span class="refund-value">@Model.BookingId.ToString().Substring(0, 8).ToUpper()</span>
                     </div>
 
                     <div class="refund-row">
-                        <span class="refund-label">Ti?n ??t c?c ban ??u:</span>
+                        <span class="refund-label">Tiền đặt cọc ban đầu:</span>
                         <span class="refund-value">@Model.OriginalAmount.ToString("N0") @Model.RefundCurrency</span>
                     </div>
 
                     <div class="refund-row">
-                        <span class="refund-label">Ph� giao d?ch (5%):</span>
+                        <span class="refund-label">Phí giao dịch (5%):</span>
                         <span class="refund-value" style="color: #dc2626;">
                             -@((Model.OriginalAmount - Model.RefundAmount).ToString("N0")) @Model.RefundCurrency
                         </span>
                     </div>
 
                     <div class="refund-row" style="border-top: 2px solid #e5e7eb; padding-top: 1rem; margin-top: 1rem;">
-                        <span class="refund-label" style="font-size: 1.125rem;"><strong>S? ti?n ho�n l?i:</strong></span>
+                        <span class="refund-label" style="font-size: 1.125rem;"><strong>Số tiền hoàn lại:</strong></span>
                         <span class="refund-value" style="font-size: 1.5rem; color: #059669;">
                             <strong>@Model.RefundAmount.ToString("N0") @Model.RefundCurrency</strong>
                         </span>
@@ -61,10 +61,10 @@
                     <div class="d-flex gap-2">
                         <span class="material-icons" style="color: #0284c7;">schedule</span>
                         <div>
-                            <strong style="color: #075985;">Th?i gian x? l�</strong>
+                            <strong style="color: #075985;">Thời gian xử lý</strong>
                             <p class="mb-0 mt-1" style="font-size: 0.875rem; color: #0c4a6e;">
-                                Ti?n ho�n l?i s? ???c chuy?n v? t�i kho?n ng�n h�ng c?a b?n trong v�ng <strong>3-5 ng�y l�m vi?c</strong>.
-                                N?u b?n kh�ng cung c?p th�ng tin t�i kho?n, vui l�ng ??n tr?m ?? nh?n ti?n m?t.
+                                Tiền hoàn lại sẽ được chuyển về tài khoản ngân hàng của bạn trong vòng <strong>3-5 ngày làm việc</strong>.
+                                Nếu bạn không cung cấp thông tin tài khoản, vui lòng đến trạm để nhận tiền mặt.
                             </p>
                         </div>
                     </div>
@@ -75,11 +75,11 @@
                     <div class="d-flex gap-2">
                         <span class="material-icons" style="color: #f59e0b;">info</span>
                         <div>
-                            <strong style="color: #92400e;">L?u � quan tr?ng</strong>
+                            <strong style="color: #92400e;">Lưu ý quan trọng</strong>
                             <ul class="mb-0 mt-1" style="font-size: 0.875rem; color: #78350f; padding-left: 1.25rem;">
-                                <li>B?n s? nh?n ???c email x�c nh?n v? vi?c h?y ??t ch?</li>
-                                <li>Ki?m tra th�ng tin ho�n ti?n trong m?c "L?ch s? giao d?ch"</li>
-                                <li>Li�n h? hotline n?u ch?a nh?n ???c ti?n sau 5 ng�y l�m vi?c</li>
+                                <li>Bạn sẽ nhận được email xác nhận về việc hủy đặt chỗ</li>
+                                <li>Kiểm tra thông tin hoàn tiền trong mục "Lịch sử giao dịch"</li>
+                                <li>Liên hệ hotline nếu chưa nhận được tiền sau 5 ngày làm việc</li>
                             </ul>
                         </div>
                     </div>
@@ -90,11 +90,11 @@
             <div class="button-group mt-4">
                 <a asp-area="Renter" asp-page="/RenterProfile" class="btn-auth-primary">
                     <span class="material-icons">home</span>
-                    V? Trang Ch?
+                    Về Trang Chủ
                 </a>
                 <a asp-page="/Index" class="btn-auth-secondary">
                     <span class="material-icons">search</span>
-                    T�m Xe Kh�c
+                    Tìm Xe Khác
                 </a>
             </div>
         </div>
@@ -103,9 +103,9 @@
         <div class="text-center mt-4">
             <p style="color: white; font-size: 0.875rem;">
                 <span class="material-icons" style="font-size: 16px; vertical-align: middle;">help</span>
-                C?n h? tr??
+                Cần hỗ trợ?
                 <a href="tel:1900xxxx" style="color: white; text-decoration: underline; font-weight: 500; margin-left: 0.5rem;">
-                    G?i Hotline: 1900 xxxx
+                    Gọi Hotline: 1900 xxxx
                 </a>
             </p>
         </div>

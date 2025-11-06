@@ -1,0 +1,136 @@
+﻿@page
+@using Domain.Enums
+@model WebApp.Areas.Staff.Pages.Bookings.IndexModel
+@{
+    ViewData["Title"] = "Quản Lý Đặt Chỗ";
+}
+
+<link rel="stylesheet" href="~/css/Index.css" />
+<link rel="stylesheet" href="~/css/staff-bookings.css" asp-append-version="true" />
+
+<!-- Hero Section -->
+<section class="py-5 hero-gradient">
+    <div class="container" style="max-width: 72rem;">
+        <div class="text-center text-white">
+            <div class="mb-3">
+                <span class="material-icons" style="font-size: 4rem; color: #34d399;">event</span>
+            </div>
+            <h1 class="fw-bold mb-2">Quản Lý Đặt Chỗ</h1>
+            <p class="text-slate-300 fs-5">Xem và xác minh đặt chỗ từ khách hàng</p>
+        </div>
+    </div>
+</section>
+
+<!-- Content Section -->
+<section class="py-5 bg-slate-50">
+    <div class="container" style="max-width: 72rem;">
+        @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+                <span class="material-icons">error</span>
+                @Model.ErrorMessage
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        @if (Model.Bookings.Any())
+        {
+            <div class="row g-4">
+                @foreach (var booking in Model.Bookings.OrderByDescending(b => b.BookingCreatedAt))
+                {
+                    var (statusClass, statusIcon, statusText) = booking.Status switch
+                    {
+                        BookingStatus.Pending_Verification => ("bg-orange-100 text-orange-600", "hourglass_empty", "Chờ Xác Minh"),
+                        BookingStatus.Verified => ("bg-emerald-100 text-emerald-600", "verified", "Đã Xác Minh"),
+                        BookingStatus.Cancelled => ("bg-red-100 text-red-600", "cancel", "Đã Hủy"),
+                        _ => ("bg-secondary text-white", "help", "Không xác định")
+                    };
+
+                    var verificationBadge = booking.VerificationStatus switch
+                    {
+                        BookingVerificationStatus.Pending => "bg-secondary",
+                        BookingVerificationStatus.Approved => "bg-success",
+                        BookingVerificationStatus.Rejected_Mismatch => "bg-danger",
+                        BookingVerificationStatus.Rejected_Other => "bg-danger",
+                        _ => "bg-secondary"
+                    };
+
+                    <div class="col-12 col-md-6 col-lg-4">
+                        <div class="bg-white p-4 rounded-2xl shadow-lg transition-shadow h-100 d-flex flex-column" style="border-top: 4px solid #10b981;">
+                            <!-- Header -->
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div>
+                                    <small class="text-slate-400">Mã Đặt Chỗ</small>
+                                    <div class="fw-bold text-slate-800">@booking.BookingId.ToString().Substring(0, 8).ToUpper()</div>
+                                </div>
+                                <span class="badge @statusClass rounded-pill px-3 py-2">
+                                    <span class="material-icons" style="font-size: 16px; vertical-align: middle;">@statusIcon</span>
+                                    @statusText
+                                </span>
+                            </div>
+
+                            <!-- Body -->
+                            <div class="mb-3 flex-grow-1">
+                                <div class="mb-2">
+                                    <div class="d-flex align-items-center gap-2 mb-1">
+                                        <span class="material-icons text-slate-400" style="font-size: 18px;">person</span>
+                                        <small class="text-slate-600">Renter: <code>@booking.RenterId.ToString().Substring(0, 8).ToUpper()</code></small>
+                                    </div>
+                                </div>
+
+                                <div class="mb-2">
+                                    <div class="d-flex align-items-center gap-2 mb-1">
+                                        <span class="material-icons text-slate-400" style="font-size: 18px;">schedule</span>
+                                        <small class="text-slate-600">Bắt đầu: @booking.StartTime.ToString("dd/MM/yyyy HH:mm")</small>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="material-icons text-slate-400" style="font-size: 18px;">event</span>
+                                        <small class="text-slate-600">Kết thúc: @booking.EndTime.ToString("dd/MM/yyyy HH:mm")</small>
+                                    </div>
+                                </div>
+
+                                <div class="mt-2">
+                                    <span class="badge @verificationBadge">
+                                        @switch (booking.VerificationStatus)
+                                        {
+                                            case BookingVerificationStatus.Pending:
+                                                @:Chờ Xác Minh
+                                                break;
+                                            case BookingVerificationStatus.Approved:
+                                                @:Đã Duyệt
+                                                break;
+                                            case BookingVerificationStatus.Rejected_Mismatch:
+                                                @:Từ Chối - Không Khớp
+                                                break;
+                                            case BookingVerificationStatus.Rejected_Other:
+                                                @:Từ Chối - Khác
+                                                break;
+                                        }
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Footer -->
+                            <div class="pt-3 border-top">
+                                <a asp-page="./Details" asp-route-id="@booking.BookingId" class="btn btn-gradient w-100 rounded-pill">
+                                    <span class="material-icons" style="font-size: 18px; vertical-align: middle;">visibility</span>
+                                    Chi Tiết
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <div class="mb-4">
+                    <span class="material-icons text-slate-400" style="font-size: 5rem;">event_busy</span>
+                </div>
+                <h3 class="text-slate-600 mb-2">Chưa có đặt chỗ nào</h3>
+                <p class="text-slate-400">Danh sách đặt chỗ sẽ hiển thị ở đây khi có khách hàng đặt xe.</p>
+            </div>
+        }
+    </div>
+</section>

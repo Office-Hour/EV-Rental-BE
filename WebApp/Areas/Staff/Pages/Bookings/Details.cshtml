@@ -1,0 +1,196 @@
+﻿@page "{id:guid}"
+@using Domain.Enums
+@model WebApp.Areas.Staff.Pages.Bookings.DetailsModel
+@{
+    ViewData["Title"] = "Chi Tiết Đặt Chỗ - Staff";
+}
+
+<link rel="stylesheet" href="~/css/Index.css" />
+<link rel="stylesheet" href="~/css/staff-bookings.css" asp-append-version="true" />
+
+<!-- Hero Section -->
+<section class="py-5 hero-gradient">
+    <div class="container" style="max-width: 72rem;">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="text-white">
+                <div class="d-flex align-items-center gap-3 mb-2">
+                    <span class="material-icons" style="font-size: 3rem; color: #34d399;">event</span>
+                    <h1 class="fw-bold mb-0">Chi Tiết Đặt Chỗ</h1>
+                </div>
+                <p class="text-slate-300 fs-5 mb-0">Xem và xác minh thông tin đặt chỗ</p>
+            </div>
+            <a asp-page="./Index" class="btn btn-outline-slate rounded-pill hover-outline-emerald px-4 py-2">
+                <span class="material-icons" style="vertical-align: middle;">arrow_back</span> Quay Lại
+            </a>
+        </div>
+    </div>
+</section>
+
+<section class="py-5 bg-slate-50">
+    <div class="container" style="max-width: 72rem;">
+
+        @if (Model.Booking != null)
+        {
+            <div class="row g-4">
+                <div class="col-md-8">
+                    <div class="bg-white p-4 rounded-2xl shadow-lg mb-4">
+                        <div class="d-flex align-items-center gap-2 mb-4 pb-3 border-bottom">
+                            <span class="material-icons text-emerald-600">info</span>
+                            <h2 class="fw-semibold text-slate-800 mb-0">Thông Tin Đặt Chỗ</h2>
+                        </div>
+                        <div>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="p-3 bg-slate-50 rounded-2">
+                                        <small class="text-slate-400 d-block mb-1">Mã Đặt Chỗ</small>
+                                        <code class="fw-bold">@Model.Booking.BookingId</code>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="p-3 bg-slate-50 rounded-2">
+                                        <small class="text-slate-400 d-block mb-1">Renter ID</small>
+                                        <code class="fw-bold">@Model.Booking.RenterId</code>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="p-3 bg-slate-50 rounded-2">
+                                        <small class="text-slate-400 d-block mb-1">Thời Gian Bắt Đầu</small>
+                                        <div class="fw-semibold text-slate-800">@Model.Booking.StartTime.ToString("dd/MM/yyyy HH:mm")</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="p-3 bg-slate-50 rounded-2">
+                                        <small class="text-slate-400 d-block mb-1">Thời Gian Kết Thúc</small>
+                                        <div class="fw-semibold text-slate-800">@Model.Booking.EndTime.ToString("dd/MM/yyyy HH:mm")</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="p-3 bg-slate-50 rounded-2">
+                                        <small class="text-slate-400 d-block mb-1">Trạng Thái</small>
+                                        @switch (Model.Booking.Status)
+                                        {
+                                            case BookingStatus.Pending_Verification:
+                                                <span class="badge bg-warning rounded-pill px-3 py-2">Chờ Xác Minh</span>
+                                                break;
+                                            case BookingStatus.Verified:
+                                                <span class="badge bg-success rounded-pill px-3 py-2">Đã Xác Minh</span>
+                                                break;
+                                            case BookingStatus.Cancelled:
+                                                <span class="badge bg-danger rounded-pill px-3 py-2">Đã Hủy</span>
+                                                break;
+                                        }
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="p-3 bg-slate-50 rounded-2">
+                                        <small class="text-slate-400 d-block mb-1">Xác Minh</small>
+                                        @switch (Model.Booking.VerificationStatus)
+                                        {
+                                            case BookingVerificationStatus.Pending:
+                                                <span class="badge bg-secondary rounded-pill px-3 py-2">Chờ</span>
+                                                break;
+                                            case BookingVerificationStatus.Approved:
+                                                <span class="badge bg-success rounded-pill px-3 py-2">Đã Duyệt</span>
+                                                break;
+                                            case BookingVerificationStatus.Rejected_Mismatch:
+                                                <span class="badge bg-danger rounded-pill px-3 py-2">Từ Chối - Không Khớp</span>
+                                                break;
+                                            case BookingVerificationStatus.Rejected_Other:
+                                                <span class="badge bg-danger rounded-pill px-3 py-2">Từ Chối - Lý Do Khác</span>
+                                                break;
+                                        }
+                                    </div>
+                                </div>
+                                @if (Model.Booking.VerifiedAt.HasValue)
+                                {
+                                    <div class="col-12">
+                                        <div class="p-3 bg-slate-50 rounded-2">
+                                            <small class="text-slate-400 d-block mb-1">Xác Minh Lúc</small>
+                                            <div class="fw-semibold text-slate-800">@Model.Booking.VerifiedAt.Value.ToString("dd/MM/yyyy HH:mm")</div>
+                                        </div>
+                                    </div>
+                                }
+                                @if (!string.IsNullOrEmpty(Model.Booking.CancelReason))
+                                {
+                                    <div class="col-12">
+                                        <div class="p-3 bg-red-100 rounded-2">
+                                            <small class="text-red-600 d-block mb-1 fw-semibold">Lý Do Hủy</small>
+                                            <div class="text-slate-800">@Model.Booking.CancelReason</div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    @if (Model.Booking.Status == BookingStatus.Pending_Verification)
+                    {
+                        <div class="bg-white p-4 rounded-2xl shadow-lg">
+                            <div class="d-flex align-items-center gap-2 mb-4 pb-3 border-bottom">
+                                <span class="material-icons text-emerald-600">verified_user</span>
+                                <h2 class="fw-semibold text-slate-800 mb-0 fs-5">Xác Minh Đặt Chỗ</h2>
+                            </div>
+                            <div>
+                                <form method="post" asp-page-handler="Approve">
+                                    <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-2"></div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label fw-semibold text-slate-800">Kết Quả Xác Minh</label>
+                                        <select asp-for="Input.VerificationStatus" class="form-select rounded-2">
+                                            <option value="">-- Chọn --</option>
+                                            <option value="@BookingVerificationStatus.Approved">Duyệt</option>
+                                            <option value="@BookingVerificationStatus.Rejected_Mismatch">Từ Chối - Không Khớp</option>
+                                            <option value="@BookingVerificationStatus.Rejected_Other">Từ Chối - Lý Do Khác</option>
+                                        </select>
+                                        <span asp-validation-for="Input.VerificationStatus" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label asp-for="Input.CancelReason" class="form-label fw-semibold text-slate-800">Lý Do (nếu từ chối)</label>
+                                        <textarea asp-for="Input.CancelReason" class="form-control rounded-2" rows="3"></textarea>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-gradient w-100 rounded-pill">
+                                        <span class="material-icons" style="vertical-align: middle;">check_circle</span> Xác Nhận
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    }
+                    else if (Model.Booking.Status == BookingStatus.Verified)
+                    {
+                        <div class="bg-white p-4 rounded-2xl shadow-lg" style="border-top: 4px solid #10b981;">
+                            <div class="d-flex align-items-center gap-2 mb-4 pb-3 border-bottom">
+                                <span class="material-icons text-emerald-600">check_circle</span>
+                                <h2 class="fw-semibold text-emerald-600 mb-0 fs-5">Đã Xác Minh</h2>
+                            </div>
+                            <div>
+                                <p class="text-slate-600 mb-3">Đặt chỗ đã được duyệt. Bạn có thể tạo Rental.</p>
+                                <a asp-area="Staff" asp-page="/Rentals/Create" asp-route-bookingId="@Model.Booking.BookingId" 
+                                   class="btn btn-gradient w-100 rounded-pill">
+                                    <span class="material-icons" style="vertical-align: middle;">electric_car</span> Tạo Rental
+                                </a>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <div class="mb-4">
+                    <span class="material-icons text-slate-400" style="font-size: 5rem;">search_off</span>
+                </div>
+                <h3 class="text-slate-600 mb-2">Không tìm thấy đặt chỗ</h3>
+                <p class="text-slate-400">Đặt chỗ không tồn tại hoặc đã bị xóa.</p>
+            </div>
+        }
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

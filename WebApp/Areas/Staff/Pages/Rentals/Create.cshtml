@@ -1,0 +1,132 @@
+@page
+@model WebApp.Areas.Staff.Pages.Rentals.CreateModel
+@{
+    ViewData["Title"] = "Tạo Rental";
+}
+
+<link rel="stylesheet" href="~/css/Index.css" />
+<link rel="stylesheet" href="~/css/staff-rentals.css" asp-append-version="true" />
+
+<!-- Hero Section -->
+<section class="py-5 hero-gradient">
+    <div class="container" style="max-width: 72rem;">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="text-white">
+                <div class="d-flex align-items-center gap-3 mb-2">
+                    <span class="material-icons" style="font-size: 3rem; color: #34d399;">electric_car</span>
+                    <h1 class="fw-bold mb-0">Tạo Rental</h1>
+                </div>
+                <p class="text-slate-300 fs-5 mb-0">Tạo hợp đồng thuê xe cho khách hàng</p>
+            </div>
+            <a asp-area="Staff" asp-page="/Bookings/Details" asp-route-id="@Model.BookingId" class="btn btn-outline-slate rounded-pill hover-outline-emerald px-4 py-2">
+                <span class="material-icons" style="vertical-align: middle;">arrow_back</span> Quay Lại
+            </a>
+        </div>
+    </div>
+</section>
+
+<section class="py-5 bg-slate-50">
+    <div class="container" style="max-width: 72rem;">
+
+        @if (Model.Booking != null)
+        {
+            <div class="row g-4">
+                <div class="col-md-8">
+                    <div class="bg-white p-4 rounded-2xl shadow-lg">
+                        <div class="d-flex align-items-center gap-2 mb-4 pb-3 border-bottom">
+                            <span class="material-icons text-emerald-600">description</span>
+                            <h2 class="fw-semibold text-slate-800 mb-0">Thông Tin Rental</h2>
+                        </div>
+                        <div>
+                            <form method="post">
+                                <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-2"></div>
+
+                                <div class="mb-4">
+                                    <label class="form-label fw-semibold text-slate-800">Booking ID</label>
+                                    <input type="text" class="form-control rounded-2" value="@Model.BookingId" readonly />
+                                </div>
+
+                                <div class="mb-4">
+                                    <label asp-for="Input.VehicleId" class="form-label fw-semibold text-slate-800">
+                                        <span class="material-icons text-slate-400" style="font-size: 18px; vertical-align: middle;">directions_car</span>
+                                        Vehicle ID *
+                                    </label>
+                                    <input asp-for="Input.VehicleId" class="form-control rounded-2" />
+                                    <span asp-validation-for="Input.VehicleId" class="text-danger"></span>
+                                    <small class="form-text text-slate-400">
+                                        <span class="material-icons" style="font-size: 14px; vertical-align: middle;">info</span>
+                                        TODO: Dropdown danh sách xe từ VehicleAtStationId
+                                    </small>
+                                </div>
+
+                                <div class="row g-3 mb-4">
+                                    <div class="col-md-6">
+                                        <label asp-for="Input.StartTime" class="form-label fw-semibold text-slate-800">
+                                            <span class="material-icons text-slate-400" style="font-size: 18px; vertical-align: middle;">schedule</span>
+                                            Thời Gian Bắt Đầu *
+                                        </label>
+                                        <input asp-for="Input.StartTime" type="datetime-local" class="form-control rounded-2" />
+                                        <span asp-validation-for="Input.StartTime" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label asp-for="Input.EndTime" class="form-label fw-semibold text-slate-800">
+                                            <span class="material-icons text-slate-400" style="font-size: 18px; vertical-align: middle;">event</span>
+                                            Thời Gian Kết Thúc *
+                                        </label>
+                                        <input asp-for="Input.EndTime" type="datetime-local" class="form-control rounded-2" />
+                                        <span asp-validation-for="Input.EndTime" class="text-danger"></span>
+                                    </div>
+                                </div>
+
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-gradient rounded-pill py-3">
+                                        <span class="material-icons" style="vertical-align: middle;">add</span> Tạo Rental
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="bg-white p-4 rounded-2xl shadow-lg" style="border-top: 4px solid #10b981;">
+                        <div class="d-flex align-items-center gap-2 mb-4 pb-3 border-bottom">
+                            <span class="material-icons text-emerald-600">info</span>
+                            <h2 class="fw-semibold text-slate-800 mb-0 fs-5">Thông Tin Booking</h2>
+                        </div>
+                        <div class="d-grid gap-3">
+                            <div class="p-3 bg-slate-50 rounded-2">
+                                <small class="text-slate-400 d-block mb-1">Renter ID</small>
+                                <code class="fw-bold">@Model.Booking.RenterId</code>
+                            </div>
+                            
+                            <div class="p-3 bg-slate-50 rounded-2">
+                                <small class="text-slate-400 d-block mb-2">Thời Gian</small>
+                                <div class="text-slate-800" style="font-size: 0.875rem;">
+                                    <div class="mb-1">
+                                        <span class="material-icons text-slate-400" style="font-size: 16px; vertical-align: middle;">schedule</span>
+                                        @Model.Booking.StartTime.ToString("dd/MM/yyyy HH:mm")
+                                    </div>
+                                    <div>
+                                        <span class="material-icons text-slate-400" style="font-size: 16px; vertical-align: middle;">event</span>
+                                        @Model.Booking.EndTime.ToString("dd/MM/yyyy HH:mm")
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="p-3 bg-slate-50 rounded-2">
+                                <small class="text-slate-400 d-block mb-1">Vehicle At Station</small>
+                                <code class="fw-bold">@Model.Booking.VehicleAtStationId</code>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
