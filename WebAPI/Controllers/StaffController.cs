@@ -16,7 +16,7 @@ namespace WebAPI.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(AuthenticationSchemes = "Bearer", Roles = "Staff")]
+[Authorize(AuthenticationSchemes = "Bearer")]
 [Produces("application/json")]
 public class StaffController : ControllerBase
 {
