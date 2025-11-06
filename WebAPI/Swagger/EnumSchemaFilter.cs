@@ -46,27 +46,9 @@ public sealed class EnumSchemaFilter : ISchemaFilter
             return;
         }
 
-        var enumNames = Enum.GetNames(enumType);
-
+        var enumValues = EnumSchemaMetadata.GetWireValues(enumType);
         schema.Type = "string";
-        schema.Enum = enumNames
-            .Select(name => (IOpenApiAny)new OpenApiString(name))
-            .ToList();
-
-        AppendEnumDescription(schema, enumNames);
-    }
-
-    private static void AppendEnumDescription(OpenApiSchema schema, IReadOnlyList<string> enumNames)
-    {
-        if (enumNames.Count == 0)
-        {
-            return;
-        }
-
-        var suffix = $" Possible values: {string.Join(", ", enumNames)}.";
-
-        schema.Description = string.IsNullOrWhiteSpace(schema.Description)
-            ? suffix.TrimStart()
-            : string.Concat(schema.Description.TrimEnd(), suffix);
+        schema.Enum = EnumSchemaMetadata.ToOpenApiEnum(enumValues);
+        EnumSchemaMetadata.EnsureDescription(schema, enumValues);
     }
 }

@@ -1,13 +1,14 @@
 ﻿using Application;
 using MediatR;
+using Microsoft.AspNetCore.Http.Json;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
 using Scalar.AspNetCore;
-using System.Text.Json.Serialization;
 using WebAPI;
 using WebAPI.Behaviors;
 using WebAPI.FilterException;
 using WebAPI.Middlewares;
+using WebAPI.Serialization;
 using WebAPI.Swagger;
 using Microsoft.OpenApi.Models; // added for Swagger/OpenAPI
 
@@ -20,8 +21,13 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
-        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+        EnumSerialization.Configure(options.JsonSerializerOptions);
     });
+
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+    EnumSerialization.Configure(options.SerializerOptions);
+});
 
 // Add services to the container.
 builder.Services.AddApplication();

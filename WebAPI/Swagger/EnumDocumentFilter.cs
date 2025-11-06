@@ -1,6 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
-using Microsoft.OpenApi.Any;
+using System.Reflection;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
@@ -11,41 +12,80 @@ namespace WebAPI.Swagger;
 /// </summary>
 public sealed class EnumDocumentFilter : IDocumentFilter
 {
+    private static readonly Type[] EnumTypes = DiscoverProjectEnumTypes();
+
     public void Apply(OpenApiDocument swaggerDoc, DocumentFilterContext context)
     {
-        var enumTypes = typeof(Domain.Enums.BookingStatus).Assembly
-            .GetTypes()
-            .Where(t => t.IsEnum)
-            .ToArray();
-
-        foreach (var enumType in enumTypes)
+        foreach (var enumType in EnumTypes)
         {
-            if (context.SchemaRepository.TryLookupByType(enumType, out var schema))
-            {
-                ApplyEnumMetadata(schema, enumType);
-            }
-
-            var nullableEnum = typeof(Nullable<>).MakeGenericType(enumType);
-            if (context.SchemaRepository.TryLookupByType(nullableEnum, out var nullableSchema))
-            {
-                ApplyEnumMetadata(nullableSchema, enumType);
-            }
+            ApplyIfPresent(context, enumType);
+            ApplyIfPresent(context, typeof(Nullable<>).MakeGenericType(enumType));
         }
+    }
+
+    private static void ApplyIfPresent(DocumentFilterContext context, Type enumType)
+    {
+        if (!context.SchemaRepository.TryLookupByType(enumType, out var schema))
+        {
+            return;
+        }
+
+        ApplyEnumMetadata(schema, enumType);
     }
 
     private static void ApplyEnumMetadata(OpenApiSchema schema, Type enumType)
     {
-        var enumNames = Enum.GetNames(enumType);
+        var enumValues = EnumSchemaMetadata.GetWireValues(enumType);
 
-        schema.Type = "string";
-        schema.Format = null;
-        schema.Enum = enumNames
-            .Select(name => (IOpenApiAny)new OpenApiString(name))
-            .ToList();
+        if (!EnumSchemaMetadata.MatchesExisting(schema, enumValues))
+        {
+            schema.Type = "string";
+            schema.Format = null;
+            schema.Enum = EnumSchemaMetadata.ToOpenApiEnum(enumValues);
+        }
 
-        var suffix = $" Possible values: {string.Join(", ", enumNames)}.";
-        schema.Description = string.IsNullOrWhiteSpace(schema.Description)
-            ? suffix.TrimStart()
-            : string.Concat(schema.Description!.TrimEnd(), suffix);
+        EnumSchemaMetadata.EnsureDescription(schema, enumValues);
+    }
+
+    private static Type[] DiscoverProjectEnumTypes()
+    {
+        var prefixes = new[]
+        {
+            "Domain",
+            "Application",
+            "Persistence",
+            "WebAPI"
+        };
+
+        return AppDomain.CurrentDomain
+            .GetAssemblies()
+            .Where(assembly => !assembly.IsDynamic && HasProjectPrefix(assembly.GetName().Name, prefixes))
+            .SelectMany(GetTypesSafe)
+            .Where(type => type?.IsEnum == true)
+            .Cast<Type>()
+            .Distinct()
+            .ToArray();
+    }
+
+    private static bool HasProjectPrefix(string? assemblyName, IReadOnlyList<string> prefixes)
+    {
+        if (string.IsNullOrWhiteSpace(assemblyName))
+        {
+            return false;
+        }
+
+        return prefixes.Any(prefix => assemblyName.StartsWith(prefix, StringComparison.Ordinal));
+    }
+
+    private static IEnumerable<Type?> GetTypesSafe(Assembly assembly)
+    {
+        try
+        {
+            return assembly.GetTypes();
+        }
+        catch (ReflectionTypeLoadException ex)
+        {
+            return ex.Types;
+        }
     }
 }
