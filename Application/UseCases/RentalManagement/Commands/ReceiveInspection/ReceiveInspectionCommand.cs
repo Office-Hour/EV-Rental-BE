@@ -9,4 +9,5 @@ public class ReceiveInspectionCommand : IRequest<Guid>
     public decimal CurrentBatteryCapacityKwh { get; set; }
     public DateTime InspectedAt { get; set; } = DateTime.UtcNow;
     public Guid InspectorStaffId { get; set; }
+    public string URL { get; set; } = "";
 }

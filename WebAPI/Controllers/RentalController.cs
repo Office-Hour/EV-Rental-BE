@@ -149,7 +149,8 @@ public class RentalController(IMediator mediator) : ControllerBase
             RentalId = request.RentalId,
             CurrentBatteryCapacityKwh = request.CurrentBatteryCapacityKwh,
             InspectedAt = request.InspectedAt,
-            InspectorStaffId = request.InspectorStaffId
+            InspectorStaffId = request.InspectorStaffId,
+            URL = request.URL
         };
         var inspectionId = await mediator.Send(command, ct);
         return Ok(new ApiResponse<Guid>(inspectionId, "Inspection created successfully"));

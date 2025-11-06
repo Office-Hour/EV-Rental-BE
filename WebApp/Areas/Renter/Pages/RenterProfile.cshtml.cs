@@ -1,5 +1,6 @@
 using Application.DTOs;
 using Application.DTOs.BookingManagement;
+using Application.UseCases.BookingManagement.Queries.GetBookingByRenter;
 using Application.UseCases.BookingManagement.Queries.ViewKycByRenter;
 using Application.UseCases.Profile.Queries.GetRenterProfile;
 using MediatR;
@@ -20,6 +21,8 @@ namespace WebApp.Areas.Renter
         public string? Address { get; set; }
         public int RiskScore { get; set; }
         public PagedResult<KycDto>? Kycs { get; set; }
+        public PagedResult<BookingDetailsDto>? Bookings { get; set; }
+
         public async Task<IActionResult> OnGetAsync()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -43,6 +46,15 @@ namespace WebApp.Areas.Renter
             });
 
             Kycs = kycs;
+
+            var bookings = await mediator.Send(new GetBookingByRenterQuery
+            {
+                RenterId = renterProfile.RenterId,
+                PageNumber = 1,
+                PageSize = 10
+            });
+
+            Bookings = bookings;
 
             return Page();
         }

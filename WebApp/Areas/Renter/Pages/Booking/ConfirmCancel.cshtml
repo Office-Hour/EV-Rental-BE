@@ -1,0 +1,171 @@
+﻿@page
+@model WebApp.Areas.Renter.Pages.Booking.ConfirmCancelModel
+@{
+    ViewData["Title"] = "Xác Nhận Hủy Đặt Chỗ";
+}
+
+<link rel="stylesheet" href="~/css/Index.css" />
+<link rel="stylesheet" href="~/css/identity.css" asp-append-version="true" />
+
+<section class="min-vh-100 d-flex align-items-center justify-content-center py-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+    <div class="container" style="max-width: 600px;">
+        <div class="auth-card">
+            <!-- Header -->
+            <div class="auth-header">
+                <div class="auth-icon" style="background: linear-gradient(135deg, #fee2e2, #fecaca);">
+                    <span class="material-icons" style="color: #dc2626;">warning</span>
+                </div>
+                <h1 class="auth-title">Xác Nhận Hủy Đặt Chỗ</h1>
+                <p class="auth-subtitle">Nhập mã xác nhận đã được gửi qua email/SMS</p>
+            </div>
+
+            <!-- Body -->
+            <div class="auth-body">
+                @if (Model.Booking != null)
+                {
+                    <!-- Booking Info -->
+                    <div class="auth-info mb-4">
+                        <span class="material-icons">info</span>
+                        <div>
+                            <strong>Thông tin đặt chỗ</strong>
+                            <div class="mt-2" style="font-size: 0.875rem;">
+                                <p class="mb-1"><strong>Mã:</strong> @Model.Booking.BookingId.ToString().Substring(0, 8).ToUpper()</p>
+                                <p class="mb-1"><strong>Bắt đầu:</strong> @Model.Booking.StartTime.ToString("dd/MM/yyyy HH:mm")</p>
+                                <p class="mb-0"><strong>Kết thúc:</strong> @Model.Booking.EndTime.ToString("dd/MM/yyyy HH:mm")</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Refund Info -->
+                    <div class="alert" style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
+                        <div class="d-flex gap-2">
+                            <span class="material-icons" style="color: #f59e0b;">account_balance_wallet</span>
+                            <div>
+                                <strong style="color: #92400e;">Thông tin hoàn tiền</strong>
+                                <p class="mb-0 mt-1" style="font-size: 0.875rem; color: #78350f;">
+                                    Bạn sẽ được hoàn lại <strong>95%</strong> tiền đặt cọc (trừ <strong>5%</strong> phí giao dịch).
+                                    Tiền sẽ được chuyển về tài khoản ngân hàng của bạn trong vòng 3-5 ngày làm việc.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                <!-- Form -->
+                <form method="post" asp-page-handler="">
+                    <input type="hidden" asp-for="BookingId" />
+
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                    <!-- Cancel Code Input -->
+                    <div class="auth-input-group">
+                        <label asp-for="Input.CancelCode" class="auth-label">
+                            <span class="material-icons">verified_user</span>
+                            Mã Xác Nhận (6 chữ số)
+                        </label>
+                        <input asp-for="Input.CancelCode"
+                               class="auth-input"
+                               placeholder="Nhập mã 6 chữ số"
+                               maxlength="6"
+                               pattern="\d{6}"
+                               inputmode="numeric"
+                               autocomplete="off"
+                               autofocus />
+                        <span asp-validation-for="Input.CancelCode" class="text-danger"></span>
+                        <small class="text-muted">
+                            <span class="material-icons" style="font-size: 14px; vertical-align: middle;">schedule</span>
+                            Mã có hiệu lực trong 15 phút
+                        </small>
+                    </div>
+
+                    <!-- Cancel Reason -->
+                    <div class="auth-input-group">
+                        <label asp-for="Input.CancelReason" class="auth-label">
+                            <span class="material-icons">comment</span>
+                            Lý Do Hủy
+                        </label>
+                        <textarea asp-for="Input.CancelReason"
+                                  class="auth-input"
+                                  rows="3"
+                                  placeholder="Nhập lý do hủy đặt chỗ..."
+                                  style="resize: vertical;"></textarea>
+                        <span asp-validation-for="Input.CancelReason" class="text-danger"></span>
+                    </div>
+
+                    <!-- Optional: Bank Account Info -->
+                    <div class="auth-info mb-3">
+                        <span class="material-icons">info</span>
+                        <div>
+                            <strong>Thông tin tài khoản ngân hàng (Tùy chọn)</strong>
+                            <p class="mb-0" style="font-size: 0.875rem;">
+                                Nếu bạn muốn nhận hoàn tiền qua chuyển khoản, vui lòng cung cấp thông tin tài khoản.
+                                Nếu bỏ qua, tiền sẽ được hoàn lại bằng tiền mặt tại trạm.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-12">
+                            <label asp-for="Input.BankName" class="auth-label">Tên Ngân Hàng</label>
+                            <input asp-for="Input.BankName"
+                                   class="auth-input"
+                                   placeholder="VD: Vietcombank, Techcombank..." />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="Input.AccountNumber" class="auth-label">Số Tài Khoản</label>
+                            <input asp-for="Input.AccountNumber"
+                                   class="auth-input"
+                                   placeholder="Nhập số tài khoản" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="Input.AccountHolderName" class="auth-label">Tên Chủ Tài Khoản</label>
+                            <input asp-for="Input.AccountHolderName"
+                                   class="auth-input"
+                                   placeholder="NGUYEN VAN A" />
+                        </div>
+                    </div>
+
+                    <!-- Warning -->
+                    <div class="alert" style="background: #fee2e2; border-left: 4px solid #dc2626; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
+                        <div class="d-flex gap-2">
+                            <span class="material-icons" style="color: #dc2626;">warning</span>
+                            <div>
+                                <strong style="color: #991b1b;">Lưu ý quan trọng</strong>
+                                <p class="mb-0 mt-1" style="font-size: 0.875rem; color: #7f1d1d;">
+                                    Sau khi hủy, bạn không thể khôi phục đặt chỗ này. Vui lòng kiểm tra kỹ trước khi xác nhận.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="button-group">
+                        <button type="submit" class="btn-auth-primary" style="background: linear-gradient(135deg, #fee2e2, #fecaca); border-color: #ef4444; color: #dc2626;">
+                            <span class="material-icons">check_circle</span>
+                            Xác Nhận Hủy Đặt Chỗ
+                        </button>
+                        <a asp-page="./Details" asp-route-id="@Model.BookingId" class="btn-auth-secondary">
+                            <span class="material-icons">arrow_back</span>
+                            Quay Lại
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Help Text -->
+        <div class="text-center mt-4">
+            <p style="color: white; font-size: 0.875rem;">
+                <span class="material-icons" style="font-size: 16px; vertical-align: middle;">help</span>
+                Chưa nhận được mã?
+                <a asp-page="./Details" asp-route-id="@Model.BookingId" style="color: white; text-decoration: underline; font-weight: 500;">Gửi lại mã</a>
+            </p>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

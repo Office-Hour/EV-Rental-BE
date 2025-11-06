@@ -8,6 +8,146 @@
 
 <link rel="stylesheet" href="~/css/renter-profile.css" asp-append-version="true" />
 
+<style>
+    /* Bookings List Styles */
+    .bookings-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .booking-item {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .booking-item:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        border-color: #667eea;
+    }
+
+    .booking-item-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #f3f4f6;
+    }
+
+    .booking-id {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #667eea;
+        font-size: 1rem;
+    }
+
+    .booking-id .material-icons {
+        font-size: 20px;
+    }
+
+    .booking-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.375rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+
+    .booking-status .material-icons {
+        font-size: 16px;
+    }
+
+    .booking-status.status-pending {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .booking-status.status-verified {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .booking-status.status-cancelled {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .booking-item-body {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+    }
+
+    .booking-info-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        font-size: 0.875rem;
+    }
+
+    .booking-info-row .material-icons {
+        font-size: 18px;
+        color: #9ca3af;
+        margin-top: 2px;
+    }
+
+    .booking-info-row.alert-danger {
+        background: #fee2e2;
+        padding: 0.75rem;
+        border-radius: 8px;
+        border-left: 3px solid #dc2626;
+    }
+
+    .booking-info-row.alert-danger .material-icons {
+        color: #dc2626;
+    }
+
+    .booking-times {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .booking-item-footer {
+        display: flex;
+        justify-content: flex-end;
+        padding-top: 1rem;
+        border-top: 1px solid #f3f4f6;
+    }
+
+    .booking-item-footer .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    /* Empty State Styles */
+    .empty-state {
+        padding: 3rem 2rem;
+        text-align: center;
+    }
+
+    .empty-state .material-icons {
+        font-size: 64px;
+        color: #d1d5db;
+        margin-bottom: 1rem;
+    }
+
+    .empty-state p {
+        color: #6b7280;
+        font-size: 1rem;
+        margin-bottom: 1.5rem;
+    }
+</style>
+
 <div class="profile-container">
     <!-- Profile Header -->
     <div class="profile-header">
@@ -246,23 +386,118 @@
                 <div class="profile-card">
                     <div class="profile-card-header">
                         <h2 class="profile-card-title">
-                            <span class="material-icons"></span>
+                            <span class="material-icons">event_note</span>
                             Đặt Chỗ Gần Đây
                         </h2>
-                        <a asp-page="/Renter/Bookings" class="btn btn-sm btn-text">
-                            Xem Tất Cả
-                            <span class="material-icons"></span>
-                        </a>
+                        @if (Model.Bookings?.Total > Model.Bookings?.PageSize)
+                        {
+                            <a asp-page="/Renter/Bookings" class="btn btn-sm btn-text">
+                                Xem Tất Cả
+                                <span class="material-icons">arrow_forward</span>
+                            </a>
+                        }
                     </div>
                     <div class="profile-card-body">
-                        <div class="empty-state">
-                            <span class="material-icons"></span>
-                            <p>Bạn chưa có đặt chỗ nào</p>
-                            <a asp-page="/Index" class="btn btn-sm btn-primary mt-2">
-                                <span class="material-icons"></span>
-                                Tìm Xe Ngay
-                            </a>
-                        </div>
+                        @if (Model.Bookings?.Items?.Count > 0)
+                        {
+                            <!-- Display Bookings List -->
+                            <div class="bookings-list">
+                                @foreach (var booking in Model.Bookings.Items)
+                                {
+                                    var (statusClass, statusIcon, statusText) = booking.Status switch
+                                    {
+                                        Domain.Enums.BookingStatus.Pending_Verification => ("status-pending", "hourglass_empty", "Chờ Xác Minh"),
+                                        Domain.Enums.BookingStatus.Verified => ("status-verified", "check_circle", "Đã Xác Minh"),
+                                        Domain.Enums.BookingStatus.Cancelled => ("status-cancelled", "cancel", "Đã Hủy"),
+                                        _ => ("status-unknown", "help", "Không Xác Định")
+                                    };
+
+                                    var verificationStatusText = booking.VerificationStatus switch
+                                    {
+                                        Domain.Enums.BookingVerificationStatus.Pending => "Chờ Xác Minh",
+                                        Domain.Enums.BookingVerificationStatus.Approved => "Đã Duyệt",
+                                        Domain.Enums.BookingVerificationStatus.Rejected_Mismatch => "Bị Từ Chối - Không Khớp",
+                                        Domain.Enums.BookingVerificationStatus.Rejected_Other => "Bị Từ Chối - Lý Do Khác",
+                                        _ => "Chưa Xác Định"
+                                    };
+
+                                    <div class="booking-item">
+                                        <div class="booking-item-header">
+                                            <div class="booking-id">
+                                                <span class="material-icons">receipt</span>
+                                                <strong>@booking.BookingId.ToString().Substring(0, 8).ToUpper()</strong>
+                                            </div>
+                                            <span class="booking-status @statusClass">
+                                                <span class="material-icons">@statusIcon</span>
+                                                @statusText
+                                            </span>
+                                        </div>
+
+                                        <div class="booking-item-body">
+                                            <div class="booking-info-row">
+                                                <span class="material-icons">schedule</span>
+                                                <div class="booking-times">
+                                                    <div>
+                                                        <strong>Bắt Đầu:</strong> @booking.StartTime.ToString("dd/MM/yyyy HH:mm")
+                                                    </div>
+                                                    <div>
+                                                        <strong>Kết Thúc:</strong> @booking.EndTime.ToString("dd/MM/yyyy HH:mm")
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="booking-info-row">
+                                                <span class="material-icons">event</span>
+                                                <div>
+                                                    <strong>Ngày Tạo:</strong> @booking.BookingCreatedAt.ToString("dd/MM/yyyy HH:mm")
+                                                </div>
+                                            </div>
+
+                                            @if (booking.VerificationStatus != Domain.Enums.BookingVerificationStatus.Pending)
+                                            {
+                                                <div class="booking-info-row">
+                                                    <span class="material-icons">verified_user</span>
+                                                    <div>
+                                                        <strong>Trạng Thái Xác Minh:</strong> @verificationStatusText
+                                                    </div>
+                                                </div>
+                                            }
+
+                                            @if (!string.IsNullOrEmpty(booking.CancelReason))
+                                            {
+                                                <div class="booking-info-row alert-danger">
+                                                    <span class="material-icons">info</span>
+                                                    <div>
+                                                        <strong>Lý Do Hủy:</strong> @booking.CancelReason
+                                                    </div>
+                                                </div>
+                                            }
+                                        </div>
+
+                                        <div class="booking-item-footer">
+                                            <a asp-page="./Booking/Details" 
+                                               asp-route-id="@booking.BookingId" 
+                                               class="btn btn-sm btn-primary">
+                                                <span class="material-icons">visibility</span>
+                                                Chi Tiết
+                                            </a>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <!-- Empty State -->
+                            <div class="empty-state">
+                                <span class="material-icons">event_busy</span>
+                                <p>Bạn chưa có đặt chỗ nào</p>
+                                <a asp-page="/Index" class="btn btn-sm btn-primary mt-2">
+                                    <span class="material-icons">search</span>
+                                    Tìm Xe Ngay
+                                </a>
+                            </div>
+                        }
                     </div>
                 </div>
             </div>

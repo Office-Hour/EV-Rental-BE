@@ -8,4 +8,5 @@ public class ReceiveInspectionRequest
     public decimal CurrentBatteryCapacityKwh { get; set; }
     public DateTime InspectedAt { get; set; }
     public Guid InspectorStaffId { get; set; }
+    public string URL { get; set; } = "";
 }

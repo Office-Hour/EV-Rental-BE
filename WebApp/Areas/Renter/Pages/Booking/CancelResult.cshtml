@@ -1,0 +1,157 @@
+@page
+@model WebApp.Areas.Renter.Pages.Booking.CancelResultModel
+@{
+    ViewData["Title"] = "H?y ??t Ch? Thành Công";
+}
+
+<link rel="stylesheet" href="~/css/Index.css" />
+<link rel="stylesheet" href="~/css/identity.css" asp-append-version="true" />
+
+<section class="min-vh-100 d-flex align-items-center justify-content-center py-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+    <div class="container" style="max-width: 700px;">
+        <div class="auth-card">
+            <!-- Success Icon -->
+            <div class="text-center mb-4">
+                <div class="success-icon-large">
+                    <span class="material-icons">check_circle</span>
+                </div>
+                <h1 style="font-size: 2rem; color: #059669; margin-top: 1rem; margin-bottom: 0.5rem;">
+                    H?y ??t Ch? Thành Công!
+                </h1>
+                <p style="color: #6b7280; font-size: 1.125rem;">
+                    ??t ch? c?a b?n ?ã ???c h?y và ti?n ??t c?c s? ???c hoàn l?i
+                </p>
+            </div>
+
+            <!-- Refund Details -->
+            <div class="refund-details-card">
+                <h2 style="font-size: 1.25rem; margin-bottom: 1.5rem; text-align: center; color: #333;">
+                    <span class="material-icons" style="vertical-align: middle; margin-right: 0.5rem;">account_balance_wallet</span>
+                    Chi Ti?t Hoàn Ti?n
+                </h2>
+
+                <div style="background: #f9fafb; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem;">
+                    <div class="refund-row">
+                        <span class="refund-label">Mã ??t ch?:</span>
+                        <span class="refund-value">@Model.BookingId.ToString().Substring(0, 8).ToUpper()</span>
+                    </div>
+
+                    <div class="refund-row">
+                        <span class="refund-label">Ti?n ??t c?c ban ??u:</span>
+                        <span class="refund-value">@Model.OriginalAmount.ToString("N0") @Model.RefundCurrency</span>
+                    </div>
+
+                    <div class="refund-row">
+                        <span class="refund-label">Phí giao d?ch (5%):</span>
+                        <span class="refund-value" style="color: #dc2626;">
+                            -@((Model.OriginalAmount - Model.RefundAmount).ToString("N0")) @Model.RefundCurrency
+                        </span>
+                    </div>
+
+                    <div class="refund-row" style="border-top: 2px solid #e5e7eb; padding-top: 1rem; margin-top: 1rem;">
+                        <span class="refund-label" style="font-size: 1.125rem;"><strong>S? ti?n hoàn l?i:</strong></span>
+                        <span class="refund-value" style="font-size: 1.5rem; color: #059669;">
+                            <strong>@Model.RefundAmount.ToString("N0") @Model.RefundCurrency</strong>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Refund Timeline -->
+                <div class="alert" style="background: #e0f2fe; border-left: 4px solid #0284c7; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
+                    <div class="d-flex gap-2">
+                        <span class="material-icons" style="color: #0284c7;">schedule</span>
+                        <div>
+                            <strong style="color: #075985;">Th?i gian x? lý</strong>
+                            <p class="mb-0 mt-1" style="font-size: 0.875rem; color: #0c4a6e;">
+                                Ti?n hoàn l?i s? ???c chuy?n v? tài kho?n ngân hàng c?a b?n trong vòng <strong>3-5 ngày làm vi?c</strong>.
+                                N?u b?n không cung c?p thông tin tài kho?n, vui lòng ??n tr?m ?? nh?n ti?n m?t.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Important Notes -->
+                <div class="alert" style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 1rem; border-radius: 8px;">
+                    <div class="d-flex gap-2">
+                        <span class="material-icons" style="color: #f59e0b;">info</span>
+                        <div>
+                            <strong style="color: #92400e;">L?u ý quan tr?ng</strong>
+                            <ul class="mb-0 mt-1" style="font-size: 0.875rem; color: #78350f; padding-left: 1.25rem;">
+                                <li>B?n s? nh?n ???c email xác nh?n v? vi?c h?y ??t ch?</li>
+                                <li>Ki?m tra thông tin hoàn ti?n trong m?c "L?ch s? giao d?ch"</li>
+                                <li>Liên h? hotline n?u ch?a nh?n ???c ti?n sau 5 ngày làm vi?c</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="button-group mt-4">
+                <a asp-area="Renter" asp-page="/RenterProfile" class="btn-auth-primary">
+                    <span class="material-icons">home</span>
+                    V? Trang Ch?
+                </a>
+                <a asp-page="/Index" class="btn-auth-secondary">
+                    <span class="material-icons">search</span>
+                    Tìm Xe Khác
+                </a>
+            </div>
+        </div>
+
+        <!-- Help Contact -->
+        <div class="text-center mt-4">
+            <p style="color: white; font-size: 0.875rem;">
+                <span class="material-icons" style="font-size: 16px; vertical-align: middle;">help</span>
+                C?n h? tr??
+                <a href="tel:1900xxxx" style="color: white; text-decoration: underline; font-weight: 500; margin-left: 0.5rem;">
+                    G?i Hotline: 1900 xxxx
+                </a>
+            </p>
+        </div>
+    </div>
+</section>
+
+<style>
+    .success-icon-large {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+    }
+
+    .success-icon-large .material-icons {
+        font-size: 48px;
+        color: #059669;
+    }
+
+    .refund-details-card {
+        margin-top: 2rem;
+    }
+
+    .refund-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .refund-row:last-child {
+        border-bottom: none;
+    }
+
+    .refund-label {
+        color: #6b7280;
+        font-weight: 500;
+    }
+
+    .refund-value {
+        color: #1f2937;
+        font-weight: 600;
+        text-align: right;
+    }
+</style>
