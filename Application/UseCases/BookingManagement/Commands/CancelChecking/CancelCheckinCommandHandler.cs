@@ -79,7 +79,6 @@ public class CancelCheckinCommandHandler(IUnitOfWork uow, IMapper mapper, UserMa
             CreatedAt = feeDto.CreatedAt,
             Method = depositDto.Method,
             AmountPaid = refundAmount,
-            PaidAt = DateTime.UtcNow,
             ProviderReference = depositDto.ProviderReference
         };
 

@@ -1,10 +1,5 @@
 ﻿using Application;
-using Application.Interfaces;
-using Domain.Entities.BookingManagement;
-using Domain.Entities.StationManagement;
-using FastEndpoints;
 using MediatR;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
 using Scalar.AspNetCore;
@@ -150,6 +145,7 @@ app.MapControllers();
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    await services.Database.MigrateAsync();
     await services.Database.ExecuteSqlRawAsync(@"
     IF NOT EXISTS (SELECT 1 FROM [dbo].[AspNetRoles] WHERE [NormalizedName]='ADMIN')
     INSERT [dbo].[AspNetRoles] ([Id],[Name],[NormalizedName],[ConcurrencyStamp])
@@ -163,7 +159,6 @@ using (var scope = app.Services.CreateScope())
     INSERT [dbo].[AspNetRoles] ([Id],[Name],[NormalizedName],[ConcurrencyStamp])
     VALUES ('90000000-0000-0000-0000-000000000003','Renter','RENTER','e2e3f4f5-56a7-48b2-8d8e-3c3d4e5f3333');
     ");
-    await services.Database.MigrateAsync();
 }
 
 // Chạy 1 lần thôi, lần sau comment lại 

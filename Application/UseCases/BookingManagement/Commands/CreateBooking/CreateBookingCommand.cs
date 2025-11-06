@@ -3,7 +3,7 @@ using MediatR;
 
 namespace Application.UseCases.BookingManagement.Commands.CreateBooking;
 
-public class CreateBookingCommand : IRequest
+public class CreateBookingCommand : IRequest<Guid>
 {
     public Guid RenterId { get; set; }
     public CreateBookingDto CreateBookingDto { get; set; } = null!;

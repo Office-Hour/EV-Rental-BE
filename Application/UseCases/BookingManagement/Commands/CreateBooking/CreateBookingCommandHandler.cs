@@ -7,9 +7,9 @@ using MediatR;
 
 namespace Application.UseCases.BookingManagement.Commands.CreateBooking;
 
-public class CreateBookingCommandHandler(IUnitOfWork uow, IMapper mapper) : IRequestHandler<CreateBookingCommand>
+public class CreateBookingCommandHandler(IUnitOfWork uow, IMapper mapper) : IRequestHandler<CreateBookingCommand, Guid>
 {
-    public async Task Handle(CreateBookingCommand request, CancellationToken cancellationToken)
+    public async Task<Guid> Handle(CreateBookingCommand request, CancellationToken cancellationToken)
     {
         var newBooking = mapper.Map<Booking>(request.CreateBookingDto);
         newBooking.BookingId = Guid.NewGuid();
@@ -29,5 +29,7 @@ public class CreateBookingCommandHandler(IUnitOfWork uow, IMapper mapper) : IReq
         await uow.Repository<Payment>().AddAsync(newDepositPayment, cancellationToken);
 
         await uow.SaveChangesAsync(cancellationToken);
+
+        return newBooking.BookingId;
     }
 }

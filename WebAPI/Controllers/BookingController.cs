@@ -270,7 +270,7 @@ public class BookingController(IMediator mediator) : ControllerBase
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorMessage), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ErrorMessage), StatusCodes.Status401Unauthorized)]
-    public async Task<ActionResult<ApiResponse<object>>> CreateBooking(
+    public async Task<ActionResult<ApiResponse<CreateBookingResponse>>> CreateBooking(
         [FromBody] CreateBookingRequest request,
         CancellationToken ct = default)
     {
@@ -291,15 +291,17 @@ public class BookingController(IMediator mediator) : ControllerBase
                 Currency = request.DepositCurrency,
                 Method = request.PaymentMethod,
                 AmountPaid = request.AmountPaid,
-                PaidAt = request.PaidAt,
                 CreatedAt = DateTime.UtcNow,
                 ProviderReference = request.ProviderReference
             }
         };
 
-        await mediator.Send(command, ct);
+        var bookingId = await mediator.Send(command, ct);
 
-        return Ok(new ApiResponse("Booking created successfully"));
+        return Ok(new ApiResponse<CreateBookingResponse>(new CreateBookingResponse
+        {
+            BookingId = bookingId
+        }));
     }
 
     /// <summary>

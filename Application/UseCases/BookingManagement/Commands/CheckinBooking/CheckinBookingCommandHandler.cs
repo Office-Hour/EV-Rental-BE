@@ -3,6 +3,7 @@ using Application.Interfaces;
 using Domain.Entities.BookingManagement;
 using Domain.Enums;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace Application.UseCases.BookingManagement.Commands.CheckinBooking;
 
@@ -16,6 +17,17 @@ public class CheckinBookingCommandHandler(IUnitOfWork uow) : IRequestHandler<Che
 
         var staff = await uow.Repository<Staff>().GetByIdAsync(request.VerifiedByStaffId, cancellationToken)
             ?? throw new NotFoundException("Staff not found");
+
+        var depositFee = await uow.Repository<Fee>()
+            .AsQueryable().FirstOrDefaultAsync(f => f.BookingId == booking.BookingId && f.Type == FeeType.Deposit, cancellationToken);
+
+        var depositPayment = await uow.Repository<Payment>()
+            .AsQueryable().FirstOrDefaultAsync(p => p.FeeId == depositFee.FeeId, cancellationToken);
+
+        if(depositPayment == null || depositPayment.AmountPaid < depositFee.Amount || depositPayment.Status != PaymentStatus.Paid)
+        {
+            throw new Exception("Deposit payment is not completed");
+        }
 
         if (booking.Status != BookingStatus.Pending_Verification)
         {
