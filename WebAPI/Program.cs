@@ -3,10 +3,12 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
 using Scalar.AspNetCore;
+using System.Text.Json.Serialization;
 using WebAPI;
 using WebAPI.Behaviors;
 using WebAPI.FilterException;
 using WebAPI.Middlewares;
+using WebAPI.Swagger;
 using Microsoft.OpenApi.Models; // added for Swagger/OpenAPI
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,7 +17,11 @@ var builder = WebApplication.CreateBuilder(args);
 //builder.Services.AddFastEndpoints();
 
 // Add Controllers support
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
 
 // Add services to the container.
 builder.Services.AddApplication();
@@ -74,39 +80,31 @@ builder.Services.AddSwaggerGen(options =>
             new string[] { }
         }
     });
+    options.SchemaFilter<EnumSchemaFilter>();
+    options.DocumentFilter<EnumDocumentFilter>();
     options.EnableAnnotations();
 });
 
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
 builder.Services.AddCustomIdentity();
 builder.Services.AddCustomAuthentication(builder.Configuration);
 builder.Services.AddCustomAuthorization();
-builder.Services.AddOpenApiWithJwtBearer();
-builder.Services.AddOpenApi(options =>
-{
-    options.AddDocumentTransformer((document, context, cancellationToken) =>
-    {
-        document.Info.Title = "EV Rental API";
-        document.Info.Version = "v1";
-        return Task.CompletedTask;
-    });
-});
 
 var app = builder.Build();
 // Configure the HTTP request pipeline.
 //if (app.Environment.IsDevelopment())
 {
     // Enable Swashbuckle middleware (swagger.json + swagger UI)
-    app.UseSwagger();
+    app.UseSwagger(options =>
+    {
+        options.RouteTemplate = "openapi/{documentName}.json";
+    });
     app.UseSwaggerUI(c =>
     {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "EV Rental API v1");
+        c.SwaggerEndpoint("/openapi/v1.json", "EV Rental API v1");
         c.RoutePrefix = "swagger"; // serves UI at /swagger; set to string.Empty to serve at root
     });
 
-    app.MapOpenApi();
-    app.MapScalarApiReference((options, httpContext) =>
+    app.MapScalarApiReference("/scalar", (options, httpContext) =>
     {
         var host = httpContext.Request.Host.HasValue
             ? httpContext.Request.Host.Value
@@ -116,7 +114,8 @@ var app = builder.Build();
             ? httpContext.Request.PathBase.Value.TrimEnd('/')
             : string.Empty;
 
-        var baseUrl = $"https://{host}{pathBase}".TrimEnd('/');
+        var scheme = httpContext.Request.Scheme;
+        var baseUrl = $"{scheme}://{host}{pathBase}".TrimEnd('/');
 
         options.Servers = new[]
         {
