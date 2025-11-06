@@ -176,8 +176,8 @@
                             <span class="item-value">@Model.PaymentData?.ProviderReference</span>
                         </div>
                         <div class="confirmation-item">
-                            <span class="item-label">Thời gian thanh toán</span>
-                            <span class="item-value">@Model.PaymentData?.PaidAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm:ss")</span>
+                            <span class="item-label">Thời gian tạo</span>
+                            <span class="item-value">@Model.PaymentData?.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm:ss")</span>
                         </div>
                     </div>
                 </div>

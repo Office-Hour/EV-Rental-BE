@@ -11,6 +11,7 @@ public class VehicleDetailsDto
     public double CurrentBatteryCapacityKwh { get; set; } // VehicleAtStation
     public decimal RentalPricePerHour { get; set; } // Pricing
     public decimal? RentalPricePerDay { get; set; } // Pricing
+    public decimal DepositPrice { get; set; }
 
     public IEnumerable<BookingBriefDto> UpcomingBookings { get; set; } = null!;
 }

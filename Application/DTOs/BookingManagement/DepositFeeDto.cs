@@ -9,7 +9,7 @@ public class DepositFeeDto
     public decimal Amount { get; set; } // This is the total amount to be paid (From fee)
     public Currency Currency { get; set; } = Currency.VND; // Default to VND (From fee)
     public PaymentMethod Method { get; set; } = PaymentMethod.Unknown; // Default to Unknown (From payment)
-    public decimal AmountPaid { get; set; } // This should match the Amount in Fee (From payment)
+    public decimal AmountPaid { get; set; } = 0; // This should match the Amount in Fee (From payment)
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow; // Default to now (From fee)
     public string? ProviderReference { get; set; } // From payment
 }

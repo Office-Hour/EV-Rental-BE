@@ -1,0 +1,399 @@
+﻿@page
+@using WebApp.Services
+@model WebApp.Areas.Renter.Pages.Booking.PaymentGatewaySimulatorModel
+@{
+    ViewData["Title"] = "VNPay Gateway Simulator";
+}
+
+<link rel="stylesheet" href="~/css/Index.css" />
+<link rel="stylesheet" href="~/css/identity.css" asp-append-version="true" />
+
+<section class="payment-gateway-section">
+    <div class="container" style="max-width: 700px;">
+        <div class="gateway-card">
+            <!-- Header -->
+            <div class="gateway-header">
+                <div class="vnpay-logo">
+                    <span class="material-icons">account_balance</span>
+                    <h2>VNPay Gateway</h2>
+                    <span class="badge badge-simulator">SIMULATOR</span>
+                </div>
+                <p class="text-muted">Sandbox Payment Gateway for Testing</p>
+            </div>
+
+            <!-- Payment Info -->
+            <div class="payment-info-box">
+                <h3>Thông Tin Thanh Toán</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="label">Mã đặt chỗ:</span>
+                        <span class="value">@Model.BookingId.ToString().Substring(0, 8).ToUpper()</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Số tiền:</span>
+                        <span class="value highlight">@Model.Amount.ToString("N0") VNĐ</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Mã giao dịch:</span>
+                        <span class="value code">@Model.TxnRef</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Simulation Form -->
+            <form method="post">
+                <input type="hidden" asp-for="BookingId" />
+                <input type="hidden" asp-for="Amount" />
+                <input type="hidden" asp-for="TxnRef" />
+
+                <div class="simulation-options">
+                    <h3>Chọn Kết Quả Giả Lập</h3>
+                    <p class="text-muted small mb-3">
+                        <span class="material-icons" style="font-size: 16px; vertical-align: middle;">info</span>
+                        Đây là môi trường sandbox. Bạn có thể chọn kết quả thanh toán để test các trường hợp khác nhau.
+                    </p>
+
+                    <div class="radio-group">
+                        <label class="radio-option success">
+                            <input type="radio" asp-for="SimulationResult" value="Success" checked />
+                            <div class="radio-content">
+                                <span class="material-icons">check_circle</span>
+                                <div>
+                                    <strong>Thành Công</strong>
+                                    <p>Thanh toán được xử lý thành công</p>
+                                </div>
+                            </div>
+                        </label>
+
+                        <label class="radio-option error">
+                            <input type="radio" asp-for="SimulationResult" value="InsufficientBalance" />
+                            <div class="radio-content">
+                                <span class="material-icons">account_balance_wallet</span>
+                                <div>
+                                    <strong>Số Dư Không Đủ</strong>
+                                    <p>Tài khoản không đủ số dư để thanh toán</p>
+                                </div>
+                            </div>
+                        </label>
+
+                        <label class="radio-option error">
+                            <input type="radio" asp-for="SimulationResult" value="InvalidCard" />
+                            <div class="radio-content">
+                                <span class="material-icons">credit_card_off</span>
+                                <div>
+                                    <strong>Thẻ Không Hợp Lệ</strong>
+                                    <p>Thông tin thẻ không đúng hoặc thẻ bị khóa</p>
+                                </div>
+                            </div>
+                        </label>
+
+                        <label class="radio-option error">
+                            <input type="radio" asp-for="SimulationResult" value="Timeout" />
+                            <div class="radio-content">
+                                <span class="material-icons">timer_off</span>
+                                <div>
+                                    <strong>Timeout</strong>
+                                    <p>Giao dịch quá thời gian cho phép</p>
+                                </div>
+                            </div>
+                        </label>
+
+                        <label class="radio-option warning">
+                            <input type="radio" asp-for="SimulationResult" value="UserCancelled" />
+                            <div class="radio-content">
+                                <span class="material-icons">cancel</span>
+                                <div>
+                                    <strong>Người Dùng Hủy</strong>
+                                    <p>Bạn đã hủy giao dịch</p>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Security Notice -->
+                <div class="security-notice">
+                    <span class="material-icons">lock</span>
+                    <div>
+                        <strong>Giao dịch được mã hóa</strong>
+                        <p class="mb-0">Thông tin thanh toán của bạn được bảo vệ bởi SSL/TLS</p>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="button-group">
+                    <button type="submit" class="btn btn-primary">
+                        <span class="material-icons">payment</span>
+                        Xác Nhận Thanh Toán
+                    </button>
+                    <a asp-page="/RenterProfile" asp-area="Renter" class="btn btn-secondary">
+                        <span class="material-icons">close</span>
+                        Hủy Giao Dịch
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+
+<style>
+    .payment-gateway-section {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 3rem 0;
+    }
+
+    .gateway-card {
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    }
+
+    .gateway-header {
+        text-align: center;
+        padding-bottom: 2rem;
+        border-bottom: 2px solid #f0f0f0;
+        margin-bottom: 2rem;
+    }
+
+    .vnpay-logo {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .vnpay-logo .material-icons {
+        font-size: 48px;
+        color: #667eea;
+    }
+
+    .vnpay-logo h2 {
+        margin: 0;
+        color: #333;
+        font-size: 1.75rem;
+    }
+
+    .badge-simulator {
+        background: #ffc107;
+        color: #000;
+        padding: 0.25rem 0.75rem;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .payment-info-box {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .payment-info-box h3 {
+        font-size: 1.125rem;
+        margin-bottom: 1rem;
+        color: #333;
+    }
+
+    .info-grid {
+        display: grid;
+        gap: 1rem;
+    }
+
+    .info-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .info-item:last-child {
+        border-bottom: none;
+    }
+
+    .info-item .label {
+        color: #666;
+        font-weight: 500;
+    }
+
+    .info-item .value {
+        color: #333;
+        font-weight: 600;
+    }
+
+    .info-item .value.highlight {
+        color: #667eea;
+        font-size: 1.25rem;
+    }
+
+    .info-item .value.code {
+        font-family: 'Courier New', monospace;
+        background: #e9ecef;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+    }
+
+    .simulation-options {
+        margin-bottom: 2rem;
+    }
+
+    .simulation-options h3 {
+        font-size: 1.125rem;
+        margin-bottom: 0.5rem;
+        color: #333;
+    }
+
+    .radio-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .radio-option {
+        border: 2px solid #dee2e6;
+        border-radius: 12px;
+        padding: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: block;
+    }
+
+    .radio-option:hover {
+        border-color: #667eea;
+        background: #f8f9ff;
+    }
+
+    .radio-option.success:has(input:checked) {
+        border-color: #28a745;
+        background: #f0fff4;
+    }
+
+    .radio-option.error:has(input:checked) {
+        border-color: #dc3545;
+        background: #fff5f5;
+    }
+
+    .radio-option.warning:has(input:checked) {
+        border-color: #ffc107;
+        background: #fffbf0;
+    }
+
+    .radio-option input[type="radio"] {
+        margin-right: 1rem;
+    }
+
+    .radio-content {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .radio-content .material-icons {
+        font-size: 32px;
+        color: #667eea;
+    }
+
+    .radio-option.success .material-icons {
+        color: #28a745;
+    }
+
+    .radio-option.error .material-icons {
+        color: #dc3545;
+    }
+
+    .radio-option.warning .material-icons {
+        color: #ffc107;
+    }
+
+    .radio-content strong {
+        display: block;
+        font-size: 1rem;
+        color: #333;
+        margin-bottom: 0.25rem;
+    }
+
+    .radio-content p {
+        margin: 0;
+        font-size: 0.875rem;
+        color: #666;
+    }
+
+    .security-notice {
+        background: #e7f3ff;
+        border-left: 4px solid #667eea;
+        padding: 1rem;
+        margin-bottom: 2rem;
+        border-radius: 8px;
+        display: flex;
+        gap: 1rem;
+    }
+
+    .security-notice .material-icons {
+        color: #667eea;
+        font-size: 24px;
+    }
+
+    .security-notice strong {
+        display: block;
+        margin-bottom: 0.25rem;
+        color: #333;
+    }
+
+    .security-notice p {
+        font-size: 0.875rem;
+        color: #666;
+    }
+
+    .button-group {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        flex: 1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.875rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 500;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary {
+        background: #667eea;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: #5568d3;
+    }
+
+    .btn-secondary {
+        background: #6c757d;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background: #5a6268;
+    }
+
+    @@media (max-width: 768px) {
+        .button-group {
+            flex-direction: column;
+        }
+
+        .btn {
+            width: 100%;
+        }
+    }
+</style>

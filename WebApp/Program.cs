@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Persistence;
 using WebApp;
 using WebApp.UIAuthService;
+using WebApp.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +12,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 builder.Services.AddApplication();
 builder.Services.AddPersistence(builder.Configuration);
+
+// ? Register PaymentSimulationService
+builder.Services.AddScoped<PaymentSimulationService>();
+
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddCustomIdentity()
                 .AddCustomAuthentication(builder.Configuration)
@@ -37,15 +42,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseStaticFiles();
-// Areas (for MVC controllers in Areas/<AreaName>/Controllers/...)
-//app.MapControllerRoute(
-//    name: "areas",
-//    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
-
-//// Fallback default (non-area) MVC route
-//app.MapControllerRoute(
-//    name: "default",
-//    pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.MapRazorPages()
    .WithStaticAssets();

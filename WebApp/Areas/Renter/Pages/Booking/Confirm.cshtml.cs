@@ -9,8 +9,17 @@ using System.Security.Claims;
 namespace WebApp.Areas.Renter.Pages.Booking
 {
     [Authorize(Roles = "Renter")]
-    public class ConfirmModel(IMediator mediator) : PageModel
+    public class ConfirmModel : PageModel
     {
+        private readonly IMediator _mediator;
+        private readonly ILogger<ConfirmModel> _logger;
+
+        public ConfirmModel(IMediator mediator, ILogger<ConfirmModel> logger)
+        {
+            _mediator = mediator;
+            _logger = logger;
+        }
+
         public CreateBookingDto? BookingData { get; set; }
         public DepositFeeDto? PaymentData { get; set; }
         public TimeSpan RentalDuration { get; set; }
@@ -69,15 +78,21 @@ namespace WebApp.Areas.Renter.Pages.Booking
                 IsProcessing = true;
 
                 // Get RenterId from claims
-                var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                if (string.IsNullOrEmpty(userIdClaim))
+                var renterIdClaim = User.FindFirstValue("RenterId");
+                if (string.IsNullOrEmpty(renterIdClaim))
                 {
                     TempData["ErrorMessage"] = "Không thể xác định thông tin người dùng.";
                     return RedirectToPage("./Create");
                 }
 
-                var renterId = Guid.Parse(User.FindFirstValue("RenterId")!);
-                // Create booking command
+                var renterId = Guid.Parse(renterIdClaim);
+
+                // Set payment to Pending (NOT Paid yet)
+                paymentData.AmountPaid = 0; // Chưa thanh toán
+                paymentData.CreatedAt = DateTime.UtcNow;
+                paymentData.ProviderReference = null; // Chưa có reference
+
+                // Create booking via MediatR (direct call - no API)
                 var command = new CreateBookingCommand
                 {
                     RenterId = renterId,
@@ -85,21 +100,29 @@ namespace WebApp.Areas.Renter.Pages.Booking
                     DepositFeeDto = paymentData
                 };
 
-                // Send command via MediatR
-                await mediator.Send(command);
+                // Send command and get BookingId
+                var bookingId = await _mediator.Send(command);
+
+                _logger.LogInformation("Booking created successfully: {BookingId}", bookingId);
 
                 // Clear TempData
                 TempData.Remove("BookingData");
                 TempData.Remove("PaymentData");
 
-                // Set success message
-                TempData["StatusMessage"] = "Đặt chỗ của bạn đã được tạo thành công! Vui lòng đến trạm để xác minh danh tính.";
-
-                // Redirect to profile
-                return RedirectToPage("/RenterProfile", new { area = "Renter" });
+                // Redirect to payment simulation page
+                TempData["StatusMessage"] = "Đặt chỗ đã được tạo. Vui lòng hoàn tất thanh toán.";
+                
+                return RedirectToPage("./ProcessPayment", new 
+                { 
+                    bookingId = bookingId,
+                    amount = paymentData.Amount,
+                    description = paymentData.Description
+                });
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Error creating booking");
+                
                 ErrorMessage = $"Đã xảy ra lỗi khi tạo đặt chỗ: {ex.Message}";
                 
                 // Restore data for retry

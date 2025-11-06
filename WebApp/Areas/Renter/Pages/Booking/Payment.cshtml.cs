@@ -43,7 +43,7 @@ namespace WebApp.Areas.Renter.Pages.Booking
             Input.Description = $"Tiền đặt cọc cho đặt chỗ từ {BookingData.StartTime:dd/MM/yyyy HH:mm} đến {BookingData.EndTime:dd/MM/yyyy HH:mm}";
             Input.Amount = DepositAmount;
             Input.Currency = Currency.VND;
-            Input.Method = PaymentMethod.Unknown;
+            Input.Method = PaymentMethod.VNPay_QR; // Default to VNPay QR
 
             return Page();
         }
@@ -79,10 +79,12 @@ namespace WebApp.Areas.Renter.Pages.Booking
                 return Page();
             }
 
-            // Mock payment processing
-            Input.AmountPaid = Input.Amount;
-            Input.PaidAt = DateTime.UtcNow;
-            Input.ProviderReference = $"MOCK_{Guid.NewGuid().ToString().Substring(0, 8).ToUpper()}";
+            // ✅ KHÔNG MOCK payment - chỉ lưu thông tin payment method
+            // Payment sẽ được tạo với status Pending trong CreateBooking
+            // VNPay IPN sẽ update status sau khi user thanh toán
+            Input.AmountPaid = 0; // Chưa thanh toán
+            Input.CreatedAt = DateTime.UtcNow; // ✅ Sử dụng CreatedAt thay vì PaidAt
+            Input.ProviderReference = null; // Chưa có reference từ VNPay
 
             // Store payment data in TempData for confirmation
             TempData["PaymentData"] = System.Text.Json.JsonSerializer.Serialize(Input);
