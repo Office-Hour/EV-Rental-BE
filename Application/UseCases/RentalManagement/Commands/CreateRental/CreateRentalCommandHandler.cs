@@ -26,6 +26,7 @@ public class CreateRentalCommandHandler(IUnitOfWork uow) : IRequestHandler<Creat
         var rentalRepository = uow.Repository<Rental>();
         var rental = new Rental
         {
+            RentalId = Guid.NewGuid(),
             BookingId = request.BookingId,
             VehicleId = vehicleAtStation.VehicleId,
             StartTime = request.StartTime,

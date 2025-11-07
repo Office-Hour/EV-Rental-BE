@@ -9,8 +9,6 @@ public class CreateRentalCommandValidator : AbstractValidator<CreateRentalComman
     {
         RuleFor(x => x.BookingId)
             .NotEmpty().WithMessage("BookingId is required.");
-        RuleFor(x => x.VehicleId)
-            .NotEmpty().WithMessage("VehicleId is required.");
         RuleFor(x => x.StartTime)
             .LessThan(x => x.EndTime).WithMessage("StartTime must be earlier than EndTime.");
         RuleFor(x => x.EndTime)

@@ -31,8 +31,6 @@ namespace WebApp.Areas.Staff.Pages.Rentals
 
         public class InputModel
         {
-            [Required]
-            public Guid VehicleId { get; set; }
 
             [Required]
             public DateTime StartTime { get; set; }
@@ -78,18 +76,11 @@ namespace WebApp.Areas.Staff.Pages.Rentals
 
         public async Task<IActionResult> OnPostAsync()
         {
-            if (!ModelState.IsValid)
-            {
-                Booking = await _mediator.Send(new GetBookingDetailsQuery { BookingId = BookingId });
-                return Page();
-            }
-
             try
             {
                 var command = new CreateRentalCommand
                 {
                     BookingId = BookingId,
-                    VehicleId = Input.VehicleId,
                     StartTime = Input.StartTime,
                     EndTime = Input.EndTime
                 };

@@ -42,17 +42,6 @@
                                     <input type="text" class="form-control rounded-2" value="@Model.BookingId" readonly />
                                 </div>
 
-                                <div class="mb-4">
-                                    <label asp-for="Input.VehicleId" class="form-label fw-semibold text-dark">
-                                        🚙 Vehicle ID *
-                                    </label>
-                                    <input asp-for="Input.VehicleId" class="form-control rounded-2" />
-                                    <span asp-validation-for="Input.VehicleId" class="text-danger"></span>
-                                    <small class="form-text text-muted">
-                                        ℹ️ TODO: Dropdown danh sách xe từ VehicleAtStationId
-                                    </small>
-                                </div>
-
                                 <div class="row g-3 mb-4">
                                     <div class="col-md-6">
                                         <label asp-for="Input.StartTime" class="form-label fw-semibold text-dark">

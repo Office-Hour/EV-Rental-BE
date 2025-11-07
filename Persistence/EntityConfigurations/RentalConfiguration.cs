@@ -31,8 +31,8 @@ public sealed class RentalConfiguration : IEntityTypeConfiguration<Rental>
          .OnDelete(DeleteBehavior.NoAction);// Handle cascade manually in app
 
         // Vehicle required
-        b.HasOne<Vehicle>()
-         .WithMany()                    // or .WithMany(v => v.Rentals) if you have the nav
+        b.HasOne(r => r.Vehicle)
+         .WithMany(v => v.Rentals)                    // or .WithMany(v => v.Rentals) if you have the nav
          .HasForeignKey(x => x.VehicleId)
          .OnDelete(DeleteBehavior.Restrict);
 
@@ -41,8 +41,8 @@ public sealed class RentalConfiguration : IEntityTypeConfiguration<Rental>
         b.HasIndex(x => new { x.StartTime, x.EndTime });
         b.HasIndex(x => x.BookingId).IsUnique(); // one rental per booking
 
-        // Score 1..5
-        b.ToTable(t => t.HasCheckConstraint("CK_Rentals_Score_Range", "[Score] BETWEEN 1 AND 5"));
+        // Score 0..5
+        b.ToTable(t => t.HasCheckConstraint("CK_Rentals_Score_Range", "[Score] BETWEEN 0 AND 5"));
     }
 }
 

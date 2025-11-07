@@ -41,7 +41,6 @@ public class RentalController(IMediator mediator) : ControllerBase
         var command = new CreateRentalCommand
         {
             BookingId = request.BookingId,
-            VehicleId = request.VehicleId,
             StartTime = request.StartTime,
             EndTime = request.EndTime
         };
