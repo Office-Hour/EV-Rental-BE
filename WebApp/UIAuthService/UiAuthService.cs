@@ -79,7 +79,7 @@ public sealed class UiAuthService(IMediator mediator,
             var staff = await uow.Repository<Staff>()
                 .AsQueryable()
                 .FirstOrDefaultAsync(s => s.UserId == Guid.Parse(user.Id));
-            var staffIdClaim = new Claim("StaffId", Guid.Empty.ToString());
+            var staffIdClaim = new Claim("StaffId", staff.StaffId.ToString());
             claims.Add(staffIdClaim);
         }
 

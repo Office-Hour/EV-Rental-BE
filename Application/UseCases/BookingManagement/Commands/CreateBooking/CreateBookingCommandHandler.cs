@@ -2,6 +2,7 @@
 using Application.Interfaces;
 using AutoMapper;
 using Domain.Entities.BookingManagement;
+using Domain.Entities.StationManagement;
 using Domain.Enums;
 using MediatR;
 
@@ -27,6 +28,12 @@ public class CreateBookingCommandHandler(IUnitOfWork uow, IMapper mapper) : IReq
         newDepositPayment.PaymentId = Guid.NewGuid();
         newDepositPayment.FeeId = newDepositFee.FeeId;
         await uow.Repository<Payment>().AddAsync(newDepositPayment, cancellationToken);
+
+        //update Vehicle status to Reserved
+        var vehicle = await uow.Repository<VehicleAtStation>()
+            .GetByIdAsync(newBooking.VehicleAtStationId, cancellationToken);
+
+        vehicle.Status = VehicleAtStationStatus.Booked;
 
         await uow.SaveChangesAsync(cancellationToken);
 

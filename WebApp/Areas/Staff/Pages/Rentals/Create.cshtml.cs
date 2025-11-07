@@ -45,8 +45,8 @@ namespace WebApp.Areas.Staff.Pages.Rentals
         {
             if (BookingId == Guid.Empty)
             {
-                TempData["ErrorMessage"] = "Booking ID kh�ng h?p l?.";
-                return RedirectToPage("/Bookings/Index");
+                TempData["ErrorMessage"] = "Booking ID không hợp lệ.";
+                return RedirectToPage("/Staff/Bookings/Index", new { area = "Staff" });
             }
 
             try
@@ -56,8 +56,8 @@ namespace WebApp.Areas.Staff.Pages.Rentals
 
                 if (Booking == null)
                 {
-                    TempData["ErrorMessage"] = "Kh�ng t�m th?y booking.";
-                    return RedirectToPage("/Bookings/Index");
+                    TempData["ErrorMessage"] = "Không tìm thấy booking.";
+                    return RedirectToPage("/Staff/Bookings/Index", new { area = "Staff" });
                 }
 
                 // Pre-fill form
@@ -71,8 +71,8 @@ namespace WebApp.Areas.Staff.Pages.Rentals
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error loading booking {BookingId}", BookingId);
-                TempData["ErrorMessage"] = "?� x?y ra l?i.";
-                return RedirectToPage("/Bookings/Index");
+                TempData["ErrorMessage"] = "Đã xảy ra lỗi.";
+                return RedirectToPage("/Staff/Bookings/Index", new { area = "Staff" });
             }
         }
 
@@ -98,13 +98,13 @@ namespace WebApp.Areas.Staff.Pages.Rentals
 
                 _logger.LogInformation("Rental {RentalId} created for booking {BookingId}", rentalId, BookingId);
 
-                TempData["SuccessMessage"] = "Rental ?� ???c t?o th�nh c�ng!";
-                return RedirectToPage("/Rentals/Details", new { id = rentalId });
+                TempData["SuccessMessage"] = "Rental đã được tạo thành công!";
+                return RedirectToPage("/Staff/Rentals/Details", new { area = "Staff", id = rentalId });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error creating rental for booking {BookingId}", BookingId);
-                ModelState.AddModelError(string.Empty, $"Kh�ng th? t?o rental: {ex.Message}");
+                ModelState.AddModelError(string.Empty, $"Không thể tạo rental: {ex.Message}");
                 Booking = await _mediator.Send(new GetBookingDetailsQuery { BookingId = BookingId });
                 return Page();
             }

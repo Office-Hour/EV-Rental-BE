@@ -14,14 +14,8 @@ public class CreateRentalCommandHandler(IUnitOfWork uow) : IRequestHandler<Creat
         var booking = await uow.Repository<Domain.Entities.BookingManagement.Booking>()
             .GetByIdAsync(request.BookingId, cancellationToken)
             ?? throw new Exception("Booking not found");
-        
-        var vehicle = await uow.Repository<Vehicle>()
-            .GetByIdAsync(request.VehicleId, cancellationToken)
-            ?? throw new Exception("Vehicle not found");
-        
         var vehicleAtStation = await uow.Repository<VehicleAtStation>().AsQueryable()
-                        .Where(vs => vs.VehicleId == request.VehicleId && vs.EndTime == null)
-                        .FirstOrDefaultAsync(cancellationToken)
+                        .FirstOrDefaultAsync(v => v.VehicleAtStationId == booking.VehicleAtStationId)
             ?? throw new Exception("Vehicle at station not found");
 
         if(vehicleAtStation.Status != VehicleAtStationStatus.Available)
@@ -33,7 +27,7 @@ public class CreateRentalCommandHandler(IUnitOfWork uow) : IRequestHandler<Creat
         var rental = new Rental
         {
             BookingId = request.BookingId,
-            VehicleId = request.VehicleId,
+            VehicleId = vehicleAtStation.VehicleId,
             StartTime = request.StartTime,
             EndTime = request.EndTime,
             Status = RentalStatus.Reserved

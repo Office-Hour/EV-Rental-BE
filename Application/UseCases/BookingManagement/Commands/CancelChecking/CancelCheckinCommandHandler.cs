@@ -3,6 +3,7 @@ using Application.DTOs.BookingManagement;
 using Application.Interfaces;
 using AutoMapper;
 using Domain.Entities.BookingManagement;
+using Domain.Entities.StationManagement;
 using Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
@@ -51,6 +52,11 @@ public class CancelCheckinCommandHandler(IUnitOfWork uow, IMapper mapper, UserMa
         booking.CancelReason = request.CancelReason;
         booking.CancelReason += $". Refund Amount: {refundAmount} {fee.Currency}";
         payment.Status = PaymentStatus.Refunded;
+
+        var vehicle = await uow.Repository<VehicleAtStation>()
+            .GetByIdAsync(booking.VehicleAtStationId, cancellationToken);
+
+        vehicle.Status = VehicleAtStationStatus.Available;
         // Here you would integrate with a payment gateway to process the refund
         if (request.RenterBankAccount != null)
         {

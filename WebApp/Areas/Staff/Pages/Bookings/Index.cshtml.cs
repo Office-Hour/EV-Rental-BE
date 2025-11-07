@@ -35,7 +35,7 @@ namespace WebApp.Areas.Staff.Pages.Bookings
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error retrieving bookings");
-                ErrorMessage = "Kh�ng th? t?i danh s�ch ??t ch?. Vui l�ng th? l?i sau.";
+                ErrorMessage = "Không thể tải danh sách đặt chỗ. Vui lòng thử lại sau.";
             }
         }
     }

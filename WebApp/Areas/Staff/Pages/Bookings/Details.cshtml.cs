@@ -43,7 +43,7 @@ namespace WebApp.Areas.Staff.Pages.Bookings
         {
             if (Id == Guid.Empty)
             {
-                TempData["ErrorMessage"] = "ID ??t ch? kh�ng h?p l?.";
+                TempData["ErrorMessage"] = "ID đặt chỗ không hợp lệ.";
                 return RedirectToPage("./Index");
             }
 
@@ -54,7 +54,7 @@ namespace WebApp.Areas.Staff.Pages.Bookings
 
                 if (Booking == null)
                 {
-                    TempData["ErrorMessage"] = "Kh�ng t�m th?y ??t ch?.";
+                    TempData["ErrorMessage"] = "Không tìm thấy đặt chỗ.";
                     return RedirectToPage("./Index");
                 }
 
@@ -63,7 +63,7 @@ namespace WebApp.Areas.Staff.Pages.Bookings
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error loading booking {BookingId}", Id);
-                TempData["ErrorMessage"] = "?� x?y ra l?i khi t?i th�ng tin ??t ch?.";
+                TempData["ErrorMessage"] = "Đã xảy ra lỗi khi tải thông tin đặt chỗ.";
                 return RedirectToPage("./Index");
             }
         }
@@ -78,16 +78,8 @@ namespace WebApp.Areas.Staff.Pages.Bookings
 
             try
             {
-                // Get StaffId from claims (assuming Staff has UserId that maps to StaffId)
-                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                if (string.IsNullOrEmpty(userId))
-                {
-                    TempData["ErrorMessage"] = "Kh�ng t�m th?y th�ng tin staff.";
-                    return RedirectToPage();
-                }
-
-                // TODO: Map UserId to StaffId - for now using userId as staffId
-                var staffId = Guid.Parse(userId);
+                var staffIdAsString = User.FindFirstValue("StaffId");
+                var staffId = Guid.Parse(staffIdAsString);
 
                 var command = new CheckinBookingCommand
                 {
@@ -103,15 +95,15 @@ namespace WebApp.Areas.Staff.Pages.Bookings
                     Id, staffId, Input.VerificationStatus);
 
                 TempData["SuccessMessage"] = Input.VerificationStatus == BookingVerificationStatus.Approved
-                    ? "??t ch? ?� ???c duy?t th�nh c�ng!"
-                    : "??t ch? ?� b? t? ch?i.";
+                    ? "Đặt chỗ đã được duyệt thành công!"
+                    : "Đặt chỗ đã bị từ chối.";
 
                 return RedirectToPage("./Index");
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error verifying booking {BookingId}", Id);
-                ModelState.AddModelError(string.Empty, $"Kh�ng th? x? l�: {ex.Message}");
+                ModelState.AddModelError(string.Empty, $"Không thể xử lý: {ex.Message}");
                 Booking = await _mediator.Send(new GetBookingDetailsQuery { BookingId = Id });
                 return Page();
             }

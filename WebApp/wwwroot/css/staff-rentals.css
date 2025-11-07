@@ -22,9 +22,10 @@ input[type="datetime-local"].form-control.rounded-2 {
     transform: scale(0.98);
 }
 
-/* Label with Icons */
-.form-label .material-icons {
-    margin-right: 0.5rem;
+/* Label styling */
+.form-label {
+    display: block;
+    margin-bottom: 0.5rem;
 }
 
 /* Code Display Enhancement */

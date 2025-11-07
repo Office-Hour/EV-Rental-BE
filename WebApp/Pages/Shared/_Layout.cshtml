@@ -28,10 +28,6 @@
                         <span class="material-icons" style="font-size: 1.1rem; vertical-align: middle; margin-right: 0.25rem;">home</span>
                         Trang chủ
                     </a>
-                    <a asp-page="/Vehicles" class="nav-link-item">
-                        <span class="material-icons" style="font-size: 1.1rem; vertical-align: middle; margin-right: 0.25rem;">electric_car</span>
-                        Xe điện
-                    </a>
                     <a asp-page="/Stations" class="nav-link-item">
                         <span class="material-icons" style="font-size: 1.1rem; vertical-align: middle; margin-right: 0.25rem;">location_on</span>
                         Trạm
@@ -126,7 +122,7 @@
                                 @if (User.IsInRole("Staff") || User.IsInRole("Admin"))
                                 {
                                     <li>
-                                        <a class="dropdown-item-custom" asp-page="/Staff/Dashboard">
+                                        <a class="dropdown-item-custom" asp-area="Staff" asp-page="/Bookings">
                                             <span class="material-icons">dashboard</span>
                                             Bảng điều khiển
                                         </a>

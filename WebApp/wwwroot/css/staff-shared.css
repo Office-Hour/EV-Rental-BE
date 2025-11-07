@@ -1,0 +1,37 @@
+/* Shared Staff Area Styles */
+
+.staff-hero {
+    background: linear-gradient(135deg, #0f172a, #1e293b 50%, #0f172a);
+    color: #ffffff;
+}
+
+.staff-container {
+    max-width: 72rem;
+}
+
+.staff-card-accent-top-success {
+    border-top: 4px solid var(--bs-success);
+}
+
+.staff-card-accent-start-warning {
+    border-inline-start: 4px solid var(--bs-warning);
+}
+
+.staff-card-accent-start-success {
+    border-inline-start: 4px solid var(--bs-success);
+}
+
+@supports not (border-inline-start: 1px solid transparent) {
+    .staff-card-accent-start-warning {
+        border-left: 4px solid var(--bs-warning);
+    }
+
+    .staff-card-accent-start-success {
+        border-left: 4px solid var(--bs-success);
+    }
+}
+
+.staff-no-resize {
+    resize: none;
+}
+
