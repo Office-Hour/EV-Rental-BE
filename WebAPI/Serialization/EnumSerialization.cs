@@ -8,12 +8,12 @@ internal static class EnumSerialization
 {
     public static JsonNamingPolicy NamingPolicy => JsonNamingPolicy.CamelCase;
 
-    public static JsonStringEnumMemberConverter CreateConverter() =>
-        new JsonStringEnumMemberConverter(NamingPolicy, allowIntegerValues: false);
+    public static JsonStringEnumConverter CreateConverter() =>
+        new JsonStringEnumConverter(NamingPolicy, allowIntegerValues: false);
 
     public static void Configure(JsonSerializerOptions options)
     {
-        if (options.Converters.OfType<JsonStringEnumMemberConverter>().Any())
+        if (options.Converters.OfType<JsonStringEnumConverter>().Any())
         {
             return;
         }

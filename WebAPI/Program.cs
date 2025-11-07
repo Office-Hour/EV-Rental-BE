@@ -1,5 +1,6 @@
 ﻿using Application;
 using MediatR;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
@@ -95,6 +96,14 @@ builder.Services.AddCustomIdentity();
 builder.Services.AddCustomAuthentication(builder.Configuration);
 builder.Services.AddCustomAuthorization();
 
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+    options.ForwardLimit = null; // trust configured proxies in Azure Container Apps
+});
+
 var app = builder.Build();
 // Configure the HTTP request pipeline.
 //if (app.Environment.IsDevelopment())
@@ -130,6 +139,7 @@ var app = builder.Build();
     });
 }
 
+app.UseForwardedHeaders();
 app.UseMiddleware<CustomMiddleware>();
 app.UseExceptionHandler();
 app.UseHttpsRedirection();
