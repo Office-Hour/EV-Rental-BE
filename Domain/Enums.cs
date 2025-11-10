@@ -1,6 +1,6 @@
 ﻿namespace Domain.Enums;
 public enum UserRole { Unknown, Renter, Staff, Admin }
-public enum BookingStatus { Pending_Verification, Verified, Cancelled }
+public enum BookingStatus { Pending_Verification, Verified, Cancelled, Rental_Created }
 public enum BookingVerificationStatus { Pending, Approved, Rejected_Mismatch, Rejected_Other }
 public enum FeeType { Deposit, Rental_Charge, Surcharge, Damage, Other }
 public enum PaymentStatus { Unpaid, Paid, Refunded, Failed }

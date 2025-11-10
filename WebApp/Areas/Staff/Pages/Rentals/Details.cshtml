@@ -1,0 +1,471 @@
+﻿@page "{id:guid}"
+@using Domain.Enums
+@model WebApp.Areas.Staff.Pages.Rentals.DetailsModel
+@{
+    ViewData["Title"] = "Chi Tiết Thuê Xe - Staff";
+}
+
+<link rel="stylesheet" href="~/css/Index.css" asp-append-version="true" />
+<style>
+    /* ======= Inline Styles: Staff Shared ======= */
+    .staff-container { max-width: 1100px; margin: 0 auto; }
+    .staff-hero {
+        background: linear-gradient(135deg, #0f172a, #1e293b);
+        color: #fff;
+        border-bottom: 4px solid #0ea5e9;
+    }
+    .staff-hero .btn.btn-outline-light {
+        border-width: 2px;
+    }
+    .animate-slide-up { animation: slideUp .35s ease-out; }
+    .animate-slide-in { animation: slideIn .35s ease-out; }
+    .animate-pulse-once { animation: pulseOnce .6s ease-in-out; }
+    @@keyframes slideUp { from { transform: translateY(6px); opacity: .6; } to { transform: translateY(0); opacity: 1; } }
+    @@keyframes slideIn { from { transform: translateX(6px); opacity: .6; } to { transform: translateX(0); opacity: 1; } }
+    @@keyframes pulseOnce { 0% { transform: scale(1); } 50% { transform: scale(1.01); } 100% { transform: scale(1); } }
+
+    /* ======= Timeline ======= */
+    .status-timeline-item { display: flex; align-items: center; gap: .75rem; position: relative; }
+    .status-timeline-dot {
+        width: 40px; height: 40px; border-radius: 9999px; display: grid; place-items: center;
+        background: #e5e7eb; color: #0f172a; font-weight: 700;
+    }
+    .status-timeline-item.active .status-timeline-dot {
+        background: linear-gradient(135deg, #0ea5e9, #10b981); color: #fff;
+        box-shadow: 0 6px 20px rgba(16, 185, 129, .25);
+    }
+    .status-timeline-label small { line-height: 1; }
+    .status-timeline-line {
+        height: 4px; width: 56px; border-radius: 2px; background: #e5e7eb;
+    }
+    .status-timeline-line.active {
+        background: linear-gradient(90deg, #0ea5e9, #10b981);
+    }
+
+    /* ======= Accent Cards ======= */
+    .staff-card-accent-start-info { border-left: 6px solid #0ea5e9; }
+    .staff-card-accent-start-success { border-left: 6px solid #10b981; }
+    .staff-card-accent-start-primary { border-left: 6px solid #3b82f6; }
+
+    /* ======= Utility ======= */
+    .staff-no-resize { resize: none; }
+</style>
+
+<!-- Hero Section -->
+<section class="py-5 staff-hero">
+    <div class="container staff-container">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div class="text-white">
+                <h1 class="fw-bold mb-2">🚗 Chi Tiết Thuê Xe</h1>
+                <p class="fs-5 text-white-50 mb-0">Xem và quản lý thông tin thuê xe</p>
+            </div>
+            <a asp-page="/Staff/Bookings/Index" asp-area="Staff" class="btn btn-outline-light rounded-pill px-4 py-2">
+                ← Quay Lại
+            </a>
+        </div>
+    </div>
+</section>
+
+<section class="py-5 bg-light">
+    <div class="container staff-container">
+
+        @if (Model.Rental != null)
+        {
+            <!-- Status Timeline -->
+            <div class="mb-4">
+                <div class="bg-white p-4 rounded-3 shadow-lg">
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="status-timeline-item @(Model.Rental.Status == RentalStatus.Reserved || Model.Rental.Status == RentalStatus.In_Progress || Model.Rental.Status == RentalStatus.Completed ? "active" : "")">
+                                <div class="status-timeline-dot">1</div>
+                                <div class="status-timeline-label">
+                                    <small class="d-block fw-semibold">Đã Đặt</small>
+                                    <small class="text-muted" style="font-size: 0.7rem;">Reserved</small>
+                                </div>
+                            </div>
+                            <div class="status-timeline-line @(Model.Rental.Status == RentalStatus.In_Progress || Model.Rental.Status == RentalStatus.Completed ? "active" : "")"></div>
+                            <div class="status-timeline-item @(Model.Rental.Status == RentalStatus.In_Progress || Model.Rental.Status == RentalStatus.Completed ? "active" : "")">
+                                <div class="status-timeline-dot">2</div>
+                                <div class="status-timeline-label">
+                                    <small class="d-block fw-semibold">Đang Thuê</small>
+                                    <small class="text-muted" style="font-size: 0.7rem;">In Progress</small>
+                                </div>
+                            </div>
+                            <div class="status-timeline-line @(Model.Rental.Status == RentalStatus.Completed ? "active" : "")"></div>
+                            <div class="status-timeline-item @(Model.Rental.Status == RentalStatus.Completed ? "active" : "")">
+                                <div class="status-timeline-dot">3</div>
+                                <div class="status-timeline-label">
+                                    <small class="d-block fw-semibold">Hoàn Tất</small>
+                                    <small class="text-muted" style="font-size: 0.7rem;">Completed</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            @{
+                                var statusBadge = Model.Rental.Status switch
+                                {
+                                    RentalStatus.Reserved => ("bg-info", "📦 Đã Đặt"),
+                                    RentalStatus.In_Progress => ("bg-primary", "🚗 Đang Thuê"),
+                                    RentalStatus.Completed => ("bg-success", "✅ Hoàn Tất"),
+                                    RentalStatus.Late => ("bg-danger", "⏰ Trễ Hạn"),
+                                    RentalStatus.Cancelled => ("bg-secondary", "❌ Đã Hủy"),
+                                    _ => ("bg-secondary", "Không xác định")
+                                };
+                            }
+                            <span class="badge @statusBadge.Item1 px-4 py-2 rounded-pill">@statusBadge.Item2</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-md-8">
+                    <!-- Main Info Card -->
+                    <div class="bg-white p-4 rounded-3 shadow-lg mb-4 animate-slide-up">
+                        <div class="d-flex align-items-center gap-2 mb-4 pb-3 border-bottom">
+                            <h2 class="fw-semibold text-dark mb-0">ℹ️ Thông Tin Thuê Xe</h2>
+                        </div>
+                        <div>
+                            <div class="row g-3">
+                                <!-- IDs Section -->
+                                <div class="col-12">
+                                    <div class="p-4 rounded-2 border-start border-5 border-primary" style="background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);">
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <div style="font-size: 1.5rem;">🎫</div>
+                                                    <div>
+                                                        <small class="text-muted d-block" style="font-size: 0.7rem;">MÃ THUÊ XE</small>
+                                                        <code class="fw-bold text-primary" style="font-size: 0.95rem;">@Model.Rental.RentalId</code>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <div style="font-size: 1.5rem;">📋</div>
+                                                    <div>
+                                                        <small class="text-muted d-block" style="font-size: 0.7rem;">MÃ ĐẶT CHỖ</small>
+                                                        <code class="fw-bold text-primary" style="font-size: 0.95rem;">@Model.Rental.BookingId</code>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <div style="font-size: 1.5rem;">🚙</div>
+                                                    <div>
+                                                        <small class="text-muted d-block" style="font-size: 0.7rem;">MÃ PHƯƠNG TIỆN</small>
+                                                        <code class="fw-bold text-primary" style="font-size: 0.95rem;">@Model.Rental.VehicleId</code>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <div style="font-size: 1.5rem;">👤</div>
+                                                    <div>
+                                                        <small class="text-muted d-block" style="font-size: 0.7rem;">RENTER ID</small>
+                                                        <code class="fw-bold text-primary" style="font-size: 0.95rem;">@Model.Rental.Booking.RenterId</code>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Time Section -->
+                                <div class="col-12">
+                                    <div class="p-4 rounded-2 border-start border-5 border-success" style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);">
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <div class="d-flex align-items-start gap-2">
+                                                    <div style="font-size: 1.5rem;">🕐</div>
+                                                    <div class="flex-grow-1">
+                                                        <small class="text-success fw-semibold d-block" style="font-size: 0.7rem;">THỜI GIAN BẮT ĐẦU</small>
+                                                        <div class="fw-bold text-dark" style="font-size: 1.1rem;">@Model.Rental.StartTime.ToString("dd/MM/yyyy")</div>
+                                                        <small class="text-secondary fw-semibold">@Model.Rental.StartTime.ToString("HH:mm")</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="d-flex align-items-start gap-2">
+                                                    <div style="font-size: 1.5rem;">📅</div>
+                                                    <div class="flex-grow-1">
+                                                        <small class="text-success fw-semibold d-block" style="font-size: 0.7rem;">THỜI GIAN KẾT THÚC</small>
+                                                        <div class="fw-bold text-dark" style="font-size: 1.1rem;">@Model.Rental.EndTime.ToString("dd/MM/yyyy")</div>
+                                                        <small class="text-secondary fw-semibold">@Model.Rental.EndTime.ToString("HH:mm")</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            @{
+                                                var totalHours = (Model.Rental.EndTime - Model.Rental.StartTime).TotalHours;
+                                            }
+                                            <div class="col-12">
+                                                <div class="alert alert-success d-flex align-items-center justify-content-between mb-0 py-2" role="alert">
+                                                    <div>
+                                                        <strong>⏱️ Tổng thời gian thuê:</strong> @Math.Round(totalHours, 1) giờ (@Math.Ceiling(totalHours / 24) ngày)
+                                                    </div>
+                                                    <span class="badge bg-success-subtle text-success border border-success rounded-pill px-3 py-2" style="font-size: .8rem;">
+                                                        @Math.Round(totalHours)h
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Status Section -->
+                                <div class="col-md-12">
+                                    <div class="p-3 bg-light rounded-2 text-center">
+                                        <small class="text-muted d-block mb-2" style="font-size: 0.7rem;">TRẠNG THÁI THUÊ XE</small>
+                                        @switch (Model.Rental.Status)
+                                        {
+                                            case RentalStatus.Reserved:
+                                                <span class="badge bg-info text-white rounded-pill px-4 py-2 fs-6">📦 Đã Đặt</span>
+                                                break;
+                                            case RentalStatus.In_Progress:
+                                                <span class="badge bg-primary rounded-pill px-4 py-2 fs-6">🚗 Đang Thuê</span>
+                                                break;
+                                            case RentalStatus.Completed:
+                                                <span class="badge bg-success rounded-pill px-4 py-2 fs-6">✅ Hoàn Tất</span>
+                                                break;
+                                            case RentalStatus.Late:
+                                                <span class="badge bg-danger rounded-pill px-4 py-2 fs-6">⏰ Trễ Hạn</span>
+                                                break;
+                                            case RentalStatus.Cancelled:
+                                                <span class="badge bg-secondary rounded-pill px-4 py-2 fs-6">❌ Đã Hủy</span>
+                                                break;
+                                        }
+                                    </div>
+                                </div>
+
+                                <!-- Rating Section (if completed and rated) -->
+                                @if (Model.Rental.Status == RentalStatus.Completed && Model.Rental.Score > 0)
+                                {
+                                    <div class="col-12">
+                                        <div class="alert alert-info rounded-2 mb-0" role="alert">
+                                            <div class="d-flex align-items-center gap-3">
+                                                <div style="font-size: 2rem;">⭐</div>
+                                                <div class="flex-grow-1">
+                                                    <small class="d-block mb-1 fw-semibold">Đánh Giá Từ Khách Hàng</small>
+                                                    <div class="mb-2">
+                                                        <span class="fw-bold fs-5 text-warning">@Model.Rental.Score</span>
+                                                        <span class="text-muted">/ 5</span>
+                                                        <span class="ms-2">
+                                                            @for (int i = 1; i <= 5; i++)
+                                                            {
+                                                                if (i <= Model.Rental.Score)
+                                                                {
+                                                                    <span style="color: #fbbf24;">★</span>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <span style="color: #d1d5db;">☆</span>
+                                                                }
+                                                            }
+                                                        </span>
+                                                    </div>
+                                                    @if (!string.IsNullOrEmpty(Model.Rental.Comment))
+                                                    {
+                                                        <div class="text-dark fst-italic">"@Model.Rental.Comment"</div>
+                                                    }
+                                                    <small class="text-muted mt-1 d-block">Đánh giá lúc: @Model.Rental.RatedAt.ToString("dd/MM/yyyy HH:mm")</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Vehicle Info Card -->
+                    <div class="bg-white p-4 rounded-3 shadow-lg mb-4 animate-slide-up">
+                        <div class="d-flex align-items-center gap-2 mb-4 pb-3 border-bottom">
+                            <h2 class="fw-semibold text-dark mb-0">🚙 Thông Tin Phương Tiện</h2>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="p-3 bg-light rounded-2">
+                                    <small class="text-muted d-block mb-1">Mã Phương Tiện Tại Trạm</small>
+                                    <code class="fw-semibold text-dark">@Model.Rental.Vehicle.VehicleAtStationId</code>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="p-3 bg-light rounded-2">
+                                    <small class="text-muted d-block mb-1">Mã Trạm</small>
+                                    <code class="fw-semibold text-dark">@Model.Rental.Vehicle.StationId</code>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="p-3 bg-light rounded-2">
+                                    <small class="text-muted d-block mb-1">Dung Lượng Pin Hiện Tại</small>
+                                    <div class="fw-bold text-dark">@Model.Rental.Vehicle.CurrentBatteryCapacityKwh kWh</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="p-3 bg-light rounded-2 text-center">
+                                    <small class="text-muted d-block mb-2">Trạng Thái Phương Tiện</small>
+                                    @switch (Model.Rental.Vehicle.Status)
+                                    {
+                                        case VehicleAtStationStatus.Available:
+                                            <span class="badge bg-success rounded-pill px-3 py-2">✓ Có Sẵn</span>
+                                            break;
+                                        case VehicleAtStationStatus.Booked:
+                                            <span class="badge bg-warning text-dark rounded-pill px-3 py-2">📅 Đã Đặt</span>
+                                            break;
+                                        case VehicleAtStationStatus.Maintenance:
+                                            <span class="badge bg-danger rounded-pill px-3 py-2">🔧 Bảo Trì</span>
+                                            break;
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Booking Info Card -->
+                    <div class="bg-white p-4 rounded-3 shadow-lg animate-slide-up">
+                        <div class="d-flex align-items-center gap-2 mb-4 pb-3 border-bottom">
+                            <h2 class="fw-semibold text-dark mb-0">📋 Thông Tin Booking Liên Quan</h2>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="p-3 bg-light rounded-2">
+                                    <small class="text-muted d-block mb-1">Booking ID</small>
+                                    <code class="fw-semibold text-dark">@Model.Rental.Booking.BookingId</code>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="p-3 bg-light rounded-2">
+                                    <small class="text-muted d-block mb-1">Renter ID</small>
+                                    <code class="fw-semibold text-dark">@Model.Rental.Booking.RenterId</code>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="d-grid">
+                                    <a asp-area="Staff" asp-page="/Bookings/Details" asp-route-id="@Model.Rental.BookingId" 
+                                       class="btn btn-outline-primary rounded-pill py-2">
+                                        🔗 Xem Chi Tiết Booking
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <!-- Contracts Card -->
+                    <div class="bg-white p-4 rounded-3 shadow-lg animate-slide-in staff-card-accent-start-primary mb-4">
+                        <div class="mb-4 text-center">
+                            <div style="font-size: 3rem; margin-bottom: 0.5rem;">📄</div>
+                            <h2 class="fw-bold text-dark mb-1 fs-5">Hợp Đồng</h2>
+                            <small class="text-muted">Danh sách hợp đồng cho thuê xe này</small>
+                        </div>
+
+                        @if (Model.Rental.Contracts != null && Model.Rental.Contracts.Any())
+                        {
+                            <div class="mb-3">
+                                <div class="alert alert-info mb-3" role="alert">
+                                    <strong>📊 Tổng số hợp đồng:</strong> @Model.Rental.Contracts.Count
+                                </div>
+                                @foreach (var contract in Model.Rental.Contracts)
+                                {
+                                    <div class="card mb-3 border-2">
+                                        <div class="card-body">
+                                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                                <small class="text-muted">Contract ID</small>
+                                                @switch (contract.Status)
+                                                {
+                                                    case ContractStatus.Issued:
+                                                        <span class="badge bg-secondary" style="font-size: 0.7rem;">📝 Đã Phát Hành</span>
+                                                        break;
+                                                    case ContractStatus.Partially_Signed:
+                                                        <span class="badge bg-warning text-dark" style="font-size: 0.7rem;">✍️ Ký Một Phần</span>
+                                                        break;
+                                                    case ContractStatus.Signed:
+                                                        <span class="badge bg-success" style="font-size: 0.7rem;">✅ Đã Ký</span>
+                                                        break;
+                                                    case ContractStatus.Voided:
+                                                        <span class="badge bg-danger" style="font-size: 0.7rem;">❌ Đã Hủy</span>
+                                                        break;
+                                                    case ContractStatus.Expired:
+                                                        <span class="badge bg-dark" style="font-size: 0.7rem;">⏰ Hết Hạn</span>
+                                                        break;
+                                                }
+                                            </div>
+                                            <code class="d-block mb-2 small">@contract.ContractId</code>
+                                            <small class="text-muted d-block">
+                                                <strong>Ngày phát hành:</strong><br/>
+                                                @contract.IssuedAt.ToString("dd/MM/yyyy HH:mm")
+                                            </small>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="alert alert-warning rounded-2" role="alert">
+                                <div class="text-center">
+                                    <div style="font-size: 2rem;">📭</div>
+                                    <small class="d-block mt-2">Chưa có hợp đồng nào</small>
+                                </div>
+                            </div>
+                        }
+
+                        @if (Model.Rental.Status == RentalStatus.Reserved)
+                        {
+                            <div class="d-grid gap-2 mt-3">
+                                <button type="button" class="btn btn-primary rounded-pill py-3 fw-bold" style="font-size: 1.05rem;">
+                                    <span style="font-size: 1.2rem;">📝</span> Tạo Hợp Đồng
+                                </button>
+                                <small class="text-center text-muted mt-1">
+                                    Tạo hợp đồng thuê xe mới
+                                </small>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Quick Actions Card -->
+                    @if (Model.Rental.Status == RentalStatus.Reserved || Model.Rental.Status == RentalStatus.In_Progress)
+                    {
+                        <div class="bg-white p-4 rounded-3 shadow-lg animate-pulse-once staff-card-accent-start-info">
+                            <div class="mb-4 text-center">
+                                <div style="font-size: 3rem; margin-bottom: 0.5rem;">⚡</div>
+                                <h2 class="fw-bold text-dark mb-1 fs-5">Thao Tác Nhanh</h2>
+                                <small class="text-muted">Quản lý trạng thái thuê xe</small>
+                            </div>
+                            <div class="d-grid gap-2">
+                                @if (Model.Rental.Status == RentalStatus.Reserved)
+                                {
+                                    <button type="button" class="btn btn-success rounded-pill py-2">
+                                        🚀 Bắt Đầu Thuê Xe
+                                    </button>
+                                }
+                                @if (Model.Rental.Status == RentalStatus.In_Progress)
+                                {
+                                    <button type="button" class="btn btn-success rounded-pill py-2">
+                                        ✅ Hoàn Tất Thuê Xe
+                                    </button>
+                                }
+                                <button type="button" class="btn btn-outline-danger rounded-pill py-2">
+                                    ❌ Hủy Thuê Xe
+                                </button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <div class="mb-4" style="font-size: 5rem;">🔍</div>
+                <h3 class="text-secondary mb-2">Không tìm thấy thuê xe</h3>
+                <p class="text-muted">Thuê xe không tồn tại hoặc đã bị xóa.</p>
+            </div>
+        }
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

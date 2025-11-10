@@ -8,46 +8,124 @@
 <link rel="stylesheet" href="~/css/Index.css" asp-append-version="true" />
 <style>
     /* ======= Inline Styles: Staff Shared ======= */
-    .staff-container { max-width: 1100px; margin: 0 auto; }
+    .staff-container {
+        max-width: 1100px;
+        margin: 0 auto;
+    }
+
     .staff-hero {
         background: linear-gradient(135deg, #0f172a, #1e293b);
         color: #fff;
         border-bottom: 4px solid #0ea5e9;
     }
-    .staff-hero .btn.btn-outline-light {
-        border-width: 2px;
+
+        .staff-hero .btn.btn-outline-light {
+            border-width: 2px;
+        }
+
+    .animate-slide-up {
+        animation: slideUp .35s ease-out;
     }
-    .animate-slide-up { animation: slideUp .35s ease-out; }
-    .animate-slide-in { animation: slideIn .35s ease-out; }
-    .animate-pulse-once { animation: pulseOnce .6s ease-in-out; }
-    @@keyframes slideUp { from { transform: translateY(6px); opacity: .6; } to { transform: translateY(0); opacity: 1; } }
-    @@keyframes slideIn { from { transform: translateX(6px); opacity: .6; } to { transform: translateX(0); opacity: 1; } }
-    @@keyframes pulseOnce { 0% { transform: scale(1); } 50% { transform: scale(1.01); } 100% { transform: scale(1); } }
+
+    .animate-slide-in {
+        animation: slideIn .35s ease-out;
+    }
+
+    .animate-pulse-once {
+        animation: pulseOnce .6s ease-in-out;
+    }
+
+    @@keyframes slideUp {
+        from {
+            transform: translateY(6px);
+            opacity: .6;
+        }
+
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    @@keyframes slideIn {
+        from {
+            transform: translateX(6px);
+            opacity: .6;
+        }
+
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+
+    @@keyframes pulseOnce {
+        0% {
+            transform: scale(1);
+        }
+
+        50% {
+            transform: scale(1.01);
+        }
+
+        100% {
+            transform: scale(1);
+        }
+    }
 
     /* ======= Timeline ======= */
-    .status-timeline-item { display: flex; align-items: center; gap: .75rem; position: relative; }
-    .status-timeline-dot {
-        width: 40px; height: 40px; border-radius: 9999px; display: grid; place-items: center;
-        background: #e5e7eb; color: #0f172a; font-weight: 700;
+    .status-timeline-item {
+        display: flex;
+        align-items: center;
+        gap: .75rem;
+        position: relative;
     }
+
+    .status-timeline-dot {
+        width: 40px;
+        height: 40px;
+        border-radius: 9999px;
+        display: grid;
+        place-items: center;
+        background: #e5e7eb;
+        color: #0f172a;
+        font-weight: 700;
+    }
+
     .status-timeline-item.active .status-timeline-dot {
-        background: linear-gradient(135deg, #0ea5e9, #10b981); color: #fff;
+        background: linear-gradient(135deg, #0ea5e9, #10b981);
+        color: #fff;
         box-shadow: 0 6px 20px rgba(16, 185, 129, .25);
     }
-    .status-timeline-label small { line-height: 1; }
+
+    .status-timeline-label small {
+        line-height: 1;
+    }
+
     .status-timeline-line {
-        height: 4px; width: 56px; border-radius: 2px; background: #e5e7eb;
+        height: 4px;
+        width: 56px;
+        border-radius: 2px;
+        background: #e5e7eb;
     }
-    .status-timeline-line.active {
-        background: linear-gradient(90deg, #0ea5e9, #10b981);
-    }
+
+        .status-timeline-line.active {
+            background: linear-gradient(90deg, #0ea5e9, #10b981);
+        }
 
     /* ======= Accent Cards ======= */
-    .staff-card-accent-start-warning { border-left: 6px solid #f59e0b; }
-    .staff-card-accent-start-success { border-left: 6px solid #10b981; }
+    .staff-card-accent-start-warning {
+        border-left: 6px solid #f59e0b;
+    }
+
+    .staff-card-accent-start-success {
+        border-left: 6px solid #10b981;
+    }
 
     /* ======= Utility ======= */
-    .staff-no-resize { resize: none; }
+    .staff-no-resize {
+        resize: none;
+    }
 </style>
 
 <!-- Hero Section -->
@@ -103,6 +181,7 @@
                                 {
                                     BookingStatus.Pending_Verification => ("bg-warning", "⏳ Chờ Xác Minh"),
                                     BookingStatus.Verified => ("bg-success", "✅ Đã Xác Minh"),
+                                    BookingStatus.Rental_Created => ("bg-info", "🚗 Đã Tạo Rental"),
                                     BookingStatus.Cancelled => ("bg-danger", "❌ Đã Hủy"),
                                     _ => ("bg-secondary", "Không xác định")
                                 };
@@ -314,13 +393,24 @@
                                 </div>
                             </div>
                             <div class="d-grid gap-2">
-                                <a asp-area="Staff" asp-page="/Rentals/Create" asp-route-bookingId="@Model.Booking.BookingId" 
+                                <a asp-area="Staff" asp-page="/Rentals/Create" asp-route-bookingId="@Model.Booking.BookingId"
                                    class="btn btn-success rounded-pill py-3 fw-bold" style="font-size: 1.05rem;">
                                     <span style="font-size: 1.2rem;">🚗</span> Tạo Rental Ngay
                                 </a>
                                 <small class="text-center text-muted mt-1">
                                     Tạo hợp đồng thuê xe cho booking này
                                 </small>
+                            </div>
+
+                        </div>
+                    }
+                    else if (Model.Booking.Status == BookingStatus.Rental_Created)
+                    {
+                        <div class="bg-white p-4 rounded-3 shadow-lg animate-pulse-once staff-card-accent-start-success">
+                            <div class="mb-4 text-center">
+                                <div style="font-size: 3.5rem; margin-bottom: 0.5rem;">✅</div>
+                                <h2 class="fw-bold text-success mb-1 fs-5">Đã Tạo Đơn Thuê</h2>
+                                <small class="text-muted">Rental đã được tạo</small>
                             </div>
                         </div>
                     }

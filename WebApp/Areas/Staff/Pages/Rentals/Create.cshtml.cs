@@ -1,6 +1,10 @@
 using Application.DTOs.BookingManagement;
 using Application.UseCases.BookingManagement.Queries.GetBookingDetails;
+using Application.UseCases.RentalManagement.Commands.CreateContract;
 using Application.UseCases.RentalManagement.Commands.CreateRental;
+using Application.UseCases.RentalManagement.Commands.ReceiveInspection;
+using Application.UseCases.RentalManagement.Commands.SignContract;
+using Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -78,16 +82,67 @@ namespace WebApp.Areas.Staff.Pages.Rentals
         {
             try
             {
-                var command = new CreateRentalCommand
+                var createRentalcommand = new CreateRentalCommand
                 {
                     BookingId = BookingId,
                     StartTime = Input.StartTime,
                     EndTime = Input.EndTime
                 };
 
-                var rentalId = await _mediator.Send(command);
+                var rentalId = await _mediator.Send(createRentalcommand);
 
                 _logger.LogInformation("Rental {RentalId} created for booking {BookingId}", rentalId, BookingId);
+
+                var createContractCommand = new CreateContractCommand
+                {
+                    RentalId = rentalId,
+                    Provider = EsignProvider.Native,
+                };
+
+                var contractId = await _mediator.Send(createContractCommand);
+
+                var createInspectionCommand = new ReceiveInspectionCommand
+                {
+                    RentalId = rentalId,
+                    CurrentBatteryCapacityKwh = 0, // Assuming not electric
+                    InspectorStaffId = Guid.Parse(User.FindFirst("StaffId")!.Value),
+                    InspectedAt = DateTime.UtcNow,
+                    URL = ""
+                };
+
+                var inspectionId = await _mediator.Send(createInspectionCommand);
+
+                var signContractByStaffCommand = new SignContractCommand
+                {
+                    CreateSignaturePayloadDto = new()
+                    {
+                        ContractId = contractId,
+                        DocumentHash = "",
+                        DocumentUrl = "",
+                        Role = PartyRole.Staff,
+                        SignatureEvent = SignatureEvent.Pickup,
+                        SignedAt = DateTime.UtcNow,
+                        Type = SignatureType.OnPaper,
+                    }
+                };
+
+                await _mediator.Send(signContractByStaffCommand);
+
+                var signContractByRenterCommand = new SignContractCommand
+                {
+                    CreateSignaturePayloadDto = new()
+                    {
+                        ContractId = contractId,
+                        DocumentHash = "",
+                        DocumentUrl = "",
+                        Role = PartyRole.Renter,
+                        SignatureEvent = SignatureEvent.Pickup,
+                        SignedAt = DateTime.UtcNow,
+                        Type = SignatureType.OnPaper,
+                    }
+                };
+
+                await _mediator.Send(signContractByRenterCommand);
 
                 TempData["SuccessMessage"] = "Rental đã được tạo thành công!";
                 return RedirectToPage("/Staff/Rentals/Details", new { area = "Staff", id = rentalId });

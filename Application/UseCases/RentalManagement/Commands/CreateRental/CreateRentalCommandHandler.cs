@@ -18,7 +18,7 @@ public class CreateRentalCommandHandler(IUnitOfWork uow) : IRequestHandler<Creat
                         .FirstOrDefaultAsync(v => v.VehicleAtStationId == booking.VehicleAtStationId)
             ?? throw new Exception("Vehicle at station not found");
 
-        if(vehicleAtStation.Status != VehicleAtStationStatus.Available)
+        if(vehicleAtStation.Status != VehicleAtStationStatus.Booked)
         {
             throw new Exception("Vehicle is not available for rental");
         }
@@ -33,6 +33,8 @@ public class CreateRentalCommandHandler(IUnitOfWork uow) : IRequestHandler<Creat
             EndTime = request.EndTime,
             Status = RentalStatus.Reserved
         };
+
+        booking.Status = BookingStatus.Rental_Created;
 
         await rentalRepository.AddAsync(rental, cancellationToken);
         await uow.SaveChangesAsync(cancellationToken);

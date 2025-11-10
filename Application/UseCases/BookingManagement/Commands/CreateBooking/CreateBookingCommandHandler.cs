@@ -33,6 +33,11 @@ public class CreateBookingCommandHandler(IUnitOfWork uow, IMapper mapper) : IReq
         var vehicle = await uow.Repository<VehicleAtStation>()
             .GetByIdAsync(newBooking.VehicleAtStationId, cancellationToken);
 
+        if(vehicle.Status != VehicleAtStationStatus.Available)
+        {
+            throw new Exception("Vehicle is not available for booking.");
+        }
+
         vehicle.Status = VehicleAtStationStatus.Booked;
 
         await uow.SaveChangesAsync(cancellationToken);
