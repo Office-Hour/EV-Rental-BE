@@ -1,6 +1,7 @@
 using Application.DTOs.BookingManagement;
 using Application.UseCases.BookingManagement.Commands.CheckinBooking;
 using Application.UseCases.BookingManagement.Queries.GetBookingDetails;
+using Application.UseCases.RentalManagement.Queries.GetRentalByBookingId;
 using Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -57,6 +58,10 @@ namespace WebApp.Areas.Staff.Pages.Bookings
                     TempData["ErrorMessage"] = "Không tìm thấy đặt chỗ.";
                     return RedirectToPage("./Index");
                 }
+
+                var rental = await _mediator.Send(new GetRentalByBookingIdQuery { BookingId = Id });
+
+                ViewData["RentalId"] = rental?.RentalId;
 
                 return Page();
             }

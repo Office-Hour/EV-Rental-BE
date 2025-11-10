@@ -145,7 +145,7 @@ namespace WebApp.Areas.Staff.Pages.Rentals
                 await _mediator.Send(signContractByRenterCommand);
 
                 TempData["SuccessMessage"] = "Rental đã được tạo thành công!";
-                return RedirectToPage("/Staff/Rentals/Details", new { area = "Staff", id = rentalId });
+                return Redirect($"/Staff/Rentals/Details/{rentalId}");
             }
             catch (Exception ex)
             {

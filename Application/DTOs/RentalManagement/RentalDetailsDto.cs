@@ -16,8 +16,8 @@ namespace Application.DTOs.RentalManagement
         public string? Comment { get; set; }
         public DateTime RatedAt { get; set; }
 
-        public BookingBriefDto Booking { get; set; } = null!;
-        public VehicleDto Vehicle { get; set; } = null!;
+        public BookingBriefDto? Booking { get; set; }
+        public VehicleDto? Vehicle { get; set; }
         public List<ContractDto> Contracts { get; set; } = new();
     }
 }

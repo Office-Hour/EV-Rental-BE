@@ -51,7 +51,7 @@ namespace WebApp.Areas.Staff.Pages.Rentals
             {
                 _logger.LogError(ex, "Error loading rental {RentalId}", Id);
                 TempData["ErrorMessage"] = "Đã xảy ra lỗi khi tải thông tin thuê xe.";
-                return RedirectToPage("/Staff/Bookings/Index", new { area = "Staff" });
+                return Redirect("/Staff/Bookings/Index");
             }
         }
 

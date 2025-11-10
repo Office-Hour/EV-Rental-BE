@@ -36,8 +36,8 @@ public class ReceiveVehicleCommandHandler(IUnitOfWork uow) : IRequestHandler<Rec
             throw new InvalidOperationException("No inspections found for this rental");
         }
 
-        if (rental.Status != RentalStatus.In_Progress)
-            throw new InvalidOperationException("Rental must be in progress before completion.");
+        if (rental.Status != RentalStatus.Reserved)
+            throw new InvalidOperationException("Rental must be Reserved before completion.");
 
         // Update rental status to Completed
         rental.Status = RentalStatus.In_Progress;

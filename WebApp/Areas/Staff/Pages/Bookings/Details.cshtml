@@ -3,6 +3,7 @@
 @model WebApp.Areas.Staff.Pages.Bookings.DetailsModel
 @{
     ViewData["Title"] = "Chi Tiết Đặt Chỗ - Staff";
+    var rentalId = ViewData["RentalId"];
 }
 
 <link rel="stylesheet" href="~/css/Index.css" asp-append-version="true" />
@@ -414,7 +415,7 @@
                             </div>
 
                             <div class="d-grid gap-2">
-                                <a asp-area="Staff" asp-page="/Rentals/Details" asp-route-bookingId="@Model.Booking.BookingId"
+                                <a asp-area="Staff" asp-page="/Rentals/Details" asp-route-id="@rentalId"
                                    class="btn btn-success rounded-pill py-3 fw-bold" style="font-size: 1.05rem;">
                                     <span style="font-size: 1.2rem;">🚗</span> Xem chi tiết Rental
                                 </a>

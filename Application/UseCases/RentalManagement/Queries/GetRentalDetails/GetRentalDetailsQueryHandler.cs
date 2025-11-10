@@ -6,6 +6,7 @@ using AutoMapper;
 using Domain.Entities.RentalManagement;
 using Domain.Entities.StationManagement;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace Application.UseCases.RentalManagement.Queries.GetRentalDetails;
 
@@ -21,8 +22,9 @@ public class GetRentalDetailsQueryHandler(IUnitOfWork uow, IMapper mapper) : IRe
             .GetByIdAsync(rental.BookingId, cancellationToken)
             ?? throw new NotFoundException("Booking not found");
 
-        var vehicle = await uow.Repository<Vehicle>()
-            .GetByIdAsync(rental.VehicleId, cancellationToken)
+        var vehicle = await uow.Repository<VehicleAtStation>().AsQueryable()
+            .Where(v => v.VehicleId == rental.VehicleId && v.EndTime == null)
+            .FirstOrDefaultAsync()
             ?? throw new NotFoundException("Vehicle not found");
 
         var rentalDetailsDto = mapper.Map<RentalDetailsDto>(rental);
