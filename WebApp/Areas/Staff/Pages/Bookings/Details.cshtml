@@ -5,8 +5,50 @@
     ViewData["Title"] = "Chi Tiết Đặt Chỗ - Staff";
 }
 
-<link rel="stylesheet" href="~/css/staff-shared.css" asp-append-version="true" />
-<link rel="stylesheet" href="~/css/staff-bookings.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/Index.css" asp-append-version="true" />
+<style>
+    /* ======= Inline Styles: Staff Shared ======= */
+    .staff-container { max-width: 1100px; margin: 0 auto; }
+    .staff-hero {
+        background: linear-gradient(135deg, #0f172a, #1e293b);
+        color: #fff;
+        border-bottom: 4px solid #0ea5e9;
+    }
+    .staff-hero .btn.btn-outline-light {
+        border-width: 2px;
+    }
+    .animate-slide-up { animation: slideUp .35s ease-out; }
+    .animate-slide-in { animation: slideIn .35s ease-out; }
+    .animate-pulse-once { animation: pulseOnce .6s ease-in-out; }
+    @@keyframes slideUp { from { transform: translateY(6px); opacity: .6; } to { transform: translateY(0); opacity: 1; } }
+    @@keyframes slideIn { from { transform: translateX(6px); opacity: .6; } to { transform: translateX(0); opacity: 1; } }
+    @@keyframes pulseOnce { 0% { transform: scale(1); } 50% { transform: scale(1.01); } 100% { transform: scale(1); } }
+
+    /* ======= Timeline ======= */
+    .status-timeline-item { display: flex; align-items: center; gap: .75rem; position: relative; }
+    .status-timeline-dot {
+        width: 40px; height: 40px; border-radius: 9999px; display: grid; place-items: center;
+        background: #e5e7eb; color: #0f172a; font-weight: 700;
+    }
+    .status-timeline-item.active .status-timeline-dot {
+        background: linear-gradient(135deg, #0ea5e9, #10b981); color: #fff;
+        box-shadow: 0 6px 20px rgba(16, 185, 129, .25);
+    }
+    .status-timeline-label small { line-height: 1; }
+    .status-timeline-line {
+        height: 4px; width: 56px; border-radius: 2px; background: #e5e7eb;
+    }
+    .status-timeline-line.active {
+        background: linear-gradient(90deg, #0ea5e9, #10b981);
+    }
+
+    /* ======= Accent Cards ======= */
+    .staff-card-accent-start-warning { border-left: 6px solid #f59e0b; }
+    .staff-card-accent-start-success { border-left: 6px solid #10b981; }
+
+    /* ======= Utility ======= */
+    .staff-no-resize { resize: none; }
+</style>
 
 <!-- Hero Section -->
 <section class="py-5 staff-hero">
@@ -134,8 +176,13 @@
                                                 var totalHours = (Model.Booking.EndTime - Model.Booking.StartTime).TotalHours;
                                             }
                                             <div class="col-12">
-                                                <div class="alert alert-success mb-0 py-2" role="alert">
-                                                    <strong>⏱️ Tổng thời gian thuê:</strong> @Math.Round(totalHours, 1) giờ (@Math.Ceiling(totalHours / 24) ngày)
+                                                <div class="alert alert-success d-flex align-items-center justify-content-between mb-0 py-2" role="alert">
+                                                    <div>
+                                                        <strong>⏱️ Tổng thời gian thuê:</strong> @Math.Round(totalHours, 1) giờ (@Math.Ceiling(totalHours / 24) ngày)
+                                                    </div>
+                                                    <span class="badge bg-success-subtle text-success border border-success rounded-pill px-3 py-2" style="font-size: .8rem;">
+                                                        @Math.Round(totalHours)h
+                                                    </span>
                                                 </div>
                                             </div>
                                         </div>
@@ -220,8 +267,8 @@
                                         <label class="form-label fw-semibold text-dark mb-2">
                                             <span style="color: #f59e0b;">⭐</span> Kết Quả Xác Minh
                                         </label>
-                                        <select asp-for="Input.VerificationStatus" class="form-select form-select-lg rounded-2 border-2">
-                                            <option value="" selected>-- Chọn kết quả --</option>
+                                        <select asp-for="Input.VerificationStatus" class="form-select form-select-lg rounded-2 border-2" aria-label="Kết quả xác minh">
+                                            <option value="" selected disabled>-- Chọn kết quả --</option>
                                             <option value="@BookingVerificationStatus.Approved">✅ Duyệt</option>
                                             <option value="@BookingVerificationStatus.Rejected_Mismatch">❌ Từ Chối - Không Khớp</option>
                                             <option value="@BookingVerificationStatus.Rejected_Other">❌ Từ Chối - Lý Do Khác</option>
@@ -233,15 +280,15 @@
                                         <label asp-for="Input.CancelReason" class="form-label fw-semibold text-dark mb-2">
                                             📝 Lý Do (nếu từ chối)
                                         </label>
-                                        <textarea asp-for="Input.CancelReason" class="form-control rounded-2 border-2 staff-no-resize" rows="4" placeholder="Nhập lý do từ chối (nếu có)..."></textarea>
-                                        <small class="text-muted mt-1 d-block">Bắt buộc nếu từ chối đặt chỗ</small>
+                                        <textarea asp-for="Input.CancelReason" class="form-control rounded-2 border-2 staff-no-resize" rows="4" placeholder="Nhập lý do từ chối (nếu có)..." aria-describedby="cancelHelp"></textarea>
+                                        <small id="cancelHelp" class="text-muted mt-1 d-block">Bắt buộc nếu từ chối đặt chỗ</small>
                                     </div>
 
                                     <div class="d-grid gap-2">
-                                        <button type="submit" class="btn btn-success rounded-pill py-3 fw-bold" style="font-size: 1.05rem;">
+                                        <button type="submit" class="btn btn-success rounded-pill py-3 fw-bold shadow-sm" style="font-size: 1.05rem;">
                                             <span style="font-size: 1.2rem;">✓</span> Xác Nhận Kết Quả
                                         </button>
-                                        <small class="text-center text-muted mt-2">
+                                        <small class="text-center text-muted mt-2 d-block">
                                             ⚠️ Hành động này không thể hoàn tác
                                         </small>
                                     </div>

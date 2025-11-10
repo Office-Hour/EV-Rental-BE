@@ -4,8 +4,18 @@
     ViewData["Title"] = "Tạo Rental";
 }
 
-<link rel="stylesheet" href="~/css/staff-shared.css" asp-append-version="true" />
-<link rel="stylesheet" href="~/css/staff-rentals.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/Index.css" asp-append-version="true" />
+<style>
+    /* ======= Inline Styles: Staff Rentals Create ======= */
+    .staff-container { max-width: 1100px; margin: 0 auto; }
+    .staff-hero {
+        background: linear-gradient(135deg, #0f172a, #1e293b);
+        color: #fff;
+        border-bottom: 4px solid #10b981;
+    }
+    .staff-card-accent-top-success { border-top: 4px solid #10b981; }
+    .shadow-lg { box-shadow: 0 20px 45px rgba(0,0,0,.08) !important; }
+</style>
 
 <!-- Hero Section -->
 <section class="py-5 staff-hero">
@@ -39,7 +49,7 @@
 
                                 <div class="mb-4">
                                     <label class="form-label fw-semibold text-dark">Booking ID</label>
-                                    <input type="text" class="form-control rounded-2" value="@Model.BookingId" readonly />
+                                    <input type="text" class="form-control rounded-2" value="@Model.BookingId" readonly aria-readonly="true" />
                                 </div>
 
                                 <div class="row g-3 mb-4">
@@ -47,21 +57,23 @@
                                         <label asp-for="Input.StartTime" class="form-label fw-semibold text-dark">
                                             🕐 Thời Gian Bắt Đầu *
                                         </label>
-                                        <input asp-for="Input.StartTime" type="datetime-local" class="form-control rounded-2" />
-                                        <span asp-validation-for="Input.StartTime" class="text-danger"></span>
+                                        <input asp-for="Input.StartTime" type="datetime-local" class="form-control rounded-2" aria-describedby="startHelp" />
+                                        <small id="startHelp" class="text-muted d-block mt-1">Nên trùng hoặc sau thời gian bắt đầu của booking</small>
+                                        <span asp-validation-for="Input.StartTime" class="text-danger small"></span>
                                     </div>
 
                                     <div class="col-md-6">
                                         <label asp-for="Input.EndTime" class="form-label fw-semibold text-dark">
                                             📅 Thời Gian Kết Thúc *
                                         </label>
-                                        <input asp-for="Input.EndTime" type="datetime-local" class="form-control rounded-2" />
-                                        <span asp-validation-for="Input.EndTime" class="text-danger"></span>
+                                        <input asp-for="Input.EndTime" type="datetime-local" class="form-control rounded-2" aria-describedby="endHelp" />
+                                        <small id="endHelp" class="text-muted d-block mt-1">Phải sau thời gian bắt đầu và hợp lệ</small>
+                                        <span asp-validation-for="Input.EndTime" class="text-danger small"></span>
                                     </div>
                                 </div>
 
                                 <div class="d-grid">
-                                    <button type="submit" class="btn btn-success rounded-pill py-3">
+                                    <button type="submit" class="btn btn-success rounded-pill py-3 fw-bold shadow-sm">
                                         ➕ Tạo Rental
                                     </button>
                                 </div>
@@ -96,6 +108,7 @@
                             <div class="p-3 bg-light rounded-2">
                                 <small class="text-muted d-block mb-1">Vehicle At Station</small>
                                 <code class="fw-bold">@Model.Booking.VehicleAtStationId</code>
+                                <small class="text-muted d-block mt-1">Đảm bảo xe sẵn sàng tại trạm</small>
                             </div>
                         </div>
                     </div>
