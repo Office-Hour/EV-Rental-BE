@@ -1,4 +1,5 @@
 ﻿using Application.DTOs.RentalManagement;
+using Application.UseCases.RentalManagement.Commands.ReceiveInspection;
 using AutoMapper;
 using Domain.Entities.RentalManagement;
 
@@ -10,5 +11,7 @@ public class RentalMapperProfile : Profile
     {
         CreateMap<Rental, RentalDto>()
             .ReverseMap();
+
+        CreateMap<ReceiveInspectionCommand, Inspection>();
     }
 }

@@ -436,9 +436,11 @@
                             <div class="d-grid gap-2">
                                 @if (Model.Rental.Status == RentalStatus.Reserved)
                                 {
-                                    <button type="button" class="btn btn-success rounded-pill py-2">
-                                        🚀 Bắt Đầu Thuê Xe
-                                    </button>
+                                    <form method="post" asp-page-handler="ReceiveVehicle" onsubmit="return confirm('Xác nhận nhận xe? Hành động này sẽ chuyển trạng thái thuê xe sang Đang Thuê.');">
+                                        <button type="submit" class="btn btn-success rounded-pill py-2 w-100">
+                                            🚗 Nhận Xe
+                                        </button>
+                                    </form>
                                 }
                                 @if (Model.Rental.Status == RentalStatus.In_Progress)
                                 {

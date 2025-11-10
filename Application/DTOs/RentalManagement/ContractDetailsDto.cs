@@ -1,6 +1,6 @@
 ﻿using Domain.Enums;
 
-namespace Application.MapperProfiles;
+namespace Application.DTOs.RentalManagement;
 
 public class ContractDetailsDto
 {

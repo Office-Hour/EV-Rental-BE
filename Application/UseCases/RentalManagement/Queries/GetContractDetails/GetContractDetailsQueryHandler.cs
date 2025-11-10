@@ -1,5 +1,5 @@
-﻿using Application.Interfaces;
-using Application.MapperProfiles;
+﻿using Application.DTOs.RentalManagement;
+using Application.Interfaces;
 using AutoMapper;
 using MediatR;
 

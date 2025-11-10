@@ -1,6 +1,5 @@
 using Application.DTOs;
 using Application.DTOs.RentalManagement;
-using Application.MapperProfiles;
 using Application.UseCases.RentalManagement.Commands.CreateContract;
 using Application.UseCases.RentalManagement.Commands.CreateRental;
 using Application.UseCases.RentalManagement.Commands.ReceiveInspection;

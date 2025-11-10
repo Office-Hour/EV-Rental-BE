@@ -412,6 +412,13 @@
                                 <h2 class="fw-bold text-success mb-1 fs-5">Đã Tạo Đơn Thuê</h2>
                                 <small class="text-muted">Rental đã được tạo</small>
                             </div>
+
+                            <div class="d-grid gap-2">
+                                <a asp-area="Staff" asp-page="/Rentals/Details" asp-route-bookingId="@Model.Booking.BookingId"
+                                   class="btn btn-success rounded-pill py-3 fw-bold" style="font-size: 1.05rem;">
+                                    <span style="font-size: 1.2rem;">🚗</span> Xem chi tiết Rental
+                                </a>
+                            </div>
                         </div>
                     }
                 </div>
