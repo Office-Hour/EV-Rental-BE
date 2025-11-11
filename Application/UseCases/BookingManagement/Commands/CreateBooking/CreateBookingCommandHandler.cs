@@ -12,6 +12,9 @@ public class CreateBookingCommandHandler(IUnitOfWork uow, IMapper mapper) : IReq
 {
     public async Task<Guid> Handle(CreateBookingCommand request, CancellationToken cancellationToken)
     {
+        var renter = await uow.Repository<Renter>()
+            .GetByIdAsync(request.RenterId, cancellationToken)
+            ?? throw new NotFoundException($"Renter with ID {request.RenterId} was not found.");
         var newBooking = mapper.Map<Booking>(request.CreateBookingDto);
         newBooking.BookingId = Guid.NewGuid();
         newBooking.RenterId = request.RenterId;
