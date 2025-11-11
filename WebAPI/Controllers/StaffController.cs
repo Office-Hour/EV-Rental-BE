@@ -4,6 +4,7 @@ using Application.DTOs.RentalManagement;
 using Application.UseCases.BookingManagement.Queries.GetBookingFull;
 using Application.UseCases.BookingManagement.Queries.GetRenterFull;
 using Application.UseCases.RentalManagement.Queries.GetRentalFull;
+using Application.UseCases.StationManagement.Queries.GetAllVehicle;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -193,6 +194,69 @@ public class StaffController : ControllerBase
                 new ErrorMessage
                 {
                     Message = "An error occurred while retrieving rentals",
+                    ErrorDetails = new List<ErrorDetail>
+                    {
+                        new() { ErrorMessage = ex.Message }
+                    }
+                });
+        }
+    }
+
+    /// <summary>
+    /// Get all vehicles in the system (Staff only)
+    /// </summary>
+    /// <param name="ct">Cancellation token</param>
+    /// <returns>List of all vehicles with details</returns>
+    /// <response code="200">Returns the list of all vehicles</response>
+    /// <response code="401">Unauthorized - Bearer token required</response>
+    /// <response code="403">Forbidden - Staff role required</response>
+    /// <remarks>
+    /// This endpoint returns all vehicles in the system with their current status and details.
+    /// Staff can use this to monitor vehicle availability, check battery capacity,
+    /// view upcoming bookings, and manage vehicle maintenance.
+    /// 
+    /// Sample request:
+    /// 
+    ///     GET /api/Staff/vehicles
+    ///     Authorization: Bearer {token}
+    /// 
+    /// Response includes:
+    /// - Vehicle details (ID, make, model, year, range)
+    /// - Current battery capacity
+    /// - Pricing information (hourly/daily rates, deposit)
+    /// - Vehicle status (Available, Booked, Maintenance)
+    /// - Upcoming bookings for the vehicle
+    /// 
+    /// </remarks>
+    [HttpGet("vehicles")]
+    [ProducesResponseType(typeof(ApiResponse<List<VehicleDetailsDto>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorMessage), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ErrorMessage), StatusCodes.Status403Forbidden)]
+    public async Task<ActionResult<ApiResponse<List<VehicleDetailsDto>>>> GetAllVehicles(
+        CancellationToken ct = default)
+    {
+        try
+        {
+            _logger.LogInformation("Staff retrieving all vehicles");
+
+            var query = new GetAllVehicleQuery();
+            var vehicles = await _mediator.Send(query, ct);
+            var vehicleList = vehicles.ToList();
+
+            _logger.LogInformation("Retrieved {Count} vehicles", vehicleList.Count);
+
+            return Ok(new ApiResponse<List<VehicleDetailsDto>>(
+                vehicleList,
+                $"Successfully retrieved {vehicleList.Count} vehicles"
+            ));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error retrieving all vehicles");
+            return StatusCode(StatusCodes.Status500InternalServerError,
+                new ErrorMessage
+                {
+                    Message = "An error occurred while retrieving vehicles",
                     ErrorDetails = new List<ErrorDetail>
                     {
                         new() { ErrorMessage = ex.Message }
