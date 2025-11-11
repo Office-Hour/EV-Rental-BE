@@ -81,7 +81,7 @@ namespace Persistence.Migrations
 
                     b.HasIndex("StartTime", "EndTime");
 
-                    b.ToTable("Booking");
+                    b.ToTable("Booking", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.BookingManagement.Fee", b =>
@@ -127,7 +127,7 @@ namespace Persistence.Migrations
 
                     b.HasIndex("CreatedAt");
 
-                    b.ToTable("Fee");
+                    b.ToTable("Fee", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.BookingManagement.Kyc", b =>
@@ -185,7 +185,7 @@ namespace Persistence.Migrations
 
                     b.HasIndex("Type", "Status");
 
-                    b.ToTable("Kyc");
+                    b.ToTable("Kyc", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.BookingManagement.Payment", b =>
@@ -229,7 +229,7 @@ namespace Persistence.Migrations
 
                     b.HasIndex("PaidAt");
 
-                    b.ToTable("Payment");
+                    b.ToTable("Payment", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.BookingManagement.Renter", b =>
@@ -261,7 +261,7 @@ namespace Persistence.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("Renter");
+                    b.ToTable("Renter", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.BookingManagement.Staff", b =>
@@ -295,7 +295,7 @@ namespace Persistence.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("Staff");
+                    b.ToTable("Staff", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.RentalManagement.Contract", b =>
@@ -389,7 +389,6 @@ namespace Persistence.Migrations
                         .HasDefaultValue("Pre_Rental");
 
                     b.Property<string>("URL")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("InspectionId");

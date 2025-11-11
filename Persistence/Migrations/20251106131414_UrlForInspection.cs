@@ -14,7 +14,7 @@ namespace Persistence.Migrations
                 name: "URL",
                 table: "inspections",
                 type: "nvarchar(max)",
-                nullable: false,
+                nullable: true,
                 defaultValue: "");
         }
 
