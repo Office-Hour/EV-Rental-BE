@@ -14,5 +14,7 @@ public class BookingDetailsDto
     public BookingVerificationStatus VerificationStatus { get; set; }
     public Guid? VerifiedByStaffId { get; set; }
     public DateTime? VerifiedAt { get; set; }
+    public decimal DepositAmount { get; set; }
+    public decimal TotalAmount { get; set; }
     public string? CancelReason { get; set; }
 }
