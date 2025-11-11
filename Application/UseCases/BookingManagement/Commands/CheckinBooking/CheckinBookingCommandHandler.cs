@@ -1,6 +1,7 @@
 ﻿using Application.CustomExceptions;
 using Application.Interfaces;
 using Domain.Entities.BookingManagement;
+using Domain.Entities.StationManagement;
 using Domain.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -50,6 +51,18 @@ public class CheckinBookingCommandHandler(IUnitOfWork uow) : IRequestHandler<Che
             booking.VerifiedByStaffId = request.VerifiedByStaffId;
             booking.VerifiedAt = DateTime.UtcNow;
             booking.CancelReason = request.CancelReason;
+            var vehicleRepo = uow.Repository<VehicleAtStation>();
+
+            var vehicle =  await vehicleRepo
+                .GetByIdAsync(booking.VehicleAtStationId, cancellationToken);
+            vehicle.Status = VehicleAtStationStatus.Available;
+
+            var refundAmount = depositFee.Amount; // Full refund for failed verification
+            depositPayment.Status = PaymentStatus.Refunded;
+
+            vehicleRepo.Update(vehicle);
+            var paymentRepo = uow.Repository<Payment>();
+            paymentRepo.Update(depositPayment);
             bookingRepository.Update(booking);
             await uow.SaveChangesAsync(cancellationToken);
         }
