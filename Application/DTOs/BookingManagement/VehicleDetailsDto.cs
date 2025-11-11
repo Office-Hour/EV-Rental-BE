@@ -1,4 +1,6 @@
-﻿namespace Application.DTOs.BookingManagement;
+﻿using Domain.Enums;
+
+namespace Application.DTOs.BookingManagement;
 
 public class VehicleDetailsDto
 {
@@ -12,6 +14,7 @@ public class VehicleDetailsDto
     public decimal RentalPricePerHour { get; set; } // Pricing
     public decimal? RentalPricePerDay { get; set; } // Pricing
     public decimal DepositPrice { get; set; }
+    public VehicleAtStationStatus Status { get; set; } = VehicleAtStationStatus.Available; // VehicleAtStation
 
     public IEnumerable<BookingBriefDto> UpcomingBookings { get; set; } = null!;
 }

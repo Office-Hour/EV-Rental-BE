@@ -45,6 +45,7 @@ public class ViewVehicleDetailsQueryHandler(IUnitOfWork uow, IMapper mapper) : I
         // Calculate deposit price as 20% of daily rental price
         vehicleDetailsDto.DepositPrice = pricing.PricePerDay.HasValue ? pricing.PricePerDay.Value * 0.2m : pricing.PricePerHour * 24 * 0.2m;
         vehicleDetailsDto.UpcomingBookings = bookingBriefDtos;
+        vehicleDetailsDto.Status = vehicleAtStation.Status;
 
         return vehicleDetailsDto;
     }
