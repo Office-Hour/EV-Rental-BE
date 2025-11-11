@@ -35,7 +35,7 @@ public class CreateBookingCommandHandler(IUnitOfWork uow, IMapper mapper) : IReq
 
         if(vehicle.Status != VehicleAtStationStatus.Available)
         {
-            throw new Exception("Vehicle is not available for booking.");
+            throw new NotFoundException("Vehicle is not available for booking.");
         }
 
         vehicle.Status = VehicleAtStationStatus.Booked;
