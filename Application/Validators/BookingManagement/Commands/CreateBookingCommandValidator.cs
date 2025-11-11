@@ -15,10 +15,6 @@ public class CreateBookingCommandValidator : AbstractValidator<CreateBookingComm
             .Equal(FeeType.Deposit).WithMessage("Deposit fee type is required.");
         RuleFor(x => x.DepositFeeDto.Amount)
             .GreaterThan(0).WithMessage("Deposit amount must be greater than 0.");
-        RuleFor(x => x.DepositFeeDto.AmountPaid)
-            .GreaterThan(0).WithMessage("Deposit amount must be greater than 0.");
-        RuleFor(x => x.DepositFeeDto.AmountPaid)
-            .Equal(x => x.DepositFeeDto.Amount).WithMessage("AmountPaid must equal the deposit Amount.");
 
         RuleFor(x => x.CreateBookingDto.VehicleAtStationId)
             .NotEmpty().WithMessage("VehicleAtStationId is required.");
