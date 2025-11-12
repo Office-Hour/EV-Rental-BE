@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text;
 using System.Text.Json;
 using Application.DTOs.Payment;
@@ -56,7 +57,7 @@ public class PaymentService : IPaymentService
             vnpay.AddRequestData("vnp_Version", VnpVersion);
             vnpay.AddRequestData("vnp_Command", "pay");
             vnpay.AddRequestData("vnp_TmnCode", VnpTmnCode);
-            vnpay.AddRequestData("vnp_Amount", longAmount.ToString());
+            vnpay.AddRequestData("vnp_Amount", longAmount.ToString(CultureInfo.InvariantCulture));
             vnpay.AddRequestData("vnp_CreateDate", Utils.GetVnPayDateTime(DateTime.Now));
             vnpay.AddRequestData("vnp_CurrCode", "VND");
             vnpay.AddRequestData("vnp_IpAddr", request.IpAddress);
@@ -76,6 +77,18 @@ public class PaymentService : IPaymentService
             var paymentUrl = vnpay.CreateRequestUrl(VnpPaymentUrl, VnpHashSecret);
 
             _logger.LogInformation("[VNPAY] Payment URL created successfully for order {OrderId}", request.OrderId);
+
+            //Update paidAmount
+            var payment = await _unitOfWork.Repository<Payment>().AsQueryable()
+                .FirstOrDefaultAsync(p => p.FeeId == fee.FeeId);
+
+            if (payment != null)
+            {
+                payment.AmountPaid = fee.Amount;
+
+                _unitOfWork.Repository<Payment>().Update(payment);
+                await _unitOfWork.SaveChangesAsync();
+            }
 
             var response = new VnPayPaymentResponseDto
             {

@@ -25,7 +25,7 @@ public class CheckinBookingCommandHandler(IUnitOfWork uow) : IRequestHandler<Che
         var depositPayment = await uow.Repository<Payment>()
             .AsQueryable().FirstOrDefaultAsync(p => p.FeeId == depositFee.FeeId, cancellationToken);
 
-        if(depositPayment == null || depositPayment.AmountPaid < depositFee.Amount || depositPayment.Status != PaymentStatus.Paid)
+        if(depositPayment == null || depositPayment.Status != PaymentStatus.Paid)
         {
             throw new Exception("Deposit payment is not completed");
         }
