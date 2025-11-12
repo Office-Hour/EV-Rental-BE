@@ -1,4 +1,5 @@
-﻿using Application.Interfaces;
+﻿using Application.CustomExceptions;
+using Application.Interfaces;
 using Domain.Enums;
 using MediatR;
 
@@ -10,7 +11,7 @@ public class CreateContractCommandHandler(IUnitOfWork uow) : IRequestHandler<Cre
     {
         var rentalRepository = uow.Repository<Domain.Entities.RentalManagement.Rental>();
         var rental = await rentalRepository.GetByIdAsync(request.RentalId, cancellationToken)
-            ?? throw new Exception("Rental not found");
+            ?? throw new NotFoundException("Rental not found");
         var contractRepository = uow.Repository<Domain.Entities.RentalManagement.Contract>();
         var contract = new Domain.Entities.RentalManagement.Contract
         {
