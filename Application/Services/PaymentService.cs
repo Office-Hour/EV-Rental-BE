@@ -51,12 +51,12 @@ public class PaymentService : IPaymentService
             var fee = await _unitOfWork.Repository<Fee>().AsQueryable()
                 .FirstOrDefaultAsync(f => f.BookingId == Guid.Parse(request.OrderId) && f.Type == FeeType.Deposit);
 
-            vnpay.AddRequestData("vnp_Amount", ((long)(fee.Amount)).ToString());
+            var longAmount = (long)Math.Round(fee.Amount * 100m, 0, MidpointRounding.AwayFromZero);
             // Add required parameters
             vnpay.AddRequestData("vnp_Version", VnpVersion);
             vnpay.AddRequestData("vnp_Command", "pay");
             vnpay.AddRequestData("vnp_TmnCode", VnpTmnCode);
-
+            vnpay.AddRequestData("vnp_Amount", longAmount.ToString());
             vnpay.AddRequestData("vnp_CreateDate", Utils.GetVnPayDateTime(DateTime.Now));
             vnpay.AddRequestData("vnp_CurrCode", "VND");
             vnpay.AddRequestData("vnp_IpAddr", request.IpAddress);
