@@ -85,6 +85,6 @@ jobs:
           registryPassword: ${{ secrets.SWDBEWEBAPIPRODUCTION_REGISTRY_PASSWORD }}
           containerAppName: swd-be-webapi-production
           resourceGroup: swd-project-resource-group
-          imageToBuild: ghcr.io/${{ env.OWNER_LC }}/ev-rental-be:${{ github.sha }}
+          imageToBuild: ghcr.io/${{ env.OWNER_LC }}/ev-rental-be:latest
           _buildArgumentsKey_: |
             _buildArgumentsValues_
