@@ -1,7 +1,9 @@
 ﻿using Application.CustomExceptions;
 using Application.Interfaces;
+using Domain.Entities.RentalManagement;
 using Domain.Enums;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace Application.UseCases.RentalManagement.Commands.CreateContract;
 
@@ -9,13 +11,10 @@ public class CreateContractCommandHandler(IUnitOfWork uow) : IRequestHandler<Cre
 {
     public async Task<Guid> Handle(CreateContractCommand request, CancellationToken cancellationToken)
     {
-        var rentalRepository = uow.Repository<Domain.Entities.RentalManagement.Rental>();
-        var rental = await rentalRepository.GetByIdAsync(request.RentalId, cancellationToken)
-            ?? throw new NotFoundException("Rental not found");
-        var contractRepository = uow.Repository<Domain.Entities.RentalManagement.Contract>();
-        var contract = new Domain.Entities.RentalManagement.Contract
+        var contractRepository = uow.Repository<Contract>();
+        var contract = new Contract
         {
-            RentalId = rental.RentalId,
+            RentalId = request.RentalId,
             Provider = request.Provider,
             DocumentHash = string.Empty, // Placeholder, to be updated after e-signature process
             DocumentUrl = string.Empty, // Placeholder, to be updated after e-signature process

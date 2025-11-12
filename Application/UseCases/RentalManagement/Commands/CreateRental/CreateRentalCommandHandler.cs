@@ -38,6 +38,7 @@ public class CreateRentalCommandHandler(IUnitOfWork uow) : IRequestHandler<Creat
 
         await rentalRepository.AddAsync(rental, cancellationToken);
         await uow.SaveChangesAsync(cancellationToken);
+
         return rental.RentalId;
     }
 }
