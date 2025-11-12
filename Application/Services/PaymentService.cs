@@ -38,20 +38,25 @@ public class PaymentService : IPaymentService
     }
 
     /// <inheritdoc/>
-    public Task<VnPayPaymentResponseDto> CreatePaymentUrlAsync(VnPayPaymentRequestDto request)
+    public async Task<VnPayPaymentResponseDto> CreatePaymentUrlAsync(VnPayPaymentRequestDto request)
     {
         try
         {
-            _logger.LogInformation("[VNPAY] Creating payment URL for order {OrderId}, amount {Amount}", 
+            _logger.LogInformation("[VNPAY] Creating payment URL for order {OrderId}, amount {Amount}",
                 request.OrderId, request.Amount);
 
             var vnpay = new VnPayLibrary();
 
+            var booking = await _unitOfWork.Repository<Booking>().GetByIdAsync(Guid.Parse(request.OrderId));
+            var fee = await _unitOfWork.Repository<Fee>().AsQueryable()
+                .FirstOrDefaultAsync(f => f.BookingId == Guid.Parse(request.OrderId) && f.Type == FeeType.Deposit);
+
+            vnpay.AddRequestData("vnp_Amount", ((long)(fee.Amount)).ToString());
             // Add required parameters
             vnpay.AddRequestData("vnp_Version", VnpVersion);
             vnpay.AddRequestData("vnp_Command", "pay");
             vnpay.AddRequestData("vnp_TmnCode", VnpTmnCode);
-            vnpay.AddRequestData("vnp_Amount", ((long)(request.Amount * 100)).ToString()); // Convert to smallest unit
+
             vnpay.AddRequestData("vnp_CreateDate", Utils.GetVnPayDateTime(DateTime.Now));
             vnpay.AddRequestData("vnp_CurrCode", "VND");
             vnpay.AddRequestData("vnp_IpAddr", request.IpAddress);
@@ -80,7 +85,7 @@ public class PaymentService : IPaymentService
                 CreatedAt = DateTime.UtcNow
             };
 
-            return Task.FromResult(response);
+            return response;
         }
         catch (Exception ex)
         {
@@ -115,8 +120,8 @@ public class PaymentService : IPaymentService
             var payDateStr = vnpay.GetResponseData("vnp_PayDate");
             var secureHash = queryParams.GetValueOrDefault("vnp_SecureHash", string.Empty);
 
-            var payDate = !string.IsNullOrEmpty(payDateStr) 
-                ? Utils.ParseVnPayDateTime(payDateStr) 
+            var payDate = !string.IsNullOrEmpty(payDateStr)
+                ? Utils.ParseVnPayDateTime(payDateStr)
                 : DateTime.UtcNow;
 
             // Validate signature
@@ -253,25 +258,14 @@ public class PaymentService : IPaymentService
                 };
             }
 
-            // Check if already processed (idempotency)
-            if (payment.Status == PaymentStatus.Paid && !string.IsNullOrEmpty(payment.ProviderReference))
-            {
-                _logger.LogInformation("[VNPAY] Payment already processed for booking {BookingId}", bookingId);
-                return new VnPayIpnResponseDto
-                {
-                    RspCode = "02",
-                    Message = "Order already confirmed"
-                };
-            }
-
             // Update payment status based on VNPay response
             if (responseCode == "00" && transactionStatus == "00")
             {
                 payment.Status = PaymentStatus.Paid;
-                payment.AmountPaid = vnpAmount;
+                payment.AmountPaid = fee.Amount;
                 payment.ProviderReference = vnpayTranId.ToString();
                 payment.Method = MapBankCodeToPaymentMethod(bankCode);
-                
+
                 if (!string.IsNullOrEmpty(payDateStr))
                 {
                     payment.PaidAt = Utils.ParseVnPayDateTime(payDateStr);

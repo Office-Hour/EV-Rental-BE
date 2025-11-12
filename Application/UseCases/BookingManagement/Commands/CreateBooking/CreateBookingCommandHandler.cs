@@ -30,7 +30,6 @@ public class CreateBookingCommandHandler(IUnitOfWork uow, IMapper mapper) : IReq
         var newDepositPayment = mapper.Map<Payment>(request.DepositFeeDto);
         newDepositPayment.PaymentId = Guid.NewGuid();
         newDepositPayment.FeeId = newDepositFee.FeeId;
-        await uow.Repository<Payment>().AddAsync(newDepositPayment, cancellationToken);
 
         //update Vehicle status to Reserved
         var vehicle = await uow.Repository<VehicleAtStation>()
@@ -43,6 +42,11 @@ public class CreateBookingCommandHandler(IUnitOfWork uow, IMapper mapper) : IReq
 
         vehicle.Status = VehicleAtStationStatus.Booked;
 
+        await uow.Repository<Payment>().AddAsync(newDepositPayment, cancellationToken);
+        newDepositPayment.Status = PaymentStatus.Unpaid;
+        await uow.Repository<Payment>().UpdateAsync(newDepositPayment.PaymentId, newDepositPayment, cancellationToken);
+
+        await uow.Repository<VehicleAtStation>().UpdateAsync(vehicle.VehicleId, vehicle, cancellationToken);
         await uow.SaveChangesAsync(cancellationToken);
 
         return newBooking.BookingId;

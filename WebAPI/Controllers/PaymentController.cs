@@ -208,7 +208,7 @@ public class PaymentController : ControllerBase
     /// The transactionDate should be in VNPay format (yyyyMMddHHmmss).
     /// </remarks>
     [HttpPost("query")]
-    [Authorize(AuthenticationSchemes = "Bearer", Roles = "Staff,Admin")]
+    [Authorize(AuthenticationSchemes = "Bearer")]
     [ProducesResponseType(typeof(ApiResponse<VnPayQueryResponseDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorMessage), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ErrorMessage), StatusCodes.Status401Unauthorized)]
@@ -268,7 +268,7 @@ public class PaymentController : ControllerBase
     /// 
     /// </remarks>
     [HttpPost("refund")]
-    [Authorize(AuthenticationSchemes = "Bearer", Roles = "Staff,Admin")]
+    [Authorize(AuthenticationSchemes = "Bearer")]
     [ProducesResponseType(typeof(ApiResponse<VnPayRefundResponseDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorMessage), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ErrorMessage), StatusCodes.Status401Unauthorized)]
