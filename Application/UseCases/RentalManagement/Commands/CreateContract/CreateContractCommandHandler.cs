@@ -14,6 +14,7 @@ public class CreateContractCommandHandler(IUnitOfWork uow) : IRequestHandler<Cre
         var contractRepository = uow.Repository<Contract>();
         var contract = new Contract
         {
+            ContractId = Guid.NewGuid(),
             RentalId = request.RentalId,
             Provider = request.Provider,
             DocumentHash = string.Empty, // Placeholder, to be updated after e-signature process
