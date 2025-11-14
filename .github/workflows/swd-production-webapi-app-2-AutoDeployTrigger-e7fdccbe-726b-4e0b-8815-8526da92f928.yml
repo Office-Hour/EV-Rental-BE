@@ -12,14 +12,61 @@ on:
 
   # Allow manual trigger 
   workflow_dispatch:
-      
+
+permissions:
+  id-token: write #This is required for requesting the OIDC JWT Token
+  contents: read #Required when GH token is used to authenticate with private repo
+  actions: write
+  deployments: write
+  pages: write
+  pull-requests: write
+  packages: write
+
 jobs:
   build-and-deploy:
+    env:
+      HUSKY: 0
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write #This is required for requesting the OIDC JWT Token
+      contents: read #Required when GH token is used to authenticate with private repo
+      actions: write
+      deployments: write
+      pages: write
+      pull-requests: write
+      packages: write
 
     steps:
       - name: Checkout to the branch
-        uses: actions/checkout@v2
+        uses: actions/checkout@v5
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: "9.0.x"
+
+      - run: cd WebAPI
+      - run: ls -al
+      - run: dotnet restore ./WebAPI/WebAPI.csproj
+
+      - id: main
+        run: dotnet build ./WebAPI/WebAPI.csproj -c Release -o ./build
+
+      - if: ${{ steps.main.outcome == 'failure' }}
+        run: exit 1
+
+      - id: publish
+        run: dotnet publish ./WebAPI/WebAPI.csproj -c Release -o ./publish /p:UseAppHost=false
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Azure Login
         uses: azure/login@v2
@@ -38,8 +85,3 @@ jobs:
           containerAppName: swd-production-webapi-app-2
           resourceGroup: swd-project-resource-group
           imageToBuild: ghcr.io/office-hour/ev-rental-be:${{ github.sha }}
-          
-            
-
-     
-
