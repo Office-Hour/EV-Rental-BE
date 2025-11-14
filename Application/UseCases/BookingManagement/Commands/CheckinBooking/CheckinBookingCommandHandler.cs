@@ -44,7 +44,7 @@ public class CheckinBookingCommandHandler(IUnitOfWork uow) : IRequestHandler<Che
             bookingRepository.Update(booking);
             await uow.SaveChangesAsync(cancellationToken);
         }
-        else
+        else if(request.BookingVerificationStatus == BookingVerificationStatus.Rejected_Mismatch || request.BookingVerificationStatus == BookingVerificationStatus.Rejected_Other)
         { 
             booking.Status = BookingStatus.Cancelled;
             booking.VerificationStatus = request.BookingVerificationStatus;
@@ -65,6 +65,9 @@ public class CheckinBookingCommandHandler(IUnitOfWork uow) : IRequestHandler<Che
             paymentRepo.Update(depositPayment);
             bookingRepository.Update(booking);
             await uow.SaveChangesAsync(cancellationToken);
+        } else
+        {
+            return;
         }
     }
 }
