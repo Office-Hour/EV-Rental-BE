@@ -5,6 +5,7 @@ using Application.Interfaces;
 using AutoMapper;
 using Domain.Entities.BookingManagement;
 using MediatR;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace Application.UseCases.Profile.Queries.GetRenterProfile;
@@ -16,8 +17,7 @@ public class GetRenterProfileQueryHandler(IUnitOfWork uow, IMapper mapper) : IRe
         var renterRepo = uow.Repository<Renter>();
         var renter = await renterRepo.AsQueryable()
             .Include(r => r.Kycs)
-            .FirstOrDefaultAsync(r => r.UserId == request.UserId, cancellationToken: cancellationToken)
-        ?? throw new NotFoundException("Renter not found");
+            .FirstOrDefaultAsync(r => r.UserId == request.UserId || r.RenterId == request.UserId, cancellationToken: cancellationToken);
         var kycDtos = renter.Kycs
             .Select(kyc => mapper.Map<KycDto>(kyc))
             .ToList();

@@ -142,8 +142,8 @@ var app = builder.Build();
 app.UseForwardedHeaders();
 app.UseMiddleware<CustomMiddleware>();
 app.UseExceptionHandler();
-app.UseHttpsRedirection();
-app.UseHsts();// Enables HTTP Strict Transport Security (HSTS) for the application.
+//app.UseHttpsRedirection();
+//app.UseHsts();// Enables HTTP Strict Transport Security (HSTS) for the application.
 
 // Enable CORS - must be before Authentication/Authorization and before endpoints
 app.UseCors("DefaultCorsPolicy");

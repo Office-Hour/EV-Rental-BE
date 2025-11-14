@@ -108,9 +108,6 @@ public sealed class InspectionConfiguration : IEntityTypeConfiguration<Inspectio
          .HasForeignKey(x => x.RentalId)
          .OnDelete(DeleteBehavior.Cascade);
 
-        // Exactly one pre and one post per rental
-        b.HasIndex(x => new { x.RentalId, x.Type }).IsUnique();
-
         // Helpful indexes
         b.HasIndex(x => x.InspectorStaffId);
         b.HasIndex(x => x.InspectedAt);
