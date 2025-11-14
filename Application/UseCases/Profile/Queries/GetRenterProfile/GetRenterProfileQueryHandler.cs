@@ -1,4 +1,5 @@
 ﻿using Application.CustomExceptions;
+using Application.DTOs.BookingManagement;
 using Application.DTOs.Profile;
 using Application.Interfaces;
 using AutoMapper;
@@ -14,8 +15,15 @@ public class GetRenterProfileQueryHandler(IUnitOfWork uow, IMapper mapper) : IRe
     {
         var renterRepo = uow.Repository<Renter>();
         var renter = await renterRepo.AsQueryable()
+            .Include(r => r.Kycs)
             .FirstOrDefaultAsync(r => r.UserId == request.UserId, cancellationToken: cancellationToken)
         ?? throw new NotFoundException("Renter not found");
-        return mapper.Map<RenterProfileDto>(renter);
+        var kycDtos = renter.Kycs
+            .Select(kyc => mapper.Map<KycDto>(kyc))
+            .ToList();
+        var renterDto = mapper.Map<RenterProfileDto>(renter);
+        renterDto.Kycs = kycDtos;
+
+        return renterDto;
     }
 }

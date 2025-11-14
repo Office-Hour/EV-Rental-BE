@@ -1,4 +1,6 @@
-﻿namespace Application.DTOs.Profile
+﻿using Application.DTOs.BookingManagement;
+
+namespace Application.DTOs.Profile
 {
     public class RenterProfileDto
     {
@@ -8,5 +10,6 @@
         public DateTime? DateOfBirth { get; set; }
         public string? Address { get; set; }
         public int RiskScore { get; set; }
+        public List<KycDto> Kycs { get; set; } = new();
     }
 }
